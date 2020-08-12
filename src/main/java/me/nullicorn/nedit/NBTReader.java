@@ -5,9 +5,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.zip.GZIPInputStream;
 import me.nullicorn.nedit.exception.NBTParseException;
 
@@ -94,7 +91,7 @@ public class NBTReader implements Closeable {
         return result;
     }
 
-    private List<Object> readList() throws IOException {
+    private NBTList readList() throws IOException {
         TagType typeOfContents = readTagType();
         if (typeOfContents == null) {
             throw new NBTParseException("Unknown tag ID for TAG_List");
@@ -102,10 +99,10 @@ public class NBTReader implements Closeable {
 
         int length = inputStream.readInt();
         if (length <= 0) {
-            return Collections.emptyList();
+            return new NBTList(typeOfContents);
         }
 
-        List<Object> result = new ArrayList<>();
+        NBTList result = new NBTList(typeOfContents);
         for (int i = 0; i < length; i++) {
             result.add(readValue(typeOfContents));
         }

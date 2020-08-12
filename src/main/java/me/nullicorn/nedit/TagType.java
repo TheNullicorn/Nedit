@@ -9,19 +9,19 @@ import lombok.Getter;
  * @author Nullicorn
  */
 public enum TagType {
-    END(0x00),
-    BYTE(0x01),
-    SHORT(0x02),
-    INT(0x03),
-    LONG(0x04),
-    FLOAT(0x05),
-    DOUBLE(0x06),
-    BYTE_ARRAY(0x07),
-    STRING(0x08),
-    LIST(0x09),
-    COMPOUND(0x0A),
-    INT_ARRAY(0x0B),
-    LONG_ARRAY(0x0C);
+    END(0x00, Void.class),
+    BYTE(0x01, Byte.class),
+    SHORT(0x02, Short.class),
+    INT(0x03, Integer.class),
+    LONG(0x04, Long.class),
+    FLOAT(0x05, Float.class),
+    DOUBLE(0x06, Double.class),
+    BYTE_ARRAY(0x07, Byte[].class),
+    STRING(0x08, String.class),
+    LIST(0x09, NBTList.class),
+    COMPOUND(0x0A, NBTCompound.class),
+    INT_ARRAY(0x0B, Integer[].class),
+    LONG_ARRAY(0x0C, Long[].class);
 
     // Create an unmodifiable map of IDs to types (for reverse search)
     private static final Map<Integer, TagType> values;
@@ -35,13 +35,19 @@ public enum TagType {
     }
 
     @Getter
-    private final int id;
+    private final int      id;
+    @Getter
+    private final Class<?> clazz;
 
-    TagType(int id) {
+    TagType(int id, Class<?> typeClazz) {
         this.id = id;
+        this.clazz = typeClazz;
     }
 
     public static TagType fromId(int id) {
+        if (id == -1) {
+            return END;
+        }
         return values.get(id);
     }
 }
