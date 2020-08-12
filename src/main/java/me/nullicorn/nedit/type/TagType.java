@@ -1,4 +1,4 @@
-package me.nullicorn.nedit;
+package me.nullicorn.nedit.type;
 
 import java.util.Collections;
 import java.util.HashMap;

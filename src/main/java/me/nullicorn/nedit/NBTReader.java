@@ -7,6 +7,9 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.zip.GZIPInputStream;
 import me.nullicorn.nedit.exception.NBTParseException;
+import me.nullicorn.nedit.type.NBTCompound;
+import me.nullicorn.nedit.type.NBTList;
+import me.nullicorn.nedit.type.TagType;
 
 /**
  * A class for obtaining readable NBT data from its raw (binary) form
