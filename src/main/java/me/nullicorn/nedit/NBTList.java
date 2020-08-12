@@ -7,6 +7,8 @@ import javax.xml.bind.TypeConstraintException;
 import lombok.Getter;
 
 /**
+ * A class representing an NBT Tag_List
+ *
  * @author Nullicorn
  */
 public class NBTList extends ArrayList<Object> {
@@ -48,6 +50,9 @@ public class NBTList extends ArrayList<Object> {
         return super.addAll(index, c);
     }
 
+    /**
+     * Throw an exception if the object should not be added to this list (its class does not match {@link #contentType}.{@link TagType#getClazz() getClazz()})
+     */
     private void checkType(Object o) {
         if (!o.getClass().equals(contentType.getClazz())) {
             throw new TypeConstraintException(String.format("Expected %s but found %s", contentType.getClazz(), o.getClass()));
