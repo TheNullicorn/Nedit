@@ -6,24 +6,77 @@ import java.util.Map;
 import lombok.Getter;
 
 /**
+ * The 13 tag types that make up the NBT format
+ *
  * @author Nullicorn
  */
 public enum TagType {
+    /**
+     * Marks the end of a {@link #COMPOUND} tag and is used in various other places as a substitute for null
+     */
     END(0x00, Void.class),
+
+    /**
+     * Represents a signed byte
+     */
     BYTE(0x01, Byte.class),
+
+    /**
+     * Represents an signed, short integer with a max value of {@link Short#MAX_VALUE} and a min value of {@link Short#MIN_VALUE}
+     */
     SHORT(0x02, Short.class),
+
+    /**
+     * Represents an integer with a max value of {@link Integer#MAX_VALUE} and a min value of {@link Integer#MIN_VALUE}
+     */
     INT(0x03, Integer.class),
+
+    /**
+     * Represents a long integer with a max value of {@link Long#MAX_VALUE} and a min value of {@link Long#MIN_VALUE}
+     */
     LONG(0x04, Long.class),
+
+    /**
+     * Represents an floating-point number with a max value of {@link Float#MAX_VALUE} and a min value of {@link Float#MIN_VALUE}
+     */
     FLOAT(0x05, Float.class),
+
+    /**
+     * Represents an double-precision floating-point number with a max value of {@link Double#MAX_VALUE} and a min value of {@link Double#MIN_VALUE}
+     */
     DOUBLE(0x06, Double.class),
+
+    /**
+     * Represents a length-prefixed array of signed bytes
+     */
     BYTE_ARRAY(0x07, Byte[].class),
+
+    /**
+     * Represents a length-prefixed string of text
+     */
     STRING(0x08, String.class),
+
+    /**
+     * Represents a length-prefixed list of elements that share the same {@link TagType}
+     */
     LIST(0x09, NBTList.class),
+
+    /**
+     * Represents a map of field names to tags
+     */
     COMPOUND(0x0A, NBTCompound.class),
+
+    /**
+     * Represents a length-prefixed array of signed integers
+     */
     INT_ARRAY(0x0B, Integer[].class),
+
+    /**
+     * Represents a length-prefixed array of signed long integers
+     */
     LONG_ARRAY(0x0C, Long[].class);
 
-    // Create an unmodifiable map of IDs to types (for reverse search)
+    // An unmodifiable map of IDs to types (for reverse search)
     private static final Map<Integer, TagType> values;
 
     static {
@@ -34,8 +87,15 @@ public enum TagType {
         values = Collections.unmodifiableMap(valueMap);
     }
 
+    /**
+     * The 1-byte ID of this tag type
+     */
     @Getter
-    private final int      id;
+    private final int id;
+
+    /**
+     * The Java class used to represent tags of this type in memory
+     */
     @Getter
     private final Class<?> clazz;
 
@@ -44,6 +104,11 @@ public enum TagType {
         this.clazz = typeClazz;
     }
 
+    /**
+     * Reverse search for a {@link TagType} using its ID
+     *
+     * @return The TagType associated with that ID, or null if none is
+     */
     public static TagType fromId(int id) {
         if (id == -1) {
             return END;

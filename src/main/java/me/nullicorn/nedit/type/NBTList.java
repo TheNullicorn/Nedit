@@ -7,12 +7,15 @@ import javax.xml.bind.TypeConstraintException;
 import lombok.Getter;
 
 /**
- * A class representing an NBT Tag_List
+ * A class representing an NBT TAG_List
  *
  * @author Nullicorn
  */
 public class NBTList extends ArrayList<Object> {
 
+    /**
+     * The TagType of all elements stored in this list. Attempting to insert any other type of element will cause an exception to be thrown
+     */
     @Getter
     private final TagType contentType;
 

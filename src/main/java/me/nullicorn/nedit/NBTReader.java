@@ -23,10 +23,16 @@ public class NBTReader implements Closeable {
     private final InputStream     originalInputStream;
     private       DataInputStream inputStream;
 
+    /**
+     * @param base64 The base64 NBT data for this reader to read; may be gzipped
+     */
     public NBTReader(String base64) {
         this(new ByteArrayInputStream(Base64.getDecoder().decode(base64)));
     }
 
+    /**
+     * @param inputStream An inputStream containing NBT data for this reader to read; may be gzipped
+     */
     public NBTReader(InputStream inputStream) {
         this.originalInputStream = inputStream;
     }
