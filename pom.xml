@@ -30,4 +30,13 @@
             <version>19.0.0</version>
         </dependency>
     </dependencies>
+
+    <!-- Deployment -->
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub TheNullicorn Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/TheNullicorn/Nedit</url>
+        </repository>
+    </distributionManagement>
 </project>
