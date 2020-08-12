@@ -221,9 +221,11 @@ public class NBTCompound extends HashMap<String, Object> {
     private static String byteArrayToString(Byte[] value) {
         StringBuilder sb = new StringBuilder();
         sb.append("[B;");
-        for (Byte item : value) {
-            sb.append(item != null ? item : 0);
-            sb.append(",");
+        for (int i = 0; i < value.length; i++) {
+            sb.append(value[i] != null ? value[i] : 0);
+            if (i < value.length - 1) {
+                sb.append(",");
+            }
         }
         sb.append("]");
         return sb.toString();
@@ -236,9 +238,11 @@ public class NBTCompound extends HashMap<String, Object> {
     private static String listToString(NBTList value) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
-        for (Object item : value) {
-            sb.append(tagToString(item));
-            sb.append(",");
+        for (int i = 0; i < value.size(); i++) {
+            sb.append(value.get(i) != null ? tagToString(value.get(i)) : 0);
+            if (i < value.size() - 1) {
+                sb.append(",");
+            }
         }
         sb.append("]");
         return sb.toString();
@@ -247,9 +251,11 @@ public class NBTCompound extends HashMap<String, Object> {
     private static String intArrayToString(Integer[] value) {
         StringBuilder sb = new StringBuilder();
         sb.append("[I;");
-        for (Integer item : value) {
-            sb.append(item != null ? item : 0);
-            sb.append(",");
+        for (int i = 0; i < value.length; i++) {
+            sb.append(value[i] != null ? value[i] : 0);
+            if (i < value.length - 1) {
+                sb.append(",");
+            }
         }
         sb.append("]");
         return sb.toString();
@@ -258,9 +264,11 @@ public class NBTCompound extends HashMap<String, Object> {
     private static String longArrayToString(Long[] value) {
         StringBuilder sb = new StringBuilder();
         sb.append("[L;");
-        for (Long item : value) {
-            sb.append(item != null ? item : 0);
-            sb.append(",");
+        for (int i = 0; i < value.length; i++) {
+            sb.append(value[i] != null ? value[i] : 0);
+            if (i < value.length - 1) {
+                sb.append(",");
+            }
         }
         sb.append("]");
         return sb.toString();
