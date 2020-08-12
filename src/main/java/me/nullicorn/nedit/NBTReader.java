@@ -1,10 +1,12 @@
 package me.nullicorn.nedit;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 import me.nullicorn.nedit.exception.NBTParseException;
 import me.nullicorn.nedit.type.NBTCompound;
@@ -20,6 +22,10 @@ public class NBTReader implements Closeable {
 
     private final InputStream     originalInputStream;
     private       DataInputStream inputStream;
+
+    public NBTReader(String base64) {
+        this(new ByteArrayInputStream(Base64.getDecoder().decode(base64)));
+    }
 
     public NBTReader(InputStream inputStream) {
         this.originalInputStream = inputStream;
