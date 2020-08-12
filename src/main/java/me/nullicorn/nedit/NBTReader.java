@@ -175,14 +175,13 @@ public class NBTReader implements Closeable {
     }
 
     private static DataInputStream toDataInputStream(InputStream inputStream) throws IOException {
-        inputStream = new PushbackInputStream(inputStream);
+        inputStream = new PushbackInputStream(inputStream, 2);
 
-        int byte1 = inputStream.read();
-        int byte2 = inputStream.read();
-        inputStream.reset();
+        byte byte1 = (byte) inputStream.read();
+        byte byte2 = (byte) inputStream.read();
+        ((PushbackInputStream) inputStream).unread(new byte[]{byte1, byte2});
 
         // Check for gzip header (0x1F 0x8B)
-        //noinspection ConstantConditions
         if (byte1 == 31 && byte2 == -117) {
             inputStream = new GZIPInputStream(inputStream);
         }
