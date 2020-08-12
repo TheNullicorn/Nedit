@@ -1,8 +1,16 @@
 # Nedit [![](https://jitpack.io/v/TheNullicorn/Nedit.svg)](https://jitpack.io/#TheNullicorn/Nedit)
-Nedit is a simple, lightweight NBT parsing library with support for plain, gzipped and base64 encoded NBT data.
+Nedit is a simple, lightweight NBT parsing library with support for plain, gzipped, and base64 encoded NBT data. __One usage of this library is for parsing SkyBlock inventory data returned from the Hypixel API__ ([more info here](https://github.com/HypixelDev/PublicAPI/tree/master/Documentation#skyblock-items-and-inventories)).
 
 ## Installation
-Nedit can be added to most major build-automation tools using JitPack. See the instructions [here](https://jitpack.io/#TheNullicorn/Nedit) for more info.
+Nedit can be added to most major build-automation tools using JitPack. See the instructions [here](https://jitpack.io/#TheNullicorn/Nedit) for more info. Alternatively, it can be installed from the Maven Central repository using this dependency block:
+```xml
+<dependency>
+  <groupId>me.nullicorn.Nedit</groupId>
+  <artifactId>nedit</artifactId>
+  <version>{latest-version}</version>
+</dependency>
+```
+(Be sure to replace `{latest-version}` with the actual latest release.
 
 ## Usage
 To parse NBT data, Nedit provides you with the NBTReader class, which can be used like so:
@@ -24,3 +32,10 @@ System.out.println("Name: " + result.getString("hello world.name", "Not Found"))
 
 // Name: Bananrama
 ```
+Like with `getString(key, defaultValue)`, NBTCompound also has methods for getting integers, floats, lists, nested compounds, and any other NBT datatype.
+
+The "key" parameter of these methods is simply a dot-separated path to a field. This allows for developers to easily access deeply nested fields without having to check for null at each level. **Some examples of this format include:**
+- `"user.id"`
+- `"hello world.name"` (notice it may include spaces)
+- `"message.channel.server.creator"`
+- `"player.stats.wins"`
