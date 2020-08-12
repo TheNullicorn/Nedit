@@ -19,6 +19,12 @@ public class NBTList extends ArrayList<Object> {
     }
 
     @Override
+    public Object set(int index, Object element) {
+        checkType(element);
+        return super.set(index, element);
+    }
+
+    @Override
     public boolean add(Object o) {
         checkType(o);
         return super.add(o);
