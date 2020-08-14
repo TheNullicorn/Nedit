@@ -1,11 +1,9 @@
 package me.nullicorn.nedit;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
-import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 import me.nullicorn.nedit.exception.NBTParseException;
 import me.nullicorn.nedit.type.NBTCompound;
@@ -13,18 +11,11 @@ import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
 
 /**
- * A class for obtaining readable NBT data from its raw (binary) form
+ * An InputStream that reads and deserializes binary data in the <a href=https://wiki.vg/NBT>NBT format</a>
  *
  * @author Nullicorn
  */
 public class NBTInputStream extends DataInputStream {
-
-    /**
-     * @param base64 The base64 NBT data for this reader to read; may be gzipped
-     */
-    public NBTInputStream(String base64) {
-        this(new ByteArrayInputStream(Base64.getDecoder().decode(base64)));
-    }
 
     /**
      * @param inputStream An inputStream containing NBT data for this reader to read; may be gzipped
