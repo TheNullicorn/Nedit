@@ -1,7 +1,6 @@
 package me.nullicorn.nedit;
 
 import java.io.ByteArrayInputStream;
-import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,23 +17,20 @@ import me.nullicorn.nedit.type.TagType;
  *
  * @author Nullicorn
  */
-public class NBTReader implements Closeable {
-
-    private final InputStream     originalInputStream;
-    private       DataInputStream inputStream;
+public class NBTInputStream extends DataInputStream {
 
     /**
      * @param base64 The base64 NBT data for this reader to read; may be gzipped
      */
-    public NBTReader(String base64) {
+    public NBTInputStream(String base64) {
         this(new ByteArrayInputStream(Base64.getDecoder().decode(base64)));
     }
 
     /**
      * @param inputStream An inputStream containing NBT data for this reader to read; may be gzipped
      */
-    public NBTReader(InputStream inputStream) {
-        this.originalInputStream = inputStream;
+    public NBTInputStream(InputStream inputStream) {
+        super(inputStream);
     }
 
     /**
@@ -43,8 +39,8 @@ public class NBTReader implements Closeable {
      * @return A root TAG_Compound containing the InputStream's NBT data
      * @throws IOException If the inputStream could not be properly read as NBT data
      */
-    public NBTCompound read() throws IOException {
-        this.inputStream = toDataInputStream(originalInputStream);
+    public NBTCompound readFully() throws IOException {
+        gunzipIfNecessary();
         return readCompound();
     }
 
@@ -53,7 +49,7 @@ public class NBTReader implements Closeable {
      *
      * @throws IOException If the compound could not be read or did not contain valid NBT data
      */
-    private NBTCompound readCompound() throws IOException {
+    public NBTCompound readCompound() throws IOException {
         NBTCompound result = new NBTCompound();
 
         boolean reachedEnd = false;
@@ -81,13 +77,13 @@ public class NBTReader implements Closeable {
      *
      * @throws IOException If the list could not be read or did not contain valid NBT data
      */
-    private NBTList readList() throws IOException {
+    public NBTList readList() throws IOException {
         TagType typeOfContents = readTagId();
         if (typeOfContents == null) {
             throw new NBTParseException("Unknown tag ID for TAG_List");
         }
 
-        int length = inputStream.readInt();
+        int length = readInt();
         if (length <= 0) {
             return new NBTList(typeOfContents);
         }
@@ -104,12 +100,12 @@ public class NBTReader implements Closeable {
      *
      * @throws IOException If the string could not be read or was not valid NBT data
      */
-    private String readString() throws IOException {
-        final char length = inputStream.readChar();
+    public String readString() throws IOException {
+        final char length = readChar();
 
         byte[] stringBytes = new byte[length];
         for (int i = 0; i < stringBytes.length; i++) {
-            stringBytes[i] = (byte) inputStream.read();
+            stringBytes[i] = (byte) read();
         }
 
         return new String(stringBytes);
@@ -120,15 +116,15 @@ public class NBTReader implements Closeable {
      *
      * @throws IOException If the long array could not be read or was not valid NBT data
      */
-    private long[] readLongArray() throws IOException {
-        int length = inputStream.readInt();
+    public long[] readLongArray() throws IOException {
+        int length = readInt();
         if (length < 0) {
             throw new IndexOutOfBoundsException("TAG_Long_Array was prefixed with a negative length");
         }
 
         long[] longArray = new long[length];
         for (int i = 0; i < longArray.length; i++) {
-            longArray[i] = inputStream.readLong();
+            longArray[i] = readLong();
         }
 
         return longArray;
@@ -139,15 +135,15 @@ public class NBTReader implements Closeable {
      *
      * @throws IOException If the integer array could not be read or was not valid NBT data
      */
-    private int[] readIntArray() throws IOException {
-        int length = inputStream.readInt();
+    public int[] readIntArray() throws IOException {
+        int length = readInt();
         if (length < 0) {
             throw new IndexOutOfBoundsException("TAG_Int_Array was prefixed with a negative length");
         }
 
         int[] intArray = new int[length];
         for (int i = 0; i < intArray.length; i++) {
-            intArray[i] = inputStream.readInt();
+            intArray[i] = readInt();
         }
 
         return intArray;
@@ -158,15 +154,15 @@ public class NBTReader implements Closeable {
      *
      * @throws IOException If the byte array could not be read or was not valid NBT data
      */
-    private byte[] readByteArray() throws IOException {
-        int length = inputStream.readInt();
+    public byte[] readByteArray() throws IOException {
+        int length = readInt();
         if (length < 0) {
             throw new IndexOutOfBoundsException("TAG_Byte_Array array was prefixed with a negative length");
         }
 
         byte[] byteArray = new byte[length];
         for (int i = 0; i < byteArray.length; i++) {
-            byteArray[i] = inputStream.readByte();
+            byteArray[i] = readByte();
         }
 
         return byteArray;
@@ -177,8 +173,8 @@ public class NBTReader implements Closeable {
      *
      * @throws IOException If the tag ID could not be read
      */
-    private TagType readTagId() throws IOException {
-        return TagType.fromId(inputStream.read());
+    public TagType readTagId() throws IOException {
+        return TagType.fromId(read());
     }
 
     /**
@@ -186,25 +182,25 @@ public class NBTReader implements Closeable {
      *
      * @throws IOException If the value could not be read or was not valid NBT data
      */
-    private Object readValue(TagType tagType) throws IOException {
+    public Object readValue(TagType tagType) throws IOException {
         switch (tagType) {
             case BYTE:
-                return inputStream.readByte();
+                return readByte();
 
             case SHORT:
-                return inputStream.readShort();
+                return readShort();
 
             case INT:
-                return inputStream.readInt();
+                return readInt();
 
             case LONG:
-                return inputStream.readLong();
+                return readLong();
 
             case FLOAT:
-                return inputStream.readFloat();
+                return readFloat();
 
             case DOUBLE:
-                return inputStream.readDouble();
+                return readDouble();
 
             case BYTE_ARRAY:
                 return readByteArray();
@@ -229,28 +225,19 @@ public class NBTReader implements Closeable {
         }
     }
 
-    @Override
-    public void close() throws IOException {
-        inputStream.close();
-    }
-
     /**
-     * Wrap the provided InputStream in a DataInputStream, and gunzip if necessary
-     *
-     * @throws IOException If the GZip header could not be read
+     * Check if the underlying InputStream contains gzipped data. If it does, it is wrapped in a {@link GZIPInputStream}
      */
-    private static DataInputStream toDataInputStream(InputStream inputStream) throws IOException {
-        inputStream = new PushbackInputStream(inputStream, 2);
+    public synchronized void gunzipIfNecessary() throws IOException {
+        this.in = new PushbackInputStream(this.in, 2);
 
-        byte byte1 = (byte) inputStream.read();
-        byte byte2 = (byte) inputStream.read();
-        ((PushbackInputStream) inputStream).unread(new byte[]{byte1, byte2});
+        byte byte1 = (byte) read();
+        byte byte2 = (byte) read();
+        ((PushbackInputStream) this.in).unread(new byte[]{byte1, byte2});
 
-        // Check for gzip header (0x1F 0x8B)
+        // Check for gzip header (0x1F8B)
         if (byte1 == 31 && byte2 == -117) {
-            inputStream = new GZIPInputStream(inputStream);
+            this.in = new GZIPInputStream(this.in);
         }
-
-        return new DataInputStream(inputStream);
     }
 }
