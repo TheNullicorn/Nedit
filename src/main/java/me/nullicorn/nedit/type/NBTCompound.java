@@ -225,7 +225,7 @@ public class NBTCompound extends HashMap<String, Object> {
             if (i != 0) {
                 sb.append(",");
             }
-            sb.append(tag.getKey());
+            sb.append(tag.getKey().isEmpty() ? "\"\"" : tag.getKey());
             sb.append(":");
             sb.append(tagToString(tag.getValue()));
             i++;

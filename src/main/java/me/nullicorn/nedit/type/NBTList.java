@@ -3,7 +3,6 @@ package me.nullicorn.nedit.type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import javax.xml.bind.TypeConstraintException;
 import lombok.Getter;
 
 /**
@@ -58,7 +57,7 @@ public class NBTList extends ArrayList<Object> {
      */
     private void checkType(Object o) {
         if (!o.getClass().equals(contentType.getClazz())) {
-            throw new TypeConstraintException(String.format("Expected %s but found %s", contentType.getClazz(), o.getClass()));
+            throw new IllegalArgumentException(String.format("Expected %s but found %s", contentType.getClazz(), o.getClass()));
         }
     }
 
