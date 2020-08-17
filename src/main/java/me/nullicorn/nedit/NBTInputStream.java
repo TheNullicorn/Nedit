@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 import me.nullicorn.nedit.exception.NBTParseException;
 import me.nullicorn.nedit.type.NBTCompound;
@@ -96,10 +97,10 @@ public class NBTInputStream extends DataInputStream {
 
         byte[] stringBytes = new byte[length];
         for (int i = 0; i < stringBytes.length; i++) {
-            stringBytes[i] = (byte) read();
+            stringBytes[i] = readByte();
         }
 
-        return new String(stringBytes);
+        return new String(stringBytes, StandardCharsets.UTF_8);
     }
 
     /**
