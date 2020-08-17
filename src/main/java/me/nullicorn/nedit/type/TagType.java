@@ -115,4 +115,52 @@ public enum TagType {
         }
         return values.get(id);
     }
+
+    /**
+     * Get the TagType associated with an object's class
+     *
+     * @param obj The object to get the TagType of
+     * @return The TagType that the object can be stored as, or {@link #END} if the object has no associated TagType
+     */
+    public static TagType fromObject(Object obj) {
+        if (obj instanceof Byte) {
+            return BYTE;
+
+        } else if (obj instanceof Short) {
+            return SHORT;
+
+        } else if (obj instanceof Integer) {
+            return INT;
+
+        } else if (obj instanceof Long) {
+            return LONG;
+
+        } else if (obj instanceof Float) {
+            return FLOAT;
+
+        } else if (obj instanceof Double) {
+            return DOUBLE;
+
+        } else if (obj instanceof Byte[]) {
+            return BYTE_ARRAY;
+
+        } else if (obj instanceof String) {
+            return STRING;
+
+        } else if (obj instanceof NBTList) {
+            return LIST;
+
+        } else if (obj instanceof NBTCompound) {
+            return COMPOUND;
+
+        } else if (obj instanceof Integer[]) {
+            return INT_ARRAY;
+
+        } else if (obj instanceof Long[]) {
+            return LONG_ARRAY;
+
+        } else {
+            return END;
+        }
+    }
 }

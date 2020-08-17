@@ -236,61 +236,40 @@ public class NBTCompound extends HashMap<String, Object> {
     }
 
     /*
-     * ================ toString() Helper Functions ================
+     *
+     * ============ toString() Helper Functions ============
+     *
      */
 
     private static String tagToString(Object value) {
-        if (value instanceof Byte) {
-            // TAG_Byte
-            return byteToString((Byte) value);
-
-        } else if (value instanceof Short) {
-            // TAG_Short
-            return shortToString((Short) value);
-
-        } else if (value instanceof Integer) {
-            // TAG_Int
-            return intToString((Integer) value);
-
-        } else if (value instanceof Long) {
-            // TAG_Long
-            return longToString((Long) value);
-
-        } else if (value instanceof Float) {
-            // TAG_Float
-            return floatToString((Float) value);
-
-        } else if (value instanceof Double) {
-            // TAG_Double
-            return doubleToString((Double) value);
-
-        } else if (value instanceof Byte[]) {
-            // TAG_Byte_Array
-            return byteArrayToString((Byte[]) value);
-
-        } else if (value instanceof String) {
-            // TAG_String
-            return stringTagToString((String) value);
-
-        } else if (value instanceof NBTList) {
-            // TAG_List
-            return listToString((NBTList) value);
-
-        } else if (value instanceof NBTCompound) {
-            // TAG_Compound
-            return value.toString();
-
-        } else if (value instanceof Integer[]) {
-            // TAG_Int_Array
-            return intArrayToString((Integer[]) value);
-
-        } else if (value instanceof Long[]) {
-            // TAG_Long_Array
-            return longArrayToString((Long[]) value);
-
-        } else {
-            // Unknown object
-            return "{}";
+        TagType tagType = TagType.fromObject(value);
+        switch (tagType) {
+            case BYTE:
+                return byteToString((Byte) value);
+            case SHORT:
+                return shortToString((Short) value);
+            case INT:
+                return intToString((Integer) value);
+            case LONG:
+                return longToString((Long) value);
+            case FLOAT:
+                return floatToString((Float) value);
+            case DOUBLE:
+                return doubleToString((Double) value);
+            case BYTE_ARRAY:
+                return byteArrayToString((Byte[]) value);
+            case STRING:
+                return stringTagToString((String) value);
+            case LIST:
+                return listToString((NBTList) value);
+            case COMPOUND:
+                return value.toString();
+            case INT_ARRAY:
+                return intArrayToString((Integer[]) value);
+            case LONG_ARRAY:
+                return longArrayToString((Long[]) value);
+            default:
+                return "";
         }
     }
 
