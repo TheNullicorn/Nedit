@@ -153,10 +153,7 @@ public class NBTInputStream extends DataInputStream {
         }
 
         byte[] bytes = new byte[length];
-        int bytesRead = read(bytes);
-        if (bytesRead < bytes.length) {
-            throw new IndexOutOfBoundsException("Unable to fully read TAG_Byte_Array");
-        }
+        readFully(bytes);
 
         return bytes;
     }
