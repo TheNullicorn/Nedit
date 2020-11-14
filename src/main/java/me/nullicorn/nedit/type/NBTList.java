@@ -119,25 +119,25 @@ public class NBTList extends ArrayList<Object> {
     /**
      * @throws IllegalStateException If this this list cannot contain byte array tags
      */
-    public Byte[] getByteArray(int index) {
+    public byte[] getByteArray(int index) {
         checkGetType(TagType.BYTE_ARRAY);
-        return (Byte[]) get(index);
+        return (byte[]) get(index);
     }
 
     /**
      * @throws IllegalStateException If this this list cannot contain integer array tags
      */
-    public Integer[] getIntArray(int index) {
+    public int[] getIntArray(int index) {
         checkGetType(TagType.INT_ARRAY);
-        return (Integer[]) get(index);
+        return (int[]) get(index);
     }
 
     /**
      * @throws IllegalStateException If this this list cannot contain long array tags
      */
-    public Long[] getLongArray(int index) {
+    public long[] getLongArray(int index) {
         checkGetType(TagType.LONG_ARRAY);
-        return (Long[]) get(index);
+        return (long[]) get(index);
     }
 
     /**
@@ -237,7 +237,7 @@ public class NBTList extends ArrayList<Object> {
      *
      * @throws IllegalStateException If this this list cannot contain byte array tags
      */
-    public void forEachByteArray(Consumer<Byte[]> action) {
+    public void forEachByteArray(Consumer<byte[]> action) {
         checkGetType(TagType.BYTE_ARRAY);
         forEachOfType(action);
     }
@@ -247,7 +247,7 @@ public class NBTList extends ArrayList<Object> {
      *
      * @throws IllegalStateException If this this list cannot contain integer array tags
      */
-    public void forEachIntArray(Consumer<Integer[]> action) {
+    public void forEachIntArray(Consumer<int[]> action) {
         checkGetType(TagType.INT_ARRAY);
         forEachOfType(action);
     }
@@ -257,7 +257,7 @@ public class NBTList extends ArrayList<Object> {
      *
      * @throws IllegalStateException If this this list cannot contain long array tags
      */
-    public void forEachLongArray(Consumer<Long[]> action) {
+    public void forEachLongArray(Consumer<long[]> action) {
         checkGetType(TagType.LONG_ARRAY);
         forEachOfType(action);
     }

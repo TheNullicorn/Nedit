@@ -103,10 +103,10 @@ public class NBTCompound extends HashMap<String, Object> {
      * @see #get(String)
      */
     @Nullable
-    public Long[] getLongArray(String key) {
+    public long[] getLongArray(String key) {
         Object result = get(key);
-        return result instanceof Long[]
-            ? (Long[]) result
+        return result instanceof long[]
+            ? (long[]) result
             : null;
     }
 
@@ -116,10 +116,10 @@ public class NBTCompound extends HashMap<String, Object> {
      * @see #get(String)
      */
     @Nullable
-    public Integer[] getIntArray(String key) {
+    public int[] getIntArray(String key) {
         Object result = get(key);
-        return result instanceof Integer[]
-            ? (Integer[]) result
+        return result instanceof int[]
+            ? (int[]) result
             : null;
     }
 
@@ -129,10 +129,10 @@ public class NBTCompound extends HashMap<String, Object> {
      * @see #get(String)
      */
     @Nullable
-    public Byte[] getByteArray(String key) {
+    public byte[] getByteArray(String key) {
         Object result = get(key);
-        return result instanceof Byte[]
-            ? (Byte[]) result
+        return result instanceof byte[]
+            ? (byte[]) result
             : null;
     }
 
@@ -257,7 +257,7 @@ public class NBTCompound extends HashMap<String, Object> {
             case DOUBLE:
                 return doubleToString((Double) value);
             case BYTE_ARRAY:
-                return byteArrayToString((Byte[]) value);
+                return byteArrayToString((byte[]) value);
             case STRING:
                 return stringTagToString((String) value);
             case LIST:
@@ -265,9 +265,9 @@ public class NBTCompound extends HashMap<String, Object> {
             case COMPOUND:
                 return value.toString();
             case INT_ARRAY:
-                return intArrayToString((Integer[]) value);
+                return intArrayToString((int[]) value);
             case LONG_ARRAY:
-                return longArrayToString((Long[]) value);
+                return longArrayToString((long[]) value);
             default:
                 return "";
         }
@@ -297,11 +297,11 @@ public class NBTCompound extends HashMap<String, Object> {
         return value + "d";
     }
 
-    private static String byteArrayToString(Byte[] value) {
+    private static String byteArrayToString(byte[] value) {
         StringBuilder sb = new StringBuilder();
         sb.append("[B;");
         for (int i = 0; i < value.length; i++) {
-            sb.append(value[i] != null ? value[i] : 0);
+            sb.append(value[i]);
             if (i < value.length - 1) {
                 sb.append(",");
             }
@@ -327,11 +327,11 @@ public class NBTCompound extends HashMap<String, Object> {
         return sb.toString();
     }
 
-    private static String intArrayToString(Integer[] value) {
+    private static String intArrayToString(int[] value) {
         StringBuilder sb = new StringBuilder();
         sb.append("[I;");
         for (int i = 0; i < value.length; i++) {
-            sb.append(value[i] != null ? value[i] : 0);
+            sb.append(value[i]);
             if (i < value.length - 1) {
                 sb.append(",");
             }
@@ -340,11 +340,11 @@ public class NBTCompound extends HashMap<String, Object> {
         return sb.toString();
     }
 
-    private static String longArrayToString(Long[] value) {
+    private static String longArrayToString(long[] value) {
         StringBuilder sb = new StringBuilder();
         sb.append("[L;");
         for (int i = 0; i < value.length; i++) {
-            sb.append(value[i] != null ? value[i] : 0);
+            sb.append(value[i]);
             if (i < value.length - 1) {
                 sb.append(",");
             }

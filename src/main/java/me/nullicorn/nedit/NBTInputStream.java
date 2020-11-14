@@ -152,12 +152,10 @@ public class NBTInputStream extends DataInputStream {
             throw new IndexOutOfBoundsException("TAG_Byte_Array array was prefixed with a negative length");
         }
 
-        byte[] byteArray = new byte[length];
-        for (int i = 0; i < byteArray.length; i++) {
-            byteArray[i] = readByte();
-        }
+        byte[] bytes = new byte[length];
+        readFully(bytes);
 
-        return byteArray;
+        return bytes;
     }
 
     /**
