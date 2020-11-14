@@ -49,7 +49,7 @@ public enum TagType {
     /**
      * Represents a length-prefixed array of signed bytes
      */
-    BYTE_ARRAY(0x07, Byte[].class),
+    BYTE_ARRAY(0x07, byte[].class),
 
     /**
      * Represents a length-prefixed string of text
@@ -69,12 +69,12 @@ public enum TagType {
     /**
      * Represents a length-prefixed array of signed integers
      */
-    INT_ARRAY(0x0B, Integer[].class),
+    INT_ARRAY(0x0B, int[].class),
 
     /**
      * Represents a length-prefixed array of signed long integers
      */
-    LONG_ARRAY(0x0C, Long[].class);
+    LONG_ARRAY(0x0C, long[].class);
 
     // An unmodifiable map of IDs to types (for reverse search)
     private static final Map<Integer, TagType> values;
@@ -141,7 +141,7 @@ public enum TagType {
         } else if (obj instanceof Double) {
             return DOUBLE;
 
-        } else if (obj instanceof Byte[]) {
+        } else if (obj instanceof byte[]) {
             return BYTE_ARRAY;
 
         } else if (obj instanceof String) {
@@ -153,10 +153,10 @@ public enum TagType {
         } else if (obj instanceof NBTCompound) {
             return COMPOUND;
 
-        } else if (obj instanceof Integer[]) {
+        } else if (obj instanceof int[]) {
             return INT_ARRAY;
 
-        } else if (obj instanceof Long[]) {
+        } else if (obj instanceof long[]) {
             return LONG_ARRAY;
 
         } else {

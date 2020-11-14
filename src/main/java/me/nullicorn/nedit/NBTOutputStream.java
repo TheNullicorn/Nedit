@@ -91,15 +91,15 @@ public class NBTOutputStream extends DataOutputStream {
                 return;
 
             case BYTE_ARRAY:
-                writeByteArray((Byte[]) value);
+                writeByteArray((byte[]) value);
                 return;
 
             case INT_ARRAY:
-                writeIntArray((Integer[]) value);
+                writeIntArray((int[]) value);
                 return;
 
             case LONG_ARRAY:
-                writeLongArray((Long[]) value);
+                writeLongArray((long[]) value);
         }
     }
 
@@ -141,7 +141,7 @@ public class NBTOutputStream extends DataOutputStream {
      *
      * @throws IOException If the value could not be written
      */
-    public void writeLongArray(Long[] longs) throws IOException {
+    public void writeLongArray(long[] longs) throws IOException {
         if (longs == null) {
             writeInt(0); // Length of zero
             return;
@@ -158,7 +158,7 @@ public class NBTOutputStream extends DataOutputStream {
      *
      * @throws IOException If the value could not be written
      */
-    public void writeIntArray(Integer[] ints) throws IOException {
+    public void writeIntArray(int[] ints) throws IOException {
         if (ints == null) {
             writeInt(0); // Length of zero
             return;
@@ -175,7 +175,7 @@ public class NBTOutputStream extends DataOutputStream {
      *
      * @throws IOException If the value could not be written
      */
-    public void writeByteArray(Byte[] bytes) throws IOException {
+    public void writeByteArray(byte[] bytes) throws IOException {
         if (bytes == null) {
             writeInt(0); // Length of zero
             return;
@@ -197,7 +197,7 @@ public class NBTOutputStream extends DataOutputStream {
             writeInt(0); // Length of zero
             return;
         }
-        
+
         byte[] strBytes = value.getBytes(StandardCharsets.UTF_8);
         writeUnsignedShort(strBytes.length);
         write(strBytes);
