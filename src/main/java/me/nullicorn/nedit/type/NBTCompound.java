@@ -1,5 +1,6 @@
 package me.nullicorn.nedit.type;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +25,8 @@ public class NBTCompound extends HashMap<String, Object> {
     /**
      * @param key          A dot-separated path to the desired field
      * @param defaultValue The value to return if the field does not exist
-     * @return The floating-point number at the desired path, or the default value if it does not exist
+     * @return The floating-point number at the desired path, or the default value if it does not
+     * exist
      * @see #get(String)
      */
     public float getFloat(String key, float defaultValue) {
@@ -351,5 +353,49 @@ public class NBTCompound extends HashMap<String, Object> {
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof NBTCompound)) {
+            return false;
+        }
+        NBTCompound c = (NBTCompound) o;
+
+        if (c.size() != this.size()) {
+            return false;
+        }
+
+        for (Entry<String, Object> entry : entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            Object oValue = c.get(key);
+
+            if (value == null) {
+                if (!(oValue == null && c.containsKey(key))) {
+                    return false;
+                }
+            } else {
+                if (value instanceof byte[] && oValue instanceof byte[]
+                    && Arrays.equals((byte[]) value, (byte[]) oValue)) {
+                    continue;
+                } else if (value instanceof int[] && oValue instanceof int[]
+                    && Arrays.equals((int[]) value, (int[]) oValue)) {
+                    continue;
+                } else if (value instanceof long[] && oValue instanceof long[]
+                    && Arrays.equals((long[]) value, (long[]) oValue)) {
+                    continue;
+                } else if (value.equals(oValue)) {
+                    continue;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
