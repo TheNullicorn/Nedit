@@ -3,6 +3,7 @@ package me.nullicorn.nedit.type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -379,23 +380,32 @@ public class NBTCompound extends HashMap<String, Object> {
                 if (!(oValue == null && c.containsKey(key))) {
                     return false;
                 }
-            } else {
-                if (value instanceof byte[] && oValue instanceof byte[]
-                    && Arrays.equals((byte[]) value, (byte[]) oValue)) {
-                    continue;
-                } else if (value instanceof int[] && oValue instanceof int[]
-                    && Arrays.equals((int[]) value, (int[]) oValue)) {
-                    continue;
-                } else if (value instanceof long[] && oValue instanceof long[]
-                    && Arrays.equals((long[]) value, (long[]) oValue)) {
-                    continue;
-                } else if (value.equals(oValue)) {
-                    continue;
-                } else {
-                    return false;
-                }
+            } else if (!Objects.deepEquals(value, oValue)) {
+                return false;
             }
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int h = 0;
+        for (Entry<String, Object> entry : entrySet()) {
+            final Object value = entry.getValue();
+            final int valHash;
+
+            if (value instanceof byte[]) {
+                valHash = Arrays.hashCode((byte[]) value);
+            } else if (value instanceof int[]) {
+                valHash = Arrays.hashCode((int[]) value);
+            } else if (value instanceof long[]) {
+                valHash = Arrays.hashCode((long[]) value);
+            } else {
+                valHash = value.hashCode();
+            }
+
+            h += Objects.hashCode(entry.getKey()) ^ valHash;
+        }
+        return h;
     }
 }
