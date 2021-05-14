@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map.Entry;
 import java.util.zip.GZIPOutputStream;
+import me.nullicorn.nedit.exception.NBTSerializationException;
 import me.nullicorn.nedit.type.NBTCompound;
 import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
@@ -56,50 +57,55 @@ public class NBTOutputStream extends DataOutputStream {
         switch (tagType) {
             case BYTE:
                 writeByte((Byte) value);
-                return;
+                break;
 
             case SHORT:
                 writeShort((Short) value);
-                return;
+                break;
 
             case INT:
                 writeInt((Integer) value);
-                return;
+                break;
 
             case LONG:
                 writeLong((Long) value);
-                return;
+                break;
 
             case FLOAT:
                 writeFloat((Float) value);
-                return;
+                break;
 
             case DOUBLE:
                 writeDouble((Double) value);
-                return;
+                break;
 
             case STRING:
                 writeString((String) value);
-                return;
+                break;
 
             case LIST:
                 writeList((NBTList) value);
-                return;
+                break;
 
             case COMPOUND:
                 writeCompound((NBTCompound) value);
-                return;
+                break;
 
             case BYTE_ARRAY:
                 writeByteArray((byte[]) value);
-                return;
+                break;
 
             case INT_ARRAY:
                 writeIntArray((int[]) value);
-                return;
+                break;
 
             case LONG_ARRAY:
                 writeLongArray((long[]) value);
+                break;
+
+            case END:
+                throw new NBTSerializationException(
+                    "Tag " + tagType + " cannot be written as a value");
         }
     }
 
