@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 import me.nullicorn.nedit.exception.NBTParseException;
 import me.nullicorn.nedit.type.NBTCompound;
@@ -33,6 +32,13 @@ public class NBTInputStream extends DataInputStream {
      */
     public NBTCompound readFully() throws IOException {
         gunzipIfNecessary();
+        TagType rootType = readTagId();
+        if (rootType == TagType.END) {
+            return new NBTCompound();
+        } else if (rootType != TagType.COMPOUND) {
+            throw new IOException("Expected COMPOUND at NBT root, but got " + rootType);
+        }
+        readString(); // Skip root name; typically empty anyways.
         return readCompound();
     }
 
@@ -93,14 +99,7 @@ public class NBTInputStream extends DataInputStream {
      * @throws IOException If the string could not be read or was not valid NBT data
      */
     public String readString() throws IOException {
-        final char length = readChar();
-
-        byte[] stringBytes = new byte[length];
-        for (int i = 0; i < stringBytes.length; i++) {
-            stringBytes[i] = readByte();
-        }
-
-        return new String(stringBytes, StandardCharsets.UTF_8);
+        return readUTF();
     }
 
     /**

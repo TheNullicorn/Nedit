@@ -1,7 +1,9 @@
 package me.nullicorn.nedit.type;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -24,7 +26,8 @@ public class NBTCompound extends HashMap<String, Object> {
     /**
      * @param key          A dot-separated path to the desired field
      * @param defaultValue The value to return if the field does not exist
-     * @return The floating-point number at the desired path, or the default value if it does not exist
+     * @return The floating-point number at the desired path, or the default value if it does not
+     * exist
      * @see #get(String)
      */
     public float getFloat(String key, float defaultValue) {
@@ -351,5 +354,58 @@ public class NBTCompound extends HashMap<String, Object> {
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof NBTCompound)) {
+            return false;
+        }
+        NBTCompound c = (NBTCompound) o;
+
+        if (c.size() != this.size()) {
+            return false;
+        }
+
+        for (Entry<String, Object> entry : entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            Object oValue = c.get(key);
+
+            if (value == null) {
+                if (!(oValue == null && c.containsKey(key))) {
+                    return false;
+                }
+            } else if (!Objects.deepEquals(value, oValue)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int h = 0;
+        for (Entry<String, Object> entry : entrySet()) {
+            final Object value = entry.getValue();
+            final int valHash;
+
+            if (value instanceof byte[]) {
+                valHash = Arrays.hashCode((byte[]) value);
+            } else if (value instanceof int[]) {
+                valHash = Arrays.hashCode((int[]) value);
+            } else if (value instanceof long[]) {
+                valHash = Arrays.hashCode((long[]) value);
+            } else {
+                valHash = value.hashCode();
+            }
+
+            h += Objects.hashCode(entry.getKey()) ^ valHash;
+        }
+        return h;
     }
 }
