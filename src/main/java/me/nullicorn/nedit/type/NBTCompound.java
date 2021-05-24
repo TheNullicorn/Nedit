@@ -14,6 +14,14 @@ import org.jetbrains.annotations.Nullable;
 public class NBTCompound extends HashMap<String, Object> {
 
     /**
+     * @return Whether or not this compound contains a tag whose {@code name} and {@code type} match
+     * those provided
+     */
+    public boolean containsTag(String key, TagType type) {
+        return TagType.fromObject(get(key)) == type;
+    }
+
+    /**
      * @param key          A dot-separated path to the desired field
      * @param defaultValue The value to return if the field does not exist
      * @return The double at the desired path, or the default value if it does not exist
