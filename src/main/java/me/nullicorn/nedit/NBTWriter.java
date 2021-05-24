@@ -83,7 +83,8 @@ public final class NBTWriter {
      * @param data           NBT compound to serialize
      * @param outputStream   Output stream to write the serialized NBT to
      * @param useCompression If true, the serialized data will be gzipped
-     * @throws IOException If the NBT data could not be serialized or the outpt stream could not be written to
+     * @throws IOException If the NBT data could not be serialized or the output stream could not be
+     *                     written to
      */
     public static void write(@NotNull NBTCompound data, @NotNull OutputStream outputStream, boolean useCompression) throws IOException {
         try (NBTOutputStream out = new NBTOutputStream(outputStream, useCompression)) {
