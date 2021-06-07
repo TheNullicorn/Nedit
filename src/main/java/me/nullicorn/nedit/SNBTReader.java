@@ -67,7 +67,22 @@ public final class SNBTReader {
      */
     @NotNull
     public static Object read(@NotNull String snbt) throws IOException {
-        return read(new StringReader(snbt.trim()));
+        return read(snbt, false, false);
+    }
+
+    /**
+     * Same as {@link #read(String)}, but with additional control over the interning of tag names
+     * and values
+     *
+     * @param internNames  Whether or not tag names inside of compounds will be interned
+     * @param internValues Whether or not {@link TagType#STRING} values inside compounds and lists
+     *                     will be interned
+     * @see #read(String)
+     * @see String#intern()
+     */
+    @NotNull
+    public static Object read(@NotNull String snbt, boolean internNames, boolean internValues) throws IOException {
+        return read(new StringReader(snbt.trim()), internNames, internValues);
     }
 
     /**
@@ -79,7 +94,22 @@ public final class SNBTReader {
      */
     @NotNull
     public static NBTCompound readCompound(@NotNull String snbt) throws IOException {
-        return readCompound(new StringReader(snbt.trim()));
+        return readCompound(snbt, false, false);
+    }
+
+    /**
+     * Same as {@link #readCompound(String)}, but with additional control over the interning of tag
+     * names and values
+     *
+     * @param internNames  Whether or not tag names inside of compounds will be interned
+     * @param internValues Whether or not {@link TagType#STRING} values inside compounds and lists
+     *                     will be interned
+     * @see #read(String)
+     * @see String#intern()
+     */
+    @NotNull
+    public static NBTCompound readCompound(@NotNull String snbt, boolean internNames, boolean internValues) throws IOException {
+        return readCompound(new StringReader(snbt.trim()), internNames, internValues);
     }
 
     /**
@@ -91,31 +121,46 @@ public final class SNBTReader {
      */
     @NotNull
     public static NBTList readList(@NotNull String snbt) throws IOException {
-        return readList(new StringReader(snbt.trim()));
+        return readList(snbt, false, false);
+    }
+
+    /**
+     * Same as {@link #readList(String)}, but with additional control over the interning of tag
+     * names and values
+     *
+     * @param internNames  Whether or not tag names inside of compounds will be interned
+     * @param internValues Whether or not {@link TagType#STRING} values inside compounds and lists
+     *                     will be interned
+     * @see #read(String)
+     * @see String#intern()
+     */
+    @NotNull
+    public static NBTList readList(@NotNull String snbt, boolean internNames, boolean internValues) throws IOException {
+        return readList(new StringReader(snbt.trim()), internNames, internValues);
     }
 
     /**
      * Read an SNBT value with an unknown type from the current index of a reader
      */
-    private static Object read(@NonNull Reader reader) throws IOException {
+    private static Object read(@NonNull Reader reader, boolean internNames, boolean internValues) throws IOException {
         final int firstChar = peekChar(reader);
 
         switch (firstChar) {
             case COMPOUND_START:
-                return readCompound(reader);
+                return readCompound(reader, internNames, internValues);
 
             case ARRAY_START:
-                return readIterable(reader);
+                return readIterable(reader, internNames, internValues);
 
             default:
-                return readLiteral(reader);
+                return readLiteral(reader, internValues);
         }
     }
 
     /**
      * Read an SNBT compound from the current index of a reader
      */
-    private static NBTCompound readCompound(@NonNull Reader reader) throws IOException {
+    private static NBTCompound readCompound(@NonNull Reader reader, boolean internNames, boolean internValues) throws IOException {
         NBTCompound compound = new NBTCompound();
 
         if (readChar(reader) != COMPOUND_START) {
@@ -133,7 +178,7 @@ public final class SNBTReader {
             reader.reset();
 
             // Read the entry's key/name.
-            String key = readString(reader);
+            String key = readString(reader, internNames);
 
             // Ensure there's a colon between the key and value.
             skipWhitespace(reader);
@@ -143,7 +188,7 @@ public final class SNBTReader {
             skipWhitespace(reader);
 
             // Read the value and add it to the returned compound.
-            compound.put(key, read(reader));
+            compound.put(key, read(reader, internNames, internValues));
             skipWhitespace(reader);
         } while (readChar(reader) == ENTRY_SEPARATOR);
 
@@ -153,9 +198,9 @@ public final class SNBTReader {
     /**
      * Read an SNBT iterable type from the current index of a reader
      * <p>
-     * If the type is known to be a list, prefer {@link #readList(Reader)}
+     * If the type is known to be a list, prefer {@link #readList(Reader, boolean, boolean)}
      */
-    private static Object readIterable(@NonNull Reader reader) throws IOException {
+    private static Object readIterable(@NonNull Reader reader, boolean internNames, boolean internValues) throws IOException {
         reader.mark(3);
 
         if (readChar(reader) != ARRAY_START) {
@@ -187,7 +232,7 @@ public final class SNBTReader {
             }
         } else {
             reader.reset();
-            return readList(reader);
+            return readList(reader, internNames, internValues);
         }
 
         List<Object> values = new ArrayList<>();
@@ -202,7 +247,7 @@ public final class SNBTReader {
             reader.reset();
 
             // Read the next value from the array.
-            Object value = readLiteral(reader);
+            Object value = readLiteral(reader, internValues);
 
             // Ensure that the value's type matches that of the array itself.
             if (arrayType == TagType.BYTE_ARRAY && value instanceof Byte
@@ -228,7 +273,7 @@ public final class SNBTReader {
     /**
      * Read an SNBT list from the current index of a reader
      */
-    private static NBTList readList(@NonNull Reader reader) throws IOException {
+    private static NBTList readList(@NonNull Reader reader, boolean internNames, boolean internValues) throws IOException {
         if (readChar(reader) != ARRAY_START) {
             throw new NBTParseException("Invalid start of SNBT list");
         }
@@ -248,7 +293,7 @@ public final class SNBTReader {
             reader.reset();
 
             // Read the next value from the list.
-            Object entry = read(reader);
+            Object entry = read(reader, internNames, internValues);
 
             if (list == null) {
                 // Create a new list using the tag type of the first entry.
@@ -256,11 +301,8 @@ public final class SNBTReader {
                 if (list.getContentType() == TagType.END) {
                     throw new NBTParseException("SNBT list entry has unrecognized type");
                 }
-                list.add(entry);
-            } else {
-                // Add the entry to the existing list.
-                list.add(entry);
             }
+            list.add(entry);
         } while (readChar(reader) == ENTRY_SEPARATOR);
 
         return list;
@@ -269,14 +311,14 @@ public final class SNBTReader {
     /**
      * Read any SNBT literal type from the current index of a reader
      * <p>
-     * If the value is known to be a string, prefer {@link #readString(Reader)}
+     * If the value is known to be a string, prefer {@link #readString(Reader, boolean)}
      */
-    private static Object readLiteral(@NonNull Reader reader) throws IOException {
+    private static Object readLiteral(@NonNull Reader reader, boolean intern) throws IOException {
         // Check if the value is in quotes.
         int firstChar = peekChar(reader);
         boolean isQuoted = firstChar == STRING_DELIMITER_1 || firstChar == STRING_DELIMITER_2;
 
-        String asString = readString(reader);
+        String asString = readString(reader, false);
 
         // Always use the string type for text in quotes.
         if (isQuoted) {
@@ -306,6 +348,9 @@ public final class SNBTReader {
 
         } else {
             // Fall-back to string value.
+            if (intern) {
+                return asString.intern();
+            }
             return asString;
         }
     }
@@ -313,7 +358,7 @@ public final class SNBTReader {
     /**
      * Read an SNBT string from the current index of a reader
      */
-    private static String readString(@NonNull Reader reader) throws IOException {
+    private static String readString(@NonNull Reader reader, boolean intern) throws IOException {
         final StringBuilder valueBuilder = new StringBuilder();
 
         final int firstChar = reader.read();
@@ -343,6 +388,9 @@ public final class SNBTReader {
             value = value.trim();
         }
 
+        if (intern) {
+            return value.intern();
+        }
         return value;
     }
 
