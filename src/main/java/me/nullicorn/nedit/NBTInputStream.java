@@ -11,17 +11,43 @@ import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
 
 /**
- * An InputStream that reads and deserializes binary data in the <a href=https://wiki.vg/NBT>NBT format</a>
+ * An InputStream that reads and deserializes binary data in the <a href=https://wiki.vg/NBT>NBT
+ * format</a>
  *
  * @author Nullicorn
  */
 public class NBTInputStream extends DataInputStream {
 
+    private final boolean internNames;
+    private final boolean internValues;
+
     /**
-     * @param inputStream An inputStream containing NBT data for this reader to read; may be gzipped
+     * Same as {@link NBTInputStream#NBTInputStream(InputStream, boolean, boolean)}, but all
+     * interning is disabled by default
+     *
+     * @see #NBTInputStream(InputStream, boolean, boolean)
      */
     public NBTInputStream(InputStream inputStream) {
+        this(inputStream, false, false);
+    }
+
+    /**
+     * Constructs a stream for reading NBT data, with control over interning of parsed strings. When
+     * reading lots of data with similar structure and tag names, enabling these features may free
+     * up significant amounts of energy.
+     *
+     * @param inputStream  An input stream of valid NBT data; may also be gzipped
+     * @param internNames  Whether or not {@link #readCompound()} will use interned tag names
+     * @param internValues Whether or not {@link #readValue(TagType) readValue()} will intern {@link
+     *                     TagType#STRING} values. This effect also propagates to values in {@link
+     *                     #readCompound() compounds} and elements in {@link #readList() lists of
+     *                     strings}
+     * @see String#intern()
+     */
+    public NBTInputStream(InputStream inputStream, boolean internNames, boolean internValues) {
         super(inputStream);
+        this.internNames = internNames;
+        this.internValues = internValues;
     }
 
     /**
@@ -62,9 +88,9 @@ public class NBTInputStream extends DataInputStream {
                 continue;
             }
 
-            String entryKey = readString();
+            String entryName = readString(internNames);
             Object entryValue = readValue(entryType);
-            result.put(entryKey, entryValue);
+            result.put(entryName, entryValue);
         }
 
         return result;
@@ -94,12 +120,31 @@ public class NBTInputStream extends DataInputStream {
     }
 
     /**
+     * Same as {@link #readString(boolean)}, but the resulting string will never be interned.
+     *
+     * @see #readString(boolean)
+     * @see String#intern()
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public String readString() throws IOException {
+        return readString(false);
+    }
+
+    /**
      * Read a length-prefixed string from the inputStream
      *
+     * @param intern Whether or not the string's {@link String#intern() interned} value will be
+     *               returned. When deserializing lots of NBT data with the same properties, setting
+     *               this to {@code true} can significantly lower memory consumption.
      * @throws IOException If the string could not be read or was not valid NBT data
+     * @see String#intern()
      */
-    public String readString() throws IOException {
-        return readUTF();
+    public String readString(boolean intern) throws IOException {
+        String utf = readUTF();
+        if (intern) {
+            return utf.intern();
+        }
+        return utf;
     }
 
     /**
@@ -110,7 +155,8 @@ public class NBTInputStream extends DataInputStream {
     public long[] readLongArray() throws IOException {
         int length = readInt();
         if (length < 0) {
-            throw new IndexOutOfBoundsException("TAG_Long_Array was prefixed with a negative length");
+            throw new IndexOutOfBoundsException(
+                "TAG_Long_Array was prefixed with a negative length");
         }
 
         long[] longArray = new long[length];
@@ -129,7 +175,8 @@ public class NBTInputStream extends DataInputStream {
     public int[] readIntArray() throws IOException {
         int length = readInt();
         if (length < 0) {
-            throw new IndexOutOfBoundsException("TAG_Int_Array was prefixed with a negative length");
+            throw new IndexOutOfBoundsException(
+                "TAG_Int_Array was prefixed with a negative length");
         }
 
         int[] intArray = new int[length];
@@ -148,7 +195,8 @@ public class NBTInputStream extends DataInputStream {
     public byte[] readByteArray() throws IOException {
         int length = readInt();
         if (length < 0) {
-            throw new IndexOutOfBoundsException("TAG_Byte_Array array was prefixed with a negative length");
+            throw new IndexOutOfBoundsException(
+                "TAG_Byte_Array array was prefixed with a negative length");
         }
 
         byte[] bytes = new byte[length];
@@ -195,7 +243,7 @@ public class NBTInputStream extends DataInputStream {
                 return readByteArray();
 
             case STRING:
-                return readString();
+                return readString(internValues);
 
             case LIST:
                 return readList();
@@ -215,7 +263,8 @@ public class NBTInputStream extends DataInputStream {
     }
 
     /**
-     * Check if the underlying InputStream contains gzipped data. If it does, it is wrapped in a {@link GZIPInputStream}
+     * Check if the underlying InputStream contains gzipped data. If it does, it is wrapped in a
+     * {@link GZIPInputStream}
      */
     public synchronized void gunzipIfNecessary() throws IOException {
         this.in = new PushbackInputStream(this.in, 2);

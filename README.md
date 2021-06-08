@@ -21,11 +21,11 @@ System.out.println("Full Result:  " + result);
 // Full Result:  {hello world:{name:"Bananrama"}}
 ```
 
-NBT compounds are essentially just maps of strings to values. Because of this, NBTCompound class extends java.util.Map and you can use any normal mapping functions to retireve and modify data within the compound.
+NBT compounds are essentially just maps of strings to values. Because of this, NBTCompound extends `java.util.Map`, and you can use any normal mapping functions to retireve and modify data within the compound.
 
-NBTCompound also provides some helper methods for retrieving deeply nested fields without having to repeatedly check for null. These methods allow you to provide a default value in case the field is null or does not exist.
+NBTCompound also provides a layer of null-safety when accessing deeply-nested fields whose parent objects may be null. Accessors for primitives (`int`, `boolean`, `float`, etc) and `String`s also accept a default value in case the requested field isn't found.
 
-**Example (added onto the previous one):**
+**Example (extending the previous one):**
 ```java
 System.out.println("Name: " + result.getString("hello world.name", "(Not Found!)"));
 
