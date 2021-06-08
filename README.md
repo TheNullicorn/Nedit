@@ -2,15 +2,7 @@
 Nedit is a simple, lightweight NBT parsing library with support for plain, gzipped, and base64 encoded NBT data. __One usage of this library is for parsing SkyBlock inventory data returned from the Hypixel API__ ([more info here](https://github.com/HypixelDev/PublicAPI/tree/master/Documentation#skyblock-items-and-inventories)).
 
 ## Installation
-Nedit can be added to most major build-automation tools using JitPack. See the instructions [here](https://jitpack.io/#TheNullicorn/Nedit) for more info. Alternatively, it can be installed from the Maven Central repository using this dependency block:
-```xml
-<dependency>
-  <groupId>me.nullicorn.Nedit</groupId>
-  <artifactId>nedit</artifactId>
-  <version>{latest-version}</version>
-</dependency>
-```
-(Be sure to replace `{latest-version}` with the actual latest release.
+Nedit can be added to most major build-automation tools using JitPack. See the instructions [here](https://jitpack.io/#TheNullicorn/Nedit) for more info.
 
 ## Usage
 To parse NBT data, Nedit provides you with the NBTReader class, which can be used like so:
