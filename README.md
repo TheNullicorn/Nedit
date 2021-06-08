@@ -5,7 +5,13 @@ Nedit is a simple, lightweight NBT parsing library with support for plain, gzipp
 Nedit can be added to most major build-automation tools using JitPack. See the instructions [here](https://jitpack.io/#TheNullicorn/Nedit) for more info.
 
 ## Usage
+To parse NBT data, Nedit provides you with the NBTReader class, which can be used like so:
+```java
+NBTCompound result = NBTReader.readBase64("CgALaGVsbG8gd29ybGQIAARuYW1lAAlCYW5hbnJhbWEA");
+System.out.println("Full Result:  " + result);
 
+// Full Result:  {hello world:{name:"Bananrama"}}
+```
 
 NBT compounds are essentially just maps of strings to values. Because of this, NBTCompound class extends `java.util.Map`, and you can use any normal mapping functions to retireve and modify data within the compound.
 
