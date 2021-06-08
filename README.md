@@ -2,7 +2,15 @@
 Nedit is a simple, lightweight NBT parsing library with support for plain, gzipped, and base64 encoded NBT data. __One usage of this library is for parsing SkyBlock inventory data returned from the Hypixel API__ ([more info here](https://github.com/HypixelDev/PublicAPI/tree/master/Documentation#skyblock-items-and-inventories)).
 
 ## Installation
-Nedit can be added to most major build-automation tools using JitPack. See the instructions [here](https://jitpack.io/#TheNullicorn/Nedit) for more info.
+Nedit can be added to most major build-automation tools using JitPack. See the instructions [here](https://jitpack.io/#TheNullicorn/Nedit) for more info. Alternatively, it can be installed from the Maven Central repository using this dependency block:
+```xml
+<dependency>
+  <groupId>me.nullicorn.Nedit</groupId>
+  <artifactId>nedit</artifactId>
+  <version>{latest-version}</version>
+</dependency>
+```
+(Be sure to replace `{latest-version}` with the actual latest release.
 
 ## Usage
 To parse NBT data, Nedit provides you with the NBTReader class, which can be used like so:
@@ -13,7 +21,7 @@ System.out.println("Full Result:  " + result);
 // Full Result:  {hello world:{name:"Bananrama"}}
 ```
 
-NBT compounds are essentially just maps of strings to values. Because of this, NBTCompound class extends `java.util.Map`, and you can use any normal mapping functions to retireve and modify data within the compound.
+NBT compounds are essentially just maps of strings to values. Because of this, NBTCompound extends `java.util.Map`, and you can use any normal mapping functions to retireve and modify data within the compound.
 
 NBTCompound also provides a layer of null-safety when accessing deeply-nested fields whose parent objects may be null. Accessors for primitives (`int`, `boolean`, `float`, etc) and `String`s also accept a default value in case the requested field isn't found.
 
