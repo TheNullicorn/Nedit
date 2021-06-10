@@ -33,7 +33,7 @@ public class NBTOutputStream extends DataOutputStream {
         } else {
             writeTagType(TagType.COMPOUND);
             writeString("");
-            writeCompound(compound, false);
+            writeCompound(compound);
 
             if (out instanceof GZIPOutputStream) {
                 ((GZIPOutputStream) out).finish();
@@ -129,8 +129,7 @@ public class NBTOutputStream extends DataOutputStream {
     /**
      * Write a compound tag to the stream
      *
-     * @param close Whether or not the compound should be closed via a {@link TagType#END}. This
-     *              should be true for any compound except the root.
+     * @param close Whether or not the compound should be closed via a {@link TagType#END}
      * @throws IOException If the compound could not be written
      */
     public void writeCompound(NBTCompound compound, boolean close) throws IOException {
