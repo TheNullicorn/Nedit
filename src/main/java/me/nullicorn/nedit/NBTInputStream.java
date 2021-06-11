@@ -155,8 +155,9 @@ public class NBTInputStream extends DataInputStream {
     public long[] readLongArray() throws IOException {
         int length = readInt();
         if (length < 0) {
-            throw new IndexOutOfBoundsException(
-                "TAG_Long_Array was prefixed with a negative length");
+            throw new NBTParseException(
+                new NegativeArraySizeException(
+                    "TAG_Long_Array was prefixed with a negative length"));
         }
 
         long[] longArray = new long[length];
@@ -175,8 +176,9 @@ public class NBTInputStream extends DataInputStream {
     public int[] readIntArray() throws IOException {
         int length = readInt();
         if (length < 0) {
-            throw new IndexOutOfBoundsException(
-                "TAG_Int_Array was prefixed with a negative length");
+            throw new NBTParseException(
+                new NegativeArraySizeException(
+                    "TAG_Int_Array was prefixed with a negative length"));
         }
 
         int[] intArray = new int[length];
@@ -195,8 +197,9 @@ public class NBTInputStream extends DataInputStream {
     public byte[] readByteArray() throws IOException {
         int length = readInt();
         if (length < 0) {
-            throw new IndexOutOfBoundsException(
-                "TAG_Byte_Array array was prefixed with a negative length");
+            throw new NBTParseException(
+                new NegativeArraySizeException(
+                    "TAG_Byte_Array was prefixed with a negative length"));
         }
 
         byte[] bytes = new byte[length];
