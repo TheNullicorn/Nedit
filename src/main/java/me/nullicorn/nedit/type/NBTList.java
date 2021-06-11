@@ -2,7 +2,6 @@ package me.nullicorn.nedit.type;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.ConcurrentModificationException;
 import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -168,8 +167,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain byte tags
      */
     public void forEachByte(Consumer<Byte> action) {
-        checkGetType(TagType.BYTE);
-        forEachOfType(action);
+        forEachOfType(action, TagType.BYTE);
     }
 
     /**
@@ -178,8 +176,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain short tags
      */
     public void forEachShort(Consumer<Short> action) {
-        checkGetType(TagType.SHORT);
-        forEachOfType(action);
+        forEachOfType(action, TagType.SHORT);
     }
 
     /**
@@ -188,8 +185,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain integer tags
      */
     public void forEachInt(Consumer<Integer> action) {
-        checkGetType(TagType.INT);
-        forEachOfType(action);
+        forEachOfType(action, TagType.INT);
     }
 
     /**
@@ -198,8 +194,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain long tags
      */
     public void forEachLong(Consumer<Long> action) {
-        checkGetType(TagType.LONG);
-        forEachOfType(action);
+        forEachOfType(action, TagType.LONG);
     }
 
     /**
@@ -208,8 +203,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain float tags
      */
     public void forEachFloat(Consumer<Float> action) {
-        checkGetType(TagType.FLOAT);
-        forEachOfType(action);
+        forEachOfType(action, TagType.FLOAT);
     }
 
     /**
@@ -218,8 +212,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain double tags
      */
     public void forEachDouble(Consumer<Double> action) {
-        checkGetType(TagType.DOUBLE);
-        forEachOfType(action);
+        forEachOfType(action, TagType.DOUBLE);
     }
 
     /**
@@ -228,8 +221,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain string tags
      */
     public void forEachString(Consumer<String> action) {
-        checkGetType(TagType.STRING);
-        forEachOfType(action);
+        forEachOfType(action, TagType.STRING);
     }
 
     /**
@@ -238,8 +230,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain byte array tags
      */
     public void forEachByteArray(Consumer<byte[]> action) {
-        checkGetType(TagType.BYTE_ARRAY);
-        forEachOfType(action);
+        forEachOfType(action, TagType.BYTE_ARRAY);
     }
 
     /**
@@ -248,8 +239,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain integer array tags
      */
     public void forEachIntArray(Consumer<int[]> action) {
-        checkGetType(TagType.INT_ARRAY);
-        forEachOfType(action);
+        forEachOfType(action, TagType.INT_ARRAY);
     }
 
     /**
@@ -258,8 +248,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain long array tags
      */
     public void forEachLongArray(Consumer<long[]> action) {
-        checkGetType(TagType.LONG_ARRAY);
-        forEachOfType(action);
+        forEachOfType(action, TagType.LIST);
     }
 
     /**
@@ -268,8 +257,7 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain list tags
      */
     public void forEachList(Consumer<NBTList> action) {
-        checkGetType(TagType.LIST);
-        forEachOfType(action);
+        forEachOfType(action, TagType.LIST);
     }
 
     /**
@@ -278,24 +266,16 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalStateException If this this list cannot contain compound tags
      */
     public void forEachCompound(Consumer<NBTCompound> action) {
-        checkGetType(TagType.COMPOUND);
-        forEachOfType(action);
+        forEachOfType(action, TagType.COMPOUND);
     }
 
     /**
-     * Same as {@link #forEach(Consumer)} but with a separate type parameter
+     * Same as {@link #forEach(Consumer)} but with a customizable type parameter
      */
-    private <T> void forEachOfType(Consumer<T> action) {
-        Objects.requireNonNull(action);
-        final int expectedModCount = modCount;
-
-        @SuppressWarnings("unchecked") final T[] elementData = (T[]) this.toArray();
-        for (int i = 0; modCount == expectedModCount && i < this.size(); i++) {
-            action.accept(elementData[i]);
-        }
-        if (modCount != expectedModCount) {
-            throw new ConcurrentModificationException();
-        }
+    @SuppressWarnings("unchecked")
+    private <T> void forEachOfType(Consumer<T> action, TagType type) {
+        checkGetType(type);
+        forEach(element -> action.accept((T) element));
     }
 
     /**
