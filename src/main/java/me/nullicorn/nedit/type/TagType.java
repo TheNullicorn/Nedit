@@ -1,8 +1,7 @@
 package me.nullicorn.nedit.type;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Comparator;
 import lombok.Getter;
 
 /**
@@ -77,14 +76,11 @@ public enum TagType {
     LONG_ARRAY(0x0C, long[].class);
 
     // An unmodifiable map of IDs to types (for reverse search)
-    private static final Map<Integer, TagType> values;
+    private static final TagType[] values;
 
     static {
-        Map<Integer, TagType> valueMap = new HashMap<>();
-        for (TagType tagType : TagType.values()) {
-            valueMap.put(tagType.getId(), tagType);
-        }
-        values = Collections.unmodifiableMap(valueMap);
+        values = values();
+        Arrays.sort(values, Comparator.comparingInt(TagType::getId));
     }
 
     /**
@@ -113,7 +109,7 @@ public enum TagType {
         if (id == -1) {
             return END;
         }
-        return values.get(id);
+        return values[id];
     }
 
     /**
