@@ -108,6 +108,8 @@ public enum TagType {
     public static TagType fromId(int id) {
         if (id == -1) {
             return END;
+        } else if (id < 0 || id >= values.length) {
+            return null;
         }
         return values[id];
     }

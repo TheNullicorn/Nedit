@@ -18,8 +18,8 @@ import me.nullicorn.nedit.type.TagType;
  */
 public class NBTInputStream extends DataInputStream {
 
-    private final boolean internNames;
-    private final boolean internValues;
+    protected final boolean internNames;
+    protected final boolean internValues;
 
     /**
      * Same as {@link NBTInputStream#NBTInputStream(InputStream, boolean, boolean)}, but all
