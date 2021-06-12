@@ -50,31 +50,42 @@ public class FilteredNBTInputStream extends NBTInputStream {
 
             String tagName = readString(internNames);
 
-            // Confusingly, tags are included by default in EXCLUDE filters,
-            // and the opposite for INCLUDE filters.
-            boolean includeTag = (filter.getMode() == FilterMode.EXCLUDE);
+            //  - Exclusion filters will default to reading unless an exlcuded tag is found, which
+            //    will be skipped.
+            //  - Inclusion filters default to skipping unless an included tag is found, which will
+            //    be read.
+            boolean continueReading = (filter.getMode() == FilterMode.EXCLUDE);
             FilteredTag match = null;
 
+            // Check for any filtered tags that match the current tag's name & depth.
             for (FilteredTag filtered : filter.getFilteredTags()) {
                 String[] tokens = filtered.getTokens();
                 boolean matches = depth < tokens.length && tagName.equals(tokens[depth]);
                 if (matches) {
-                    // Only matching tags pass through inclusion filters,
-                    // while matching tags never pass through exclusion filters.
-                    includeTag = filter.getMode() == FilterMode.INCLUDE;
+                    continueReading = (filter.getMode() == FilterMode.INCLUDE)
+                                      || (depth + 1 < tokens.length);
                     match = filtered;
-                    break;
+                    break; // Only one match is needed to determine the tag's inclusion status.
                 }
             }
 
-            if (includeTag && match != null) {
-                NBTFilter subFilter = filter.subFilter(match, depth + 1);
-                Object value = subFilter.isEmpty()
+            if (continueReading) {
+                int childDepth = depth + 1;
+
+                // Try to create a filter that could be used on the child value (if its a list or
+                // compound).
+                NBTFilter subFilter = (match == null)
+                    ? null
+                    : filter.subFilter(match, childDepth);
+
+                // Only apply the filter if it has entries. Otherwise, read the entire tag.
+                Object value = (subFilter == null || subFilter.isEmpty())
                     ? readValue(tagType)
-                    : readValue(tagType, subFilter, depth + 1);
+                    : readValue(tagType, subFilter, childDepth);
+
                 result.put(tagName, value);
             } else {
-                // Skip excluded or non-included tags.
+                // Skip excluded (or non-included) tags.
                 skipValue(tagType);
             }
         }
@@ -96,6 +107,10 @@ public class FilteredNBTInputStream extends NBTInputStream {
 
         NBTList list = new NBTList(contentType);
         for (int i = 0; i < length; i++) {
+            // Don't increase the depth here, because when a list of compounds is filtered, those
+            // compounds' tags are referenced directly on the list itself.
+            //
+            // e.g. `Level.Sections.Palette`, NOT `Level.Sections.[index].Palette`
             list.add(readValue(contentType, filter, depth));
         }
 
