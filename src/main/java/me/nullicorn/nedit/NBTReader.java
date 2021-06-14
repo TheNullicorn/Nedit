@@ -70,7 +70,10 @@ public final class NBTReader {
         if (!nbtFile.exists() || !nbtFile.isFile() || !nbtFile.canRead()) {
             throw new FileNotFoundException("NBT file not found or unable to be read");
         }
-        return read(new FileInputStream(nbtFile), internNames, internValues);
+
+        try (InputStream fileIn = new FileInputStream(nbtFile)) {
+            return read(new FileInputStream(nbtFile), internNames, internValues);
+        }
     }
 
     /**
@@ -96,9 +99,7 @@ public final class NBTReader {
      * @see NBTInputStream#NBTInputStream(InputStream, boolean, boolean)
      */
     public static NBTCompound read(InputStream inputStream, boolean internNames, boolean internValues) throws IOException {
-        try (InputStream nbtIn = inputStream) {
-            return new NBTInputStream(nbtIn, internNames, internValues).readFully();
-        }
+        return new NBTInputStream(inputStream, internNames, internValues).readFully();
     }
 
     private NBTReader() {

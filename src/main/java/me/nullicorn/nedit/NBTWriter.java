@@ -2,6 +2,7 @@ package me.nullicorn.nedit;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -64,7 +65,11 @@ public final class NBTWriter {
         //noinspection ResultOfMethodCallIgnored
         file.mkdirs();
         if (file.getParentFile().exists()) {
-            write(data, new FileOutputStream(file), useCompression);
+            try (OutputStream fileOut = new FileOutputStream(file)) {
+                write(data, fileOut, useCompression);
+            }
+        } else {
+            throw new FileNotFoundException("Failed to create required directories for " + file);
         }
     }
 
@@ -90,9 +95,7 @@ public final class NBTWriter {
      *                     written to
      */
     public static void write(NBTCompound data, OutputStream outputStream, boolean useCompression) throws IOException {
-        try (NBTOutputStream out = new NBTOutputStream(outputStream, useCompression)) {
-            out.writeFully(data);
-        }
+        new NBTOutputStream(outputStream, useCompression).writeFully(data);
     }
 
     private NBTWriter() {
