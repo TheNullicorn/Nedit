@@ -9,6 +9,22 @@ import java.util.Objects;
  */
 public class FilteredTag {
 
+    /**
+     * Splits a dot-notation tag name into its individual parts (or "tokens"), delimited by dots
+     * ({@code .}). Literal dots can be escaped using a backslash (or double-backslash for string
+     * literals; e.g. {@code \\.}). Tokens in the returned array will not have escaped dots.
+     */
+    public static String[] tokenizeTagName(String name) {
+        // The regex splits the string at dots (.) that aren't escaped. The negative-lookbehind
+        // makes sure there is no backslash before the dot.
+        String[] tokens = name.split("(?<!\\\\)\\.");
+        for (int i = 0; i < tokens.length; i++) {
+            // Remove escape characters.
+            tokens[i] = tokens[i].replace("\\.", ".");
+        }
+        return tokens;
+    }
+
     private final String   name;
     private final String[] tokens;
 
@@ -17,10 +33,7 @@ public class FilteredTag {
             throw new IllegalArgumentException("Filtered tag name cannot be null");
         }
         this.name = name;
-
-        // The regex splits the string at dots (.) that aren't escaped. The negative-lookbehind
-        // makes sure there is no backslash before the dot.
-        tokens = name.split("(?<!\\\\)\\.");
+        tokens = tokenizeTagName(name);
     }
 
     /**

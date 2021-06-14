@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import me.nullicorn.nedit.filter.FilteredTag;
 
 /**
  * Represents an NBT compound tag ({@link TagType#COMPOUND})
@@ -182,7 +183,7 @@ public class NBTCompound extends HashMap<String, Object> {
      *     }
      *   }
      * }}</pre>
-     * In this case, to acces the user's <b>Discord username</b>, we'd need the path:
+     * In this case, to access the user's <b>Discord username</b>, we'd need the path:
      * <pre>{@code "user.socialMedia.discord"}</pre>
      * To access the <b>user's ID</b>, we could use the path:
      * <pre>{@code "user.id"}</pre>
@@ -197,11 +198,11 @@ public class NBTCompound extends HashMap<String, Object> {
             return this;
         }
 
-        String[] path = key.split("\\.");
+        String[] tokens = FilteredTag.tokenizeTagName(key);
         Object currentObj = this;
-        for (int i = 0; i < path.length; i++) {
-            currentObj = ((Map<?, ?>) currentObj).get(path[i]);
-            if (i == path.length - 1) {
+        for (int i = 0; i < tokens.length; i++) {
+            currentObj = ((Map<?, ?>) currentObj).get(tokens[i]);
+            if (i == tokens.length - 1) {
                 // We reached the end of the path, return the final value
                 return currentObj;
             }
