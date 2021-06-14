@@ -3,6 +3,8 @@ package me.nullicorn.nedit.exception;
 import java.io.IOException;
 
 /**
+ * Thrown to indicate any issue reading or writing NBT data.
+ *
  * @author Nullicorn
  */
 public class NBTSerializationException extends IOException {

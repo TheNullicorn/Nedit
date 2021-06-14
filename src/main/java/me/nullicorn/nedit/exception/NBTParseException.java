@@ -1,6 +1,8 @@
 package me.nullicorn.nedit.exception;
 
 /**
+ * Thrown to indicate a problem reading NBT data from a source.
+ *
  * @author Nullicorn
  */
 public class NBTParseException extends NBTSerializationException {
