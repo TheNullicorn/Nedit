@@ -102,6 +102,6 @@ public final class NBTReader {
     }
 
     private NBTReader() {
-        // Prevent instantiation of this class
+        throw new UnsupportedOperationException("NBTReader should not be instantiated");
     }
 }

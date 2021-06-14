@@ -96,6 +96,6 @@ public final class NBTWriter {
     }
 
     private NBTWriter() {
-        // Prevent instantiation of this class
+        throw new UnsupportedOperationException("NBTWriter should not be instantiated");
     }
 }

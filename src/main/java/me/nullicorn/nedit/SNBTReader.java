@@ -423,6 +423,6 @@ public final class SNBTReader {
     }
 
     private SNBTReader() {
-        // Prevent instantiation of this class
+        throw new UnsupportedOperationException("SNBTReader should not be instantiated");
     }
 }
