@@ -17,6 +17,9 @@ public class FilteredTag {
             throw new IllegalArgumentException("Filtered tag name cannot be null");
         }
         this.name = name;
+
+        // The regex splits the string at dots (.) that aren't escaped. The negative-lookbehind
+        // makes sure there is no backslash before the dot.
         tokens = name.split("(?<!\\\\)\\.");
     }
 
