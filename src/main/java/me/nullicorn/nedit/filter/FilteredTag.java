@@ -1,46 +1,63 @@
 package me.nullicorn.nedit.filter;
 
 import java.util.Objects;
-import me.nullicorn.nedit.type.TagType;
-import org.jetbrains.annotations.Nullable;
 
 /**
+ * Represents the name of an NBT tag that should be handled by a {@link NBTFilter filter}.
+ *
  * @author Nullicorn
  */
 public class FilteredTag {
 
-    @Nullable
-    private final TagType  type;
     private final String   name;
     private final String[] tokens;
 
     public FilteredTag(String name) {
-        this(name, null);
-    }
-
-    public FilteredTag(String name, @Nullable TagType type) {
+        if (name == null) {
+            throw new IllegalArgumentException("Filtered tag name cannot be null");
+        }
         this.name = name;
-        this.type = type;
         tokens = name.split("(?<!\\\\)\\.");
     }
 
+    /**
+     * @return The tag's absolute name, including the names of any parent objects delimited by dots
+     * ({@code .})
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @return The names of all parent objects of the tag, as well as the tag's name itself. This is
+     * the e
+     */
     public String[] getTokens() {
         return tokens;
     }
 
-    boolean doesTokenMatch(String token, int depth) {
-        return tokens.length >= (depth - 1) && tokens[depth].equals(token);
+    /**
+     * Same as {@link #isExtendedBy(FilteredTag)}, but extension is only check for {@link
+     * #getTokens() tokens} up to the provided {@code depth + 1}.
+     */
+    public boolean isExtendedBy(FilteredTag other, int depth) {
+        if (tokens.length <= depth || other.tokens.length <= depth || other.equals(this)) {
+            return false;
+        }
+
+        for (int i = 0; i < depth; i++) {
+            if (!other.tokens[i].equals(tokens[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
      * @return {@code true} if the {@code other} tag starts with all of this tag's {@link
      * #getTokens() tokens} & has additional tokens at the end, otherwise {@code false}.
      */
-    boolean isExtendedBy(FilteredTag other) {
+    public boolean isExtendedBy(FilteredTag other) {
         String otherName = other.getName();
         int extensionIndex = name.length();
 
@@ -54,6 +71,9 @@ public class FilteredTag {
                && otherName.startsWith(name);
     }
 
+    /**
+     * @return The tag's full name. Equivalent to {@link #getName()}.
+     */
     @Override
     public String toString() {
         return name;
@@ -68,12 +88,11 @@ public class FilteredTag {
             return false;
         }
         FilteredTag that = (FilteredTag) o;
-        return type == that.type &&
-               name.equals(that.name);
+        return name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, name);
+        return Objects.hash(name);
     }
 }
