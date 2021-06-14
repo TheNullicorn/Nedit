@@ -2,7 +2,6 @@ package me.nullicorn.nedit.type;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import lombok.Getter;
 
 /**
  * The 13 tag types that make up the NBT format
@@ -11,7 +10,8 @@ import lombok.Getter;
  */
 public enum TagType {
     /**
-     * Marks the end of a {@link #COMPOUND} tag and is used in various other places as a substitute for null
+     * Marks the end of a {@link #COMPOUND} tag and is used in various other places as a substitute
+     * for null
      */
     END(0x00, Void.class),
 
@@ -21,27 +21,32 @@ public enum TagType {
     BYTE(0x01, Byte.class),
 
     /**
-     * Represents an signed, short integer with a max value of {@link Short#MAX_VALUE} and a min value of {@link Short#MIN_VALUE}
+     * Represents an signed, short integer with a max value of {@link Short#MAX_VALUE} and a min
+     * value of {@link Short#MIN_VALUE}
      */
     SHORT(0x02, Short.class),
 
     /**
-     * Represents an integer with a max value of {@link Integer#MAX_VALUE} and a min value of {@link Integer#MIN_VALUE}
+     * Represents an integer with a max value of {@link Integer#MAX_VALUE} and a min value of {@link
+     * Integer#MIN_VALUE}
      */
     INT(0x03, Integer.class),
 
     /**
-     * Represents a long integer with a max value of {@link Long#MAX_VALUE} and a min value of {@link Long#MIN_VALUE}
+     * Represents a long integer with a max value of {@link Long#MAX_VALUE} and a min value of
+     * {@link Long#MIN_VALUE}
      */
     LONG(0x04, Long.class),
 
     /**
-     * Represents an floating-point number with a max value of {@link Float#MAX_VALUE} and a min value of {@link Float#MIN_VALUE}
+     * Represents an floating-point number with a max value of {@link Float#MAX_VALUE} and a min
+     * value of {@link Float#MIN_VALUE}
      */
     FLOAT(0x05, Float.class),
 
     /**
-     * Represents an double-precision floating-point number with a max value of {@link Double#MAX_VALUE} and a min value of {@link Double#MIN_VALUE}
+     * Represents an double-precision floating-point number with a max value of {@link
+     * Double#MAX_VALUE} and a min value of {@link Double#MIN_VALUE}
      */
     DOUBLE(0x06, Double.class),
 
@@ -83,21 +88,26 @@ public enum TagType {
         Arrays.sort(values, Comparator.comparingInt(TagType::getId));
     }
 
-    /**
-     * The 1-byte ID of this tag type
-     */
-    @Getter
-    private final int id;
-
-    /**
-     * The Java class used to represent tags of this type in memory
-     */
-    @Getter
+    private final int      id;
     private final Class<?> clazz;
 
     TagType(int id, Class<?> typeClazz) {
         this.id = id;
         this.clazz = typeClazz;
+    }
+
+    /**
+     * The 1-byte ID used by tags of this type
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * The Java class used to represent tags of this type in memory
+     */
+    public Class<?> getClazz() {
+        return clazz;
     }
 
     /**
@@ -118,7 +128,8 @@ public enum TagType {
      * Get the TagType associated with an object's class
      *
      * @param obj The object to get the TagType of
-     * @return The TagType that the object can be stored as, or {@link #END} if the object has no associated TagType
+     * @return The TagType that the object can be stored as, or {@link #END} if the object has no
+     * associated TagType
      */
     public static TagType fromObject(Object obj) {
         if (obj instanceof Byte) {

@@ -3,7 +3,6 @@ package me.nullicorn.nedit.filter;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A tool for stripping NBT compounds of excess data, especially to retain a low memory footprint.
@@ -105,7 +104,6 @@ public class NBTFilter implements Iterable<FilteredTag> {
     /**
      * @return An iterator over each of the filter's added {@link #getFilteredTags() tags}.
      */
-    @NotNull
     @Override
     public Iterator<FilteredTag> iterator() {
         return filteredTags.iterator();

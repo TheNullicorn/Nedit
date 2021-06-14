@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents an NBT compound tag ({@link TagType#COMPOUND})
@@ -88,7 +87,7 @@ public class NBTCompound extends HashMap<String, Object> {
      * @return The number at the desired path, or the default value if it does not exist
      * @see #get(String)
      */
-    public Number getNumber(String key, @Nullable Number defaultValue) {
+    public Number getNumber(String key, Number defaultValue) {
         Object result = get(key);
         return result instanceof Number
             ? (Number) result
@@ -100,7 +99,6 @@ public class NBTCompound extends HashMap<String, Object> {
      * @return The string at the desired path, or null if it does not exist
      * @see #get(String)
      */
-    @Nullable
     public String getString(String key, String defaultValue) {
         Object result = get(key);
         return result != null
@@ -113,7 +111,6 @@ public class NBTCompound extends HashMap<String, Object> {
      * @return The long array at the desired path, or null if it does not exist
      * @see #get(String)
      */
-    @Nullable
     public long[] getLongArray(String key) {
         Object result = get(key);
         return result instanceof long[]
@@ -126,7 +123,6 @@ public class NBTCompound extends HashMap<String, Object> {
      * @return The integer array at the desired path, or null if it does not exist
      * @see #get(String)
      */
-    @Nullable
     public int[] getIntArray(String key) {
         Object result = get(key);
         return result instanceof int[]
@@ -139,7 +135,6 @@ public class NBTCompound extends HashMap<String, Object> {
      * @return The byte array at the desired path, or null if it does not exist
      * @see #get(String)
      */
-    @Nullable
     public byte[] getByteArray(String key) {
         Object result = get(key);
         return result instanceof byte[]
@@ -152,7 +147,6 @@ public class NBTCompound extends HashMap<String, Object> {
      * @return The list at the desired path, or null if it does not exist
      * @see #get(String)
      */
-    @Nullable
     public NBTList getList(String key) {
         Object result = get(key);
         return result instanceof NBTList
@@ -165,7 +159,6 @@ public class NBTCompound extends HashMap<String, Object> {
      * @return The compound at the desired path, or null if it does not exist
      * @see #get(String)
      */
-    @Nullable
     public NBTCompound getCompound(String key) {
         Object result = get(key);
         return result instanceof NBTCompound
@@ -199,7 +192,6 @@ public class NBTCompound extends HashMap<String, Object> {
      * @param key A dot-separated path to the desired field (see above example)
      * @return The value at the specified path, or null if the field does not exist
      */
-    @Nullable
     public Object get(String key) {
         if (key == null || key.isEmpty()) {
             return this;

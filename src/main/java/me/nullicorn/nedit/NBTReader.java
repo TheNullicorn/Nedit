@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
-import lombok.NonNull;
 import me.nullicorn.nedit.type.NBTCompound;
 import me.nullicorn.nedit.type.TagType;
 
@@ -25,7 +24,7 @@ public final class NBTReader {
      * @return The parsed compound
      * @throws IOException If the data could not be read properly
      */
-    public static NBTCompound readBase64(@NonNull String base64) throws IOException {
+    public static NBTCompound readBase64(String base64) throws IOException {
         return readBase64(base64, false, false);
     }
 
@@ -40,7 +39,7 @@ public final class NBTReader {
      * @see String#intern()
      * @see NBTInputStream#NBTInputStream(InputStream, boolean, boolean)
      */
-    public static NBTCompound readBase64(@NonNull String base64, boolean internNames, boolean internValues) throws IOException {
+    public static NBTCompound readBase64(String base64, boolean internNames, boolean internValues) throws IOException {
         ByteArrayInputStream b64In = new ByteArrayInputStream(Base64.getDecoder().decode(base64));
         return read(b64In, internNames, internValues);
     }
@@ -52,7 +51,7 @@ public final class NBTReader {
      * @return The parsed compound
      * @throws IOException If the file or its contents could not be read properly
      */
-    public static NBTCompound readFile(@NonNull File nbtFile) throws IOException {
+    public static NBTCompound readFile(File nbtFile) throws IOException {
         return readFile(nbtFile, false, false);
     }
 
@@ -67,7 +66,7 @@ public final class NBTReader {
      * @see String#intern()
      * @see NBTInputStream#NBTInputStream(InputStream, boolean, boolean)
      */
-    public static NBTCompound readFile(@NonNull File nbtFile, boolean internNames, boolean internValues) throws IOException {
+    public static NBTCompound readFile(File nbtFile, boolean internNames, boolean internValues) throws IOException {
         if (!nbtFile.exists() || !nbtFile.isFile() || !nbtFile.canRead()) {
             throw new FileNotFoundException("NBT file not found or unable to be read");
         }
@@ -81,7 +80,7 @@ public final class NBTReader {
      * @return The parsed compound
      * @throws IOException If the data could not be read properly
      */
-    public static NBTCompound read(@NonNull InputStream inputStream) throws IOException {
+    public static NBTCompound read(InputStream inputStream) throws IOException {
         return read(inputStream, false, false);
     }
 
@@ -96,7 +95,7 @@ public final class NBTReader {
      * @see String#intern()
      * @see NBTInputStream#NBTInputStream(InputStream, boolean, boolean)
      */
-    public static NBTCompound read(@NonNull InputStream inputStream, boolean internNames, boolean internValues) throws IOException {
+    public static NBTCompound read(InputStream inputStream, boolean internNames, boolean internValues) throws IOException {
         try (InputStream nbtIn = inputStream) {
             return new NBTInputStream(nbtIn, internNames, internValues).readFully();
         }

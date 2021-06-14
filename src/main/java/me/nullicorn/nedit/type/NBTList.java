@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Consumer;
-import lombok.Getter;
 
 /**
  * A class representing an NBT TAG_List
@@ -13,14 +12,18 @@ import lombok.Getter;
  */
 public class NBTList extends ArrayList<Object> {
 
-    /**
-     * The TagType of all elements stored in this list. Attempting to insert any other type of element will cause an exception to be thrown
-     */
-    @Getter
     private final TagType contentType;
 
     public NBTList(TagType type) {
         this.contentType = (type == null ? TagType.END : type);
+    }
+
+    /**
+     * The TagType of all elements stored in this list. Attempting to insert any other type of
+     * element will cause an exception to be thrown
+     */
+    public TagType getContentType() {
+        return contentType;
     }
 
     @Override
@@ -283,16 +286,19 @@ public class NBTList extends ArrayList<Object> {
      */
     private void checkGetType(TagType attemptedType) {
         if (attemptedType != contentType) {
-            throw new IllegalStateException("Cannot get " + attemptedType + " from a list of " + contentType.toString() + "s");
+            throw new IllegalStateException(
+                "Cannot get " + attemptedType + " from a list of " + contentType.toString() + "s");
         }
     }
 
     /**
-     * Throw an exception if the object should not be added to this list (its class does not match {@link #contentType}.{@link TagType#getClazz() getClazz()})
+     * Throw an exception if the object should not be added to this list (its class does not match
+     * {@link #contentType}.{@link TagType#getClazz() getClazz()})
      */
     private void checkType(Object o) {
         if (!o.getClass().equals(contentType.getClazz())) {
-            throw new IllegalArgumentException(String.format("Expected %s but found %s", contentType.getClazz(), o.getClass()));
+            throw new IllegalArgumentException(
+                String.format("Expected %s but found %s", contentType.getClazz(), o.getClass()));
         }
     }
 

@@ -15,22 +15,6 @@
         <maven.compiler.source>1.8</maven.compiler.source>
     </properties>
 
-    <dependencies>
-        <!-- Lombok Accessors -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
-        </dependency>
-
-        <!-- JetBrains Annotations -->
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>19.0.0</version>
-        </dependency>
-    </dependencies>
-
     <!-- Deployment -->
     <distributionManagement>
         <repository>

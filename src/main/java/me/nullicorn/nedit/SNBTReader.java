@@ -6,12 +6,10 @@ import java.io.StringReader;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.NonNull;
 import me.nullicorn.nedit.exception.NBTParseException;
 import me.nullicorn.nedit.type.NBTCompound;
 import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A utility class for reading stringified NBT data (SNBT)
@@ -65,8 +63,7 @@ public final class SNBTReader {
      * @return The parsed NBT value (type will vary)
      * @throws IOException If the input string cannot be read or is not valid SNBT
      */
-    @NotNull
-    public static Object read(@NotNull String snbt) throws IOException {
+    public static Object read(String snbt) throws IOException {
         return read(snbt, false, false);
     }
 
@@ -80,8 +77,7 @@ public final class SNBTReader {
      * @see #read(String)
      * @see String#intern()
      */
-    @NotNull
-    public static Object read(@NotNull String snbt, boolean internNames, boolean internValues) throws IOException {
+    public static Object read(String snbt, boolean internNames, boolean internValues) throws IOException {
         return read(new StringReader(snbt.trim()), internNames, internValues);
     }
 
@@ -92,8 +88,7 @@ public final class SNBTReader {
      * @return The parsed NBT compound
      * @throws IOException If the input string cannot be read or is not a valid SNBT compound
      */
-    @NotNull
-    public static NBTCompound readCompound(@NotNull String snbt) throws IOException {
+    public static NBTCompound readCompound(String snbt) throws IOException {
         return readCompound(snbt, false, false);
     }
 
@@ -107,8 +102,7 @@ public final class SNBTReader {
      * @see #read(String)
      * @see String#intern()
      */
-    @NotNull
-    public static NBTCompound readCompound(@NotNull String snbt, boolean internNames, boolean internValues) throws IOException {
+    public static NBTCompound readCompound(String snbt, boolean internNames, boolean internValues) throws IOException {
         return readCompound(new StringReader(snbt.trim()), internNames, internValues);
     }
 
@@ -119,8 +113,7 @@ public final class SNBTReader {
      * @return The parsed NBT list
      * @throws IOException If the input string cannot be read or is not a valid SNBT list
      */
-    @NotNull
-    public static NBTList readList(@NotNull String snbt) throws IOException {
+    public static NBTList readList(String snbt) throws IOException {
         return readList(snbt, false, false);
     }
 
@@ -134,15 +127,14 @@ public final class SNBTReader {
      * @see #read(String)
      * @see String#intern()
      */
-    @NotNull
-    public static NBTList readList(@NotNull String snbt, boolean internNames, boolean internValues) throws IOException {
+    public static NBTList readList(String snbt, boolean internNames, boolean internValues) throws IOException {
         return readList(new StringReader(snbt.trim()), internNames, internValues);
     }
 
     /**
      * Read an SNBT value with an unknown type from the current index of a reader
      */
-    private static Object read(@NonNull Reader reader, boolean internNames, boolean internValues) throws IOException {
+    private static Object read(Reader reader, boolean internNames, boolean internValues) throws IOException {
         final int firstChar = peekChar(reader);
 
         switch (firstChar) {
@@ -160,7 +152,7 @@ public final class SNBTReader {
     /**
      * Read an SNBT compound from the current index of a reader
      */
-    private static NBTCompound readCompound(@NonNull Reader reader, boolean internNames, boolean internValues) throws IOException {
+    private static NBTCompound readCompound(Reader reader, boolean internNames, boolean internValues) throws IOException {
         NBTCompound compound = new NBTCompound();
 
         if (readChar(reader) != COMPOUND_START) {
@@ -200,7 +192,7 @@ public final class SNBTReader {
      * <p>
      * If the type is known to be a list, prefer {@link #readList(Reader, boolean, boolean)}
      */
-    private static Object readIterable(@NonNull Reader reader, boolean internNames, boolean internValues) throws IOException {
+    private static Object readIterable(Reader reader, boolean internNames, boolean internValues) throws IOException {
         reader.mark(3);
 
         if (readChar(reader) != ARRAY_START) {
@@ -273,7 +265,7 @@ public final class SNBTReader {
     /**
      * Read an SNBT list from the current index of a reader
      */
-    private static NBTList readList(@NonNull Reader reader, boolean internNames, boolean internValues) throws IOException {
+    private static NBTList readList(Reader reader, boolean internNames, boolean internValues) throws IOException {
         if (readChar(reader) != ARRAY_START) {
             throw new NBTParseException("Invalid start of SNBT list");
         }
@@ -313,7 +305,7 @@ public final class SNBTReader {
      * <p>
      * If the value is known to be a string, prefer {@link #readString(Reader, boolean)}
      */
-    private static Object readLiteral(@NonNull Reader reader, boolean intern) throws IOException {
+    private static Object readLiteral(Reader reader, boolean intern) throws IOException {
         // Check if the value is in quotes.
         int firstChar = peekChar(reader);
         boolean isQuoted = firstChar == STRING_DELIMITER_1 || firstChar == STRING_DELIMITER_2;
@@ -358,7 +350,7 @@ public final class SNBTReader {
     /**
      * Read an SNBT string from the current index of a reader
      */
-    private static String readString(@NonNull Reader reader, boolean intern) throws IOException {
+    private static String readString(Reader reader, boolean intern) throws IOException {
         final StringBuilder valueBuilder = new StringBuilder();
 
         final int firstChar = reader.read();
@@ -397,7 +389,7 @@ public final class SNBTReader {
     /**
      * Skip over zero or more whitespace characters at the current index of a reader
      */
-    private static void skipWhitespace(@NonNull Reader reader) throws IOException {
+    private static void skipWhitespace(Reader reader) throws IOException {
         do {
             reader.mark(1);
         } while (Character.isWhitespace(reader.read()));
@@ -407,7 +399,7 @@ public final class SNBTReader {
     /**
      * Read a single character from the provided reader without increasing its index
      */
-    private static int peekChar(@NonNull Reader reader) throws IOException {
+    private static int peekChar(Reader reader) throws IOException {
         reader.mark(1);
         int value = reader.read();
         reader.reset();
@@ -422,7 +414,7 @@ public final class SNBTReader {
      * <p>
      * To read without increasing the reader's index, see {@link #peekChar(Reader)}.
      */
-    private static int readChar(@NonNull Reader reader) throws IOException {
+    private static int readChar(Reader reader) throws IOException {
         int value = reader.read();
         if (value == -1) {
             throw new IOException("Unexpected end of SNBT string");
