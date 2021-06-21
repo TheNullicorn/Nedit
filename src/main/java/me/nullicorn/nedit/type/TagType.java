@@ -13,7 +13,7 @@ public enum TagType {
      * Marks the end of a {@link #COMPOUND} tag and is used in various other places as a substitute
      * for null
      */
-    END(0x00, Void.class),
+    END(0x00, null),
 
     /**
      * Represents a signed byte
@@ -104,7 +104,8 @@ public enum TagType {
     }
 
     /**
-     * The Java class used to represent tags of this type in memory
+     * The Java class used to represent tags of this type in memory. May be null for the empty type,
+     * {@link #END}.
      */
     public Class<?> getClazz() {
         return clazz;
