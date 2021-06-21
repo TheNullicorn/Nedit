@@ -1,9 +1,11 @@
 package me.nullicorn.nedit.type;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import me.nullicorn.nedit.filter.FilteredTag;
 
 /**
@@ -11,14 +13,20 @@ import me.nullicorn.nedit.filter.FilteredTag;
  *
  * @author Nullicorn
  */
-public class NBTCompound extends HashMap<String, Object> {
+public class NBTCompound extends AbstractMap<String, Object> {
+
+    private final Map<String, Object> decorated;
+
+    public NBTCompound() {
+        decorated = new HashMap<>();
+    }
 
     /**
      * @return Whether or not this compound contains a tag whose {@code name} and {@code type} match
      * those provided
      */
     public boolean containsTag(String key, TagType type) {
-        return TagType.fromObject(get(key)) == type;
+        return type == TagType.fromObject(get(key));
     }
 
     /**
@@ -199,21 +207,53 @@ public class NBTCompound extends HashMap<String, Object> {
         }
 
         String[] tokens = FilteredTag.tokenizeTagName(key);
-        Object currentObj = this;
+        NBTCompound parent = this;
         for (int i = 0; i < tokens.length; i++) {
-            currentObj = ((Map<?, ?>) currentObj).get(tokens[i]);
-            if (i == tokens.length - 1) {
-                // We reached the end of the path, return the final value
-                return currentObj;
+
+            Object child = parent.decorated.get(tokens[i]);
+            if (i + 1 == tokens.length) {
+                // No more tokens; current child must be the output.
+                return child;
             }
 
-            if (currentObj == null) {
-                // We reached a dead-end before expected, return null
-                return null;
+            // More tokens follow; child must be a compound to continue.
+            if (!(child instanceof NBTCompound)) {
+                break;
             }
+            parent = (NBTCompound) child;
         }
 
         return null;
+    }
+
+    @Override
+    public Object put(String key, Object value) {
+        checkType(value);
+        return decorated.put(key, value);
+    }
+
+    @Override
+    public Object putIfAbsent(String key, Object value) {
+        checkType(value);
+        return decorated.putIfAbsent(key, value);
+    }
+
+    @Override
+    public Set<Entry<String, Object>> entrySet() {
+        // Check for invalid modifications to the underlying map.
+        decorated.forEach((key, value) -> checkType(value));
+        return decorated.entrySet();
+    }
+
+    /**
+     * Throws an {@link IllegalArgumentException} if the {@code value} cannot be converted to an NBT
+     * tag type.
+     */
+    private void checkType(Object value) {
+        TagType type = TagType.fromObject(value);
+        if (type == TagType.END) {
+            throw new IllegalArgumentException(value + " cannot be converted to an NBT type");
+        }
     }
 
     /**
