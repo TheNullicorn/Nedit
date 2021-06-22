@@ -9,8 +9,12 @@ import static me.nullicorn.nedit.IOTestHelper.createTestLongArray;
 import static me.nullicorn.nedit.IOTestHelper.streamResource;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -24,6 +28,27 @@ class NBTInputStreamTests {
     // Appended to the end of each test file so we can check that the correct number of bytes is
     // read for each tag type.
     private static final String TEST_TERMINATOR = "NEDIT";
+
+    @Test
+    void shouldCorrectlyDecodeTagTypes() throws IOException {
+        TagType[] allTags = TagType.values();
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        DataOutputStream dataOut = new DataOutputStream(bytes);
+        for (TagType tag : allTags) {
+            dataOut.writeByte(tag.getId());
+        }
+        dataOut.writeByte(20); // Invalid tag ID.
+        dataOut.writeUTF(TEST_TERMINATOR);
+
+        NBTInputStream in = new NBTInputStream(new ByteArrayInputStream(bytes.toByteArray()));
+        for (TagType tag : allTags) {
+            assertEquals(tag, in.readTagId());
+        }
+        assertNull(in.readTagId());
+
+        tryReadTerminator(in);
+    }
 
     @Test
     void shouldCorrectlyDecodePrimitives() throws IOException {
