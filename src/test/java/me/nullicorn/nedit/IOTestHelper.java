@@ -63,6 +63,28 @@ public final class IOTestHelper {
         return list;
     }
 
+    public static NBTCompound createTestCompound(boolean withNestedCompound) {
+        NBTCompound compound = new NBTCompound();
+        compound.put("byte", Byte.MAX_VALUE);
+        compound.put("short", Short.MAX_VALUE);
+        compound.put("int", Integer.MAX_VALUE);
+        compound.put("long", Long.MAX_VALUE);
+        compound.put("float", Float.MAX_VALUE);
+        compound.put("double", Double.MAX_VALUE);
+        compound.put("string", "Hello, World!");
+        compound.put("byte_array", createTestByteArray());
+        compound.put("int_array", createTestIntArray());
+        compound.put("long_array", createTestLongArray());
+        compound.put("list_end", new NBTList(TagType.END));
+        compound.put("list_double", createTestDoubleList());
+        compound.put("list_compound", createTestCompoundList());
+        if (withNestedCompound) {
+            // Writes another compound (inside this one) with all the same tags as above.
+            compound.put("compound", createTestCompound(false));
+        }
+        return compound;
+    }
+
     private IOTestHelper() {
         throw new UnsupportedOperationException("Helper class should not be instantiated");
     }

@@ -1,6 +1,7 @@
 package me.nullicorn.nedit;
 
 import static me.nullicorn.nedit.IOTestHelper.createTestByteArray;
+import static me.nullicorn.nedit.IOTestHelper.createTestCompound;
 import static me.nullicorn.nedit.IOTestHelper.createTestCompoundList;
 import static me.nullicorn.nedit.IOTestHelper.createTestDoubleList;
 import static me.nullicorn.nedit.IOTestHelper.createTestIntArray;
@@ -13,6 +14,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import me.nullicorn.nedit.type.NBTCompound;
 import me.nullicorn.nedit.type.TagType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -61,6 +63,21 @@ class NBTInputStreamTests {
             Assertions::assertEquals);
     }
 
+    @Test
+    void shouldCorrectlyDecodeStandaloneCompound() throws IOException {
+        tryReadCompound("compound", NBTInputStream::readCompound);
+    }
+
+    @Test
+    void shouldFullReaderSkipRootCompound() throws IOException {
+        tryReadCompound("compound_full", NBTInputStream::readFully);
+    }
+
+    @Test
+    void shouldFullReaderInflateAutomatically() throws IOException {
+        tryReadCompound("compound_full_deflated", NBTInputStream::readFully);
+    }
+
     private <T> void tryReadPrimitive(TagType type, T expected, ReaderFunction<T> reader) throws IOException {
         tryRead("primitives/" + type.name().toLowerCase(),
             expected,
@@ -74,6 +91,18 @@ class NBTInputStreamTests {
             assertionFunc.accept(expected, actual);
 
             tryReadTerminator(in);
+        }
+    }
+
+    private void tryReadCompound(String testResource, ReaderFunction<NBTCompound> reader) throws IOException {
+        try (DataInputStream in = streamResource("compounds/" + testResource)) {
+            NBTInputStream nbtIn = new NBTInputStream(in);
+
+            AtomicReference<NBTCompound> decoded = new AtomicReference<>();
+            assertDoesNotThrow(() -> decoded.set(reader.read(nbtIn)));
+            assertEquals(createTestCompound(true), decoded.get());
+
+            tryReadTerminator(nbtIn);
         }
     }
 
