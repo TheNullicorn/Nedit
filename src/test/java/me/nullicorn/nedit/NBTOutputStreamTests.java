@@ -12,10 +12,18 @@ import static me.nullicorn.nedit.IOTestHelper.createTestDoubleList;
 import static me.nullicorn.nedit.IOTestHelper.createTestIntArray;
 import static me.nullicorn.nedit.IOTestHelper.createTestLongArray;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import me.nullicorn.nedit.type.NBTCompound;
 import me.nullicorn.nedit.type.TagType;
 import org.junit.jupiter.api.Test;
 
@@ -62,13 +70,81 @@ class NBTOutputStreamTests {
         });
     }
 
+    @Test
+    void shouldEncodeCompoundsCorrectly() throws IOException {
+        NBTCompound expected = new NBTCompound();
+        NBTCompound nested = new NBTCompound();
+        nested.put("nested_string", TEST_STRING);
+        expected.put("byte", TEST_BYTE);
+        expected.put("int", TEST_INT);
+        expected.put("string", TEST_STRING);
+        expected.put("double", TEST_DOUBLE);
+        expected.put("compound", nested);
+        expected.put("byte_array", createTestByteArray());
+
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        new NBTOutputStream(bytesOut, false).writeCompound(expected);
+
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytesOut.toByteArray()));
+        int tagId;
+        NBTCompound actual = new NBTCompound();
+        while ((tagId = in.readByte()) != TagType.END.getId()) {
+            assertNotEquals(-1, tagId, "Compound ended unexpectedly");
+
+            TagType type = TagType.fromId(tagId);
+            assertNotNull(type, "Child tag had an invalid type (id=" + tagId + ")");
+
+            String name = in.readUTF();
+            assertFalse(name.isEmpty(), "Unexpected empty tag name");
+            assertTrue(expected.containsTag(name, type));
+
+            Object value;
+            switch (name) {
+                case "byte":
+                    value = in.readByte();
+                    break;
+                case "int":
+                    value = in.readInt();
+
+                    break;
+                case "string":
+                    value = in.readUTF();
+                    break;
+                case "double":
+                    value = in.readDouble();
+                    break;
+                case "byte_array":
+                    int length = in.readInt();
+                    value = new byte[length];
+                    in.readFully((byte[]) value);
+                    break;
+                case "compound":
+                    int nestedTagId = in.readByte();
+                    assertEquals(TagType.STRING.getId(), nestedTagId, "Incorrect nested tag ID");
+                    assertEquals("nested_string", in.readUTF(), "Incorrect nested value");
+                    assertEquals(TEST_STRING, in.readUTF());
+                    assertEquals(TagType.END.getId(), in.readByte(), "Nested compound not closed");
+
+                    // If those assertions pass ^, the nested value is known to be valid.
+                    value = nested;
+                    break;
+                default:
+                    throw new IOException("Unexpected tag \"" + name + "\" with ID " + tagId);
+            }
+
+            actual.put(name, value);
+        }
+
+        assertEquals(-1, in.read(), "Written compound continues unexpectedly");
+        assertEquals(expected, actual);
+    }
+
     private <T> void tryWrite(T value, NBTWriterFunction<T> actualWriter, WriterFunction<T> expectedWriter) throws IOException {
-        tryWrite(value, actualWriter, expectedWriter, (input, expected, actual) -> {
+        tryWrite(value, actualWriter, expectedWriter, (input, expected, actual) ->
             assertArrayEquals(
                 expected,
                 actual,
-                "Incorrect encoding for " + value.getClass().getSimpleName());
-        });
+                "Incorrect encoding for " + value.getClass().getSimpleName()));
     }
 
     private <T> void tryWrite(T value, NBTWriterFunction<T> actualWriter, WriterFunction<T> expectedWriter, WriterAssertionFunction<T> assertionFunc) throws IOException {
