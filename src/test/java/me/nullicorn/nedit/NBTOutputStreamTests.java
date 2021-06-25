@@ -105,7 +105,6 @@ class NBTOutputStreamTests {
                     break;
                 case "int":
                     value = in.readInt();
-
                     break;
                 case "string":
                     value = in.readUTF();
@@ -140,35 +139,25 @@ class NBTOutputStreamTests {
     }
 
     private <T> void tryWrite(T value, NBTWriterFunction<T> actualWriter, WriterFunction<T> expectedWriter) throws IOException {
-        tryWrite(value, actualWriter, expectedWriter, (input, expected, actual) ->
-            assertArrayEquals(
-                expected,
-                actual,
-                "Incorrect encoding for " + value.getClass().getSimpleName()));
-    }
-
-    private <T> void tryWrite(T value, NBTWriterFunction<T> actualWriter, WriterFunction<T> expectedWriter, WriterAssertionFunction<T> assertionFunc) throws IOException {
         ByteArrayOutputStream actualBytesOut = new ByteArrayOutputStream();
         ByteArrayOutputStream expectedBytesOut = new ByteArrayOutputStream();
 
         actualWriter.write(new NBTOutputStream(actualBytesOut, false), value);
         expectedWriter.write(new DataOutputStream(expectedBytesOut), value);
 
-        assertionFunc.check(value, expectedBytesOut.toByteArray(), actualBytesOut.toByteArray());
+        assertArrayEquals(
+            expectedBytesOut.toByteArray(),
+            actualBytesOut.toByteArray(),
+            "Incorrect encoding for " + value.getClass().getSimpleName());
     }
 
-    interface NBTWriterFunction<T> {
+    private interface NBTWriterFunction<T> {
 
         void write(NBTOutputStream out, T value) throws IOException;
     }
 
-    interface WriterFunction<T> {
+    private interface WriterFunction<T> {
 
         void write(DataOutputStream out, T value) throws IOException;
-    }
-
-    interface WriterAssertionFunction<T> {
-
-        void check(T expected, byte[] expectedBytes, byte[] actualBytes);
     }
 }
