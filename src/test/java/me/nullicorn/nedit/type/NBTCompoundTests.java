@@ -127,7 +127,6 @@ class NBTCompoundTests {
 
         Assertions.assertEquals(child, root.get(childName));
         Assertions.assertEquals(tagValue, root.get(childName + "." + tagName));
-        System.out.println(root.get(childName + "." + tagName));
     }
 
     @Test
