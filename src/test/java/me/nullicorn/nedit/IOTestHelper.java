@@ -10,6 +10,14 @@ import me.nullicorn.nedit.type.TagType;
 
 public final class IOTestHelper {
 
+    public static final byte   TEST_BYTE   = Byte.MAX_VALUE;
+    public static final short  TEST_SHORT  = Short.MAX_VALUE;
+    public static final int    TEST_INT    = Integer.MAX_VALUE;
+    public static final long   TEST_LONG   = Long.MAX_VALUE;
+    public static final float  TEST_FLOAT  = Float.MAX_VALUE;
+    public static final double TEST_DOUBLE = Double.MAX_VALUE;
+    public static final String TEST_STRING = "Hello, World!";
+
     public static DataInputStream streamResource(String resourceName) {
         resourceName += ".bin";
         InputStream in = IOTestHelper.class.getClassLoader().getResourceAsStream(resourceName);
@@ -44,6 +52,10 @@ public final class IOTestHelper {
         return array;
     }
 
+    public static NBTList createTestEmptyList() {
+        return new NBTList(TagType.END);
+    }
+
     public static NBTList createTestDoubleList() {
         NBTList list = new NBTList(TagType.DOUBLE);
         for (int i = 0; i < 100; i++) {
@@ -65,17 +77,17 @@ public final class IOTestHelper {
 
     public static NBTCompound createTestCompound(boolean withNestedCompound) {
         NBTCompound compound = new NBTCompound();
-        compound.put("byte", Byte.MAX_VALUE);
-        compound.put("short", Short.MAX_VALUE);
-        compound.put("int", Integer.MAX_VALUE);
-        compound.put("long", Long.MAX_VALUE);
-        compound.put("float", Float.MAX_VALUE);
-        compound.put("double", Double.MAX_VALUE);
-        compound.put("string", "Hello, World!");
+        compound.put("byte", TEST_BYTE);
+        compound.put("short", TEST_SHORT);
+        compound.put("int", TEST_INT);
+        compound.put("long", TEST_LONG);
+        compound.put("float", TEST_FLOAT);
+        compound.put("double", TEST_DOUBLE);
+        compound.put("string", TEST_STRING);
         compound.put("byte_array", createTestByteArray());
         compound.put("int_array", createTestIntArray());
         compound.put("long_array", createTestLongArray());
-        compound.put("list_end", new NBTList(TagType.END));
+        compound.put("list_end", createTestEmptyList());
         compound.put("list_double", createTestDoubleList());
         compound.put("list_compound", createTestCompoundList());
         if (withNestedCompound) {
