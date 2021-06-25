@@ -9,7 +9,9 @@ import java.util.Set;
 import me.nullicorn.nedit.filter.FilteredTag;
 
 /**
- * Represents an NBT compound tag ({@link TagType#COMPOUND})
+ * A map-like structure for storing NBT tags associated with unique UTF-8 (<a
+ * href=https://docs.oracle.com/javase/8/docs/api/java/io/DataInput.html#modified-utf-8>modified</a>)
+ * names.
  *
  * @author Nullicorn
  */
@@ -22,163 +24,175 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @return Whether or not this compound contains a tag whose {@code name} and {@code type} match
-     * those provided
+     * @return {@code true} if any of the tags in the compound have a {@code name} and tag-{@code
+     * type} matching those provided. Otherwise {@code false}.
      */
-    public boolean containsTag(String key, TagType type) {
-        return type == TagType.fromObject(get(key));
+    public boolean containsTag(String name, TagType type) {
+        return type == TagType.fromObject(get(name));
     }
 
     /**
-     * @param key          A dot-separated path to the desired field
-     * @param defaultValue The value to return if the field does not exist
-     * @return The double at the desired path, or the default value if it does not exist
+     * @param name         A dot-separated path to the desired tag
+     * @param defaultValue The value to return if the tag does not exist
+     * @return The double at the desired path. If a tag with that name does not exist (or is not a
+     * number), the {@code defaultValue} is returned.
      * @see #get(String)
      */
-    public double getDouble(String key, double defaultValue) {
-        return getNumber(key, defaultValue).doubleValue();
+    public double getDouble(String name, double defaultValue) {
+        return getNumber(name, defaultValue).doubleValue();
     }
 
     /**
-     * @param key          A dot-separated path to the desired field
-     * @param defaultValue The value to return if the field does not exist
-     * @return The floating-point number at the desired path, or the default value if it does not
-     * exist
+     * @param name         A dot-separated path to the desired tag
+     * @param defaultValue The value to return if the tag does not exist
+     * @return The float at the desired path. If a tag with that name does not exist (or is not a
+     * number), the {@code defaultValue} is returned.
      * @see #get(String)
      */
-    public float getFloat(String key, float defaultValue) {
-        return getNumber(key, defaultValue).floatValue();
+    public float getFloat(String name, float defaultValue) {
+        return getNumber(name, defaultValue).floatValue();
     }
 
     /**
-     * @param key          A dot-separated path to the desired field
-     * @param defaultValue The value to return if the field does not exist
-     * @return The short at the desired path, or the default value if it does not exist
+     * @param name         A dot-separated path to the desired tag
+     * @param defaultValue The value to return if the tag does not exist
+     * @return The short at the desired path. If a tag with that name does not exist (or is not a
+     * number), the {@code defaultValue} is returned.
      * @see #get(String)
      */
-    public short getShort(String key, short defaultValue) {
-        return getNumber(key, defaultValue).shortValue();
+    public short getShort(String name, short defaultValue) {
+        return getNumber(name, defaultValue).shortValue();
     }
 
     /**
-     * @param key          A dot-separated path to the desired field
-     * @param defaultValue The value to return if the field does not exist
-     * @return The long at the desired path, or the default value if it does not exist
+     * @param name         A dot-separated path to the desired tag
+     * @param defaultValue The value to return if the tag does not exist
+     * @return The long at the desired path. If a tag with that name does not exist (or is not a
+     * number), the {@code defaultValue} is returned.
      * @see #get(String)
      */
-    public long getLong(String key, long defaultValue) {
-        return getNumber(key, defaultValue).longValue();
+    public long getLong(String name, long defaultValue) {
+        return getNumber(name, defaultValue).longValue();
     }
 
     /**
-     * @param key          A dot-separated path to the desired field
-     * @param defaultValue The value to return if the field does not exist
-     * @return The integer at the desired path, or the default value if it does not exist
+     * @param name         A dot-separated path to the desired tag
+     * @param defaultValue The value to return if the tag does not exist
+     * @return The integer at the desired path. If a tag with that name does not exist (or is not a
+     * number), the {@code defaultValue} is returned.
      * @see #get(String)
      */
-    public int getInt(String key, int defaultValue) {
-        return getNumber(key, defaultValue).intValue();
+    public int getInt(String name, int defaultValue) {
+        return getNumber(name, defaultValue).intValue();
     }
 
     /**
-     * @param key          A dot-separated path to the desired field
-     * @param defaultValue The value to return if the field does not exist
-     * @return The byte at the desired path, or the default value if it does not exist
+     * @param name         A dot-separated path to the desired tag
+     * @param defaultValue The value to return if the tag does not exist
+     * @return The byte at the desired path. If a tag with that name does not exist (or is not a
+     * number), the {@code defaultValue} is returned.
      * @see #get(String)
      */
-    public byte getByte(String key, byte defaultValue) {
-        return getNumber(key, defaultValue).byteValue();
+    public byte getByte(String name, byte defaultValue) {
+        return getNumber(name, defaultValue).byteValue();
     }
 
     /**
-     * @param key          A dot-separated path to the desired field
-     * @param defaultValue The value to return if the field does not exist
-     * @return The number at the desired path, or the default value if it does not exist
+     * @param name         A dot-separated path to the desired tag
+     * @param defaultValue The value to return if the tag does not exist
+     * @return The double at the desired path. If a tag with that name does not exist (or is not a
+     * number), the {@code defaultValue} is returned.
      * @see #get(String)
      */
-    public Number getNumber(String key, Number defaultValue) {
-        Object result = get(key);
+    public Number getNumber(String name, Number defaultValue) {
+        Object result = get(name);
         return result instanceof Number
             ? (Number) result
             : defaultValue;
     }
 
     /**
-     * @param key A dot-separated path to the desired field
-     * @return The string at the desired path, or null if it does not exist
+     * @param name A dot-separated path to the desired tag
+     * @return The string at the desired path. If a tag with that name does not exist, the {@code
+     * defaultValue} is returned. If a value exists for that name, but is the wrong type, the value
+     * is converted to a string using its {@link Object#toString() toString()} method.
      * @see #get(String)
      */
-    public String getString(String key, String defaultValue) {
-        Object result = get(key);
+    public String getString(String name, String defaultValue) {
+        Object result = get(name);
         return result != null
             ? result.toString()
             : defaultValue;
     }
 
     /**
-     * @param key A dot-separated path to the desired field
-     * @return The long array at the desired path, or null if it does not exist
+     * @param name A dot-separated path to the desired tag
+     * @return The long-array at the desired path. If a tag with that name does not exist (or is not
+     * a {@code long[]}), then {@code null} is returned.
      * @see #get(String)
      */
-    public long[] getLongArray(String key) {
-        Object result = get(key);
+    public long[] getLongArray(String name) {
+        Object result = get(name);
         return result instanceof long[]
             ? (long[]) result
             : null;
     }
 
     /**
-     * @param key A dot-separated path to the desired field
-     * @return The integer array at the desired path, or null if it does not exist
+     * @param name A dot-separated path to the desired tag
+     * @return The integer-array at the desired path. If a tag with that name does not exist (or is
+     * not an {@code int[]}), then {@code null} is returned.
      * @see #get(String)
      */
-    public int[] getIntArray(String key) {
-        Object result = get(key);
+    public int[] getIntArray(String name) {
+        Object result = get(name);
         return result instanceof int[]
             ? (int[]) result
             : null;
     }
 
     /**
-     * @param key A dot-separated path to the desired field
-     * @return The byte array at the desired path, or null if it does not exist
+     * @param name A dot-separated path to the desired tag
+     * @return The byte-array at the desired path. If a tag with that name does not exist (or is not
+     * a {@code byte[]}), then {@code null} is returned.
      * @see #get(String)
      */
-    public byte[] getByteArray(String key) {
-        Object result = get(key);
+    public byte[] getByteArray(String name) {
+        Object result = get(name);
         return result instanceof byte[]
             ? (byte[]) result
             : null;
     }
 
     /**
-     * @param key A dot-separated path to the desired field
-     * @return The list at the desired path, or null if it does not exist
+     * @param name A dot-separated path to the desired tag
+     * @return The NBT list at the desired path. If a tag with that name does not exist (or is not a
+     * list), then {@code null} is returned.
      * @see #get(String)
      */
-    public NBTList getList(String key) {
-        Object result = get(key);
+    public NBTList getList(String name) {
+        Object result = get(name);
         return result instanceof NBTList
             ? (NBTList) result
             : null;
     }
 
     /**
-     * @param key A dot-separated path to the desired field
-     * @return The compound at the desired path, or null if it does not exist
+     * @param name A dot-separated path to the desired tag
+     * @return The NBT compound at the desired path. If a tag with that name does not exist (or is
+     * not a compound), then {@code null} is returned.
      * @see #get(String)
      */
-    public NBTCompound getCompound(String key) {
-        Object result = get(key);
+    public NBTCompound getCompound(String name) {
+        Object result = get(name);
         return result instanceof NBTCompound
             ? (NBTCompound) result
             : null;
     }
 
     /**
-     * Retrieve a value from within this compound.
-     * <p>
-     * <p>
+     * Retrieves the value of a tag inside the compound.
+     * <p><br>
      * Consider the following NBT data:
      * <pre>{@code {
      *   user: {
@@ -195,18 +209,18 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * <pre>{@code "user.socialMedia.discord"}</pre>
      * To access the <b>user's ID</b>, we could use the path:
      * <pre>{@code "user.id"}</pre>
-     * And to access the <b>whole user</b> object, we could just use the path:
+     * And to access the <b>entire user</b> compound, we could just use the path:
      * <pre>{@code "user"}</pre>
      *
-     * @param key A dot-separated path to the desired field (see above example)
-     * @return The value at the specified path, or null if the field does not exist
+     * @param name A dot-separated path to the desired tag (see above example)
+     * @return The value at the specified path, or null if the tag does not exist
      */
-    public Object get(String key) {
-        if (key == null || key.isEmpty()) {
+    public Object get(String name) {
+        if (name == null || name.isEmpty()) {
             return this;
         }
 
-        String[] tokens = FilteredTag.tokenizeTagName(key);
+        String[] tokens = FilteredTag.tokenizeTagName(name);
         NBTCompound parent = this;
         for (int i = 0; i < tokens.length; i++) {
 
@@ -227,21 +241,21 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     @Override
-    public Object put(String key, Object value) {
+    public Object put(String name, Object value) {
         checkType(value);
-        return decorated.put(key, value);
+        return decorated.put(name, value);
     }
 
     @Override
-    public Object putIfAbsent(String key, Object value) {
+    public Object putIfAbsent(String name, Object value) {
         checkType(value);
-        return decorated.putIfAbsent(key, value);
+        return decorated.putIfAbsent(name, value);
     }
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
         // Check for invalid modifications to the underlying map.
-        decorated.forEach((key, value) -> checkType(value));
+        decorated.forEach((name, value) -> checkType(value));
         return decorated.entrySet();
     }
 
