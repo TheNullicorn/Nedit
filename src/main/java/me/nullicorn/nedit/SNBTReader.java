@@ -254,8 +254,9 @@ public final class SNBTReader {
         } while (readChar(reader) == ENTRY_SEPARATOR);
 
         // Unwrap the value list into a primitive array.
-        final Object result = Array
-            .newInstance(arrayType.getClazz().getComponentType(), values.size());
+        final Object result = Array.newInstance(
+            arrayType.getRuntimeType().getComponentType(),
+            values.size());
         for (int i = 0; i < values.size(); i++) {
             Array.set(result, i, values.get(i));
         }

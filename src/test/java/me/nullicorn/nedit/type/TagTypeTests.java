@@ -78,7 +78,7 @@ class TagTypeTests {
             if (validObjects.get(i) != null) {
                 tagClass = validObjects.get(i).getClass();
             }
-            Assertions.assertEquals(allTags.get(i).getClazz(), tagClass);
+            Assertions.assertEquals(allTags.get(i).getRuntimeType(), tagClass);
         }
     }
 }

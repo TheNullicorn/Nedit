@@ -89,11 +89,11 @@ public enum TagType {
     }
 
     private final int      id;
-    private final Class<?> clazz;
+    private final Class<?> runtimeType;
 
-    TagType(int id, Class<?> typeClazz) {
+    TagType(int id, Class<?> runtimeType) {
         this.id = id;
-        this.clazz = typeClazz;
+        this.runtimeType = runtimeType;
     }
 
     /**
@@ -104,11 +104,18 @@ public enum TagType {
     }
 
     /**
-     * The Java class used to represent tags of this type in memory. May be null for the empty type,
-     * {@link #END}.
+     * @return The class used to represent tags of that type.
      */
+    public Class<?> getRuntimeType() {
+        return runtimeType;
+    }
+
+    /**
+     * @deprecated Renamed to {@link #getRuntimeType}.
+     */
+    @Deprecated
     public Class<?> getClazz() {
-        return clazz;
+        return getRuntimeType();
     }
 
     /**

@@ -47,7 +47,7 @@ public class NBTList extends ArrayList<Object> {
 
     /**
      * Appends a nameless NBT {@code tag} to the end of the list. The value's {@link
-     * TagType#getClazz() runtime type} much match the list's overall {@link #getContentType()
+     * TagType#getRuntimeType() runtime type} much match the list's overall {@link #getContentType()
      * content type}, or else an exception will be thrown.
      *
      * @throws IllegalArgumentException If the {@code tag} is null, or if its class is incompatible
@@ -65,7 +65,7 @@ public class NBTList extends ArrayList<Object> {
     /**
      * Inserts a nameless NBT {@code tag} at the {@code index} in the list. This will cause any tags
      * previously at or beyond that index to be shifted up one index. The value's {@link
-     * TagType#getClazz() runtime type} much match the list's overall {@link #getContentType()
+     * TagType#getRuntimeType() runtime type} much match the list's overall {@link #getContentType()
      * content type}, or else an exception will be thrown.
      *
      * @param index The zero-based index in the list where the new tag will be inserted.
@@ -88,8 +88,8 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalArgumentException If the provided collection is {@code null}, or if any of the
      *                                  tags in the collection are {@code null}. Also thrown if any
      *                                  element in the collection has a class different from the
-     *                                  {@link TagType#getClazz() runtime type} of the list's {@link
-     *                                  #getContentType() contents}.
+     *                                  {@link TagType#getRuntimeType() runtime type} of the list's
+     *                                  {@link #getContentType() contents}.
      * @throws IllegalStateException    If the list's {@link #getContentType() content type} is set
      *                                  to {@link TagType#END END}, indicating the list should
      *                                  always be empty.
@@ -110,8 +110,8 @@ public class NBTList extends ArrayList<Object> {
      * @throws IllegalArgumentException If the provided collection is {@code null}, or if any of the
      *                                  tags in the collection are {@code null}. Also thrown if any
      *                                  element in the collection has a class different from the
-     *                                  {@link TagType#getClazz() runtime type} of the list's {@link
-     *                                  #getContentType() contents}.
+     *                                  {@link TagType#getRuntimeType() runtime type} of the list's
+     *                                  {@link #getContentType() contents}.
      * @throws IllegalStateException    If the list's {@link #getContentType() content type} is set
      *                                  to {@link TagType#END END}, indicating the list should
      *                                  always be empty.
@@ -399,7 +399,7 @@ public class NBTList extends ArrayList<Object> {
      * <ul>
      *     <li>The list's {@link #getContentType() content-type} is set to {@link TagType#END}. ({@link IllegalStateException})</li>
      *     <li>The {@code tag} is null. ({@link IllegalArgumentException})</li>
-     *     <li>The {@code tag}'s class is different from the {@link #getContentType() content-type}'s {@link TagType#getClazz() runtime type}. ({@link IllegalArgumentException})</li>
+     *     <li>The {@code tag}'s class is different from the {@link #getContentType() content-type}'s {@link TagType#getRuntimeType() runtime type}. ({@link IllegalArgumentException})</li>
      * </ul>
      */
     private void checkType(Object tag) {
@@ -407,10 +407,10 @@ public class NBTList extends ArrayList<Object> {
             throw new IllegalStateException("Cannot add tags to a list with content-type TAG_End");
         } else if (tag == null) {
             throw new IllegalArgumentException("Cannot add null tags to NBT list");
-        } else if (!tag.getClass().equals(contentType.getClazz())) {
+        } else if (!tag.getClass().equals(contentType.getRuntimeType())) {
             throw new IllegalArgumentException(String.format(
                 "Expected %s but found %s",
-                contentType.getClazz(), tag.getClass()));
+                contentType.getRuntimeType(), tag.getClass()));
         }
     }
 
