@@ -28,7 +28,11 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * type} matching those provided. Otherwise {@code false}.
      */
     public boolean containsTag(String name, TagType type) {
-        return type == TagType.fromObject(get(name));
+        Object tag = get(name);
+        if (tag == null) {
+            return false;
+        }
+        return type == TagType.fromObject(tag);
     }
 
     /**
@@ -444,7 +448,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
 
     @Override
     public int hashCode() {
-        int h = 0;
+        int hashCode = 0;
         for (Entry<String, Object> entry : entrySet()) {
             final Object value = entry.getValue();
             final int valHash;
@@ -459,8 +463,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
                 valHash = value.hashCode();
             }
 
-            h += Objects.hashCode(entry.getKey()) ^ valHash;
+            hashCode += Objects.hashCode(entry.getKey()) ^ valHash;
         }
-        return h;
+        return hashCode;
     }
 }
