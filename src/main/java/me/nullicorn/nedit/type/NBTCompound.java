@@ -28,11 +28,16 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * type} matching those provided. Otherwise {@code false}.
      */
     public boolean containsTag(String name, TagType type) {
-        Object tag = get(name);
-        if (tag == null) {
-            return false;
+        if (name != null) {
+            Object value = get(name);
+            return value != null && TagType.fromObject(value) == type;
         }
-        return type == TagType.fromObject(tag);
+        return false;
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return get(key) != null;
     }
 
     /**
@@ -195,7 +200,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * Retrieves the value of a tag inside the compound.
+     * Retrieves the value of a tag inside the compound. If dot-notation is used in the {@code
+     * name}, this method is able to access tags inside nested and deeply-nested compounds as well.
      * <p><br>
      * Consider the following NBT data:
      * <pre>{@code {
@@ -216,15 +222,23 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * And to access the <b>entire user</b> compound, we could just use the path:
      * <pre>{@code "user"}</pre>
      *
-     * @param name A dot-separated path to the desired tag (see above example)
-     * @return The value at the specified path, or null if the tag does not exist
+     * @param name The name of the tag whose value should be returned. May be dot-notation to access
+     *             nested tags. Any literal dots in the name (dots that do not indicating nesting)
+     *             must be escaped using a backslash (or double-backslash {@code \\.} in literal
+     *             strings),
+     * @return The value of the tag associated with the {@code name}. If the name is {@code null},
+     * or if there is no tag in the compound with that name, then {@code null} is returned.
      */
     public Object get(String name) {
-        if (name == null || name.isEmpty()) {
-            return this;
+        if (name == null) {
+            return null;
         }
 
         String[] tokens = FilteredTag.tokenizeTagName(name);
+        if (tokens.length == 1) {
+            return decorated.get(name);
+        }
+
         NBTCompound parent = this;
         for (int i = 0; i < tokens.length; i++) {
 
@@ -244,33 +258,68 @@ public class NBTCompound extends AbstractMap<String, Object> {
         return null;
     }
 
+    /**
+     * See
+     *
+     * @return {@code null} if the {@code name} is not a {@link String}.
+     * @see #get(String)
+     */
+    @Override
+    public Object get(Object name) {
+        return name instanceof String
+            ? get((String) name)
+            : null;
+    }
+
+    /**
+     * @throws IllegalArgumentException If the value is {@code null}, or if it cannot be {@link
+     *                                  TagType#getRuntimeType() represented} as an NBT type.
+     */
     @Override
     public Object put(String name, Object value) {
-        checkType(value);
+        checkTag(name, value);
         return decorated.put(name, value);
     }
 
+    /**
+     * @throws IllegalArgumentException If the value is {@code null}, or if it cannot be {@link
+     *                                  TagType#getRuntimeType() represented} as an NBT type.
+     */
     @Override
     public Object putIfAbsent(String name, Object value) {
-        checkType(value);
+        checkTag(name, value);
         return decorated.putIfAbsent(name, value);
     }
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
-        // Check for invalid modifications to the underlying map.
-        decorated.forEach((name, value) -> checkType(value));
         return decorated.entrySet();
+    }
+
+    @Override
+    public int size() {
+        return decorated.size();
     }
 
     /**
      * Throws an {@link IllegalArgumentException} if the {@code value} cannot be converted to an NBT
      * tag type.
      */
-    private void checkType(Object value) {
+    private void checkTag(String name, Object value) {
+        String errorMsg = null;
+        if (name == null) {
+            errorMsg = "Compounds cannot have null tag names (value=" + value + ")";
+        } else if (value == null) {
+            errorMsg = "Compounds cannot have null tag values (name=" + name + ")";
+        }
+
         TagType type = TagType.fromObject(value);
         if (type == TagType.END) {
-            throw new IllegalArgumentException(value + " cannot be converted to an NBT type");
+            errorMsg = "TAG_End cannot be used as a value (name=" + name + ",value=" + value + ")";
+        }
+
+        if (errorMsg != null) {
+            throw new IllegalArgumentException(errorMsg);
         }
     }
 
@@ -430,7 +479,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
             return false;
         }
 
-        for (Entry<String, Object> entry : entrySet()) {
+        for (Entry<String, Object> entry : decorated.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
             Object oValue = c.get(key);
@@ -449,7 +498,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
     @Override
     public int hashCode() {
         int hashCode = 0;
-        for (Entry<String, Object> entry : entrySet()) {
+        for (Entry<String, Object> entry : decorated.entrySet()) {
             final Object value = entry.getValue();
             final int valHash;
 
