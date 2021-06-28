@@ -358,13 +358,13 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     @Override
-    public boolean remove(Object key, Object value) {
-        return decorated.remove(key, value);
+    public boolean remove(Object name, Object value) {
+        return decorated.remove(name, value);
     }
 
     @Override
-    public Object remove(Object key) {
-        return decorated.remove(key);
+    public Object remove(Object name) {
+        return decorated.remove(name);
     }
 
     @Override
