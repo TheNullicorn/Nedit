@@ -19,6 +19,9 @@ public class NBTCompound extends AbstractMap<String, Object> {
 
     private final Map<String, Object> decorated;
 
+    /**
+     * Creates an empty NBT compound.
+     */
     public NBTCompound() {
         decorated = new HashMap<>();
     }
@@ -35,16 +38,24 @@ public class NBTCompound extends AbstractMap<String, Object> {
         return false;
     }
 
+    /**
+     * Same as {@link #containsTag(String, TagType)}, but {@code true} will be returned if any tag
+     * in the compound uses the {@code key}, regardless of the tag's type.
+     */
     @Override
     public boolean containsKey(Object key) {
         return get(key) != null;
     }
 
     /**
-     * @param name         A dot-separated path to the desired tag
-     * @param defaultValue The value to return if the tag does not exist
-     * @return The double at the desired path. If a tag with that name does not exist (or is not a
-     * number), the {@code defaultValue} is returned.
+     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
+     *                     used to access nested tags. See {@link #get(String)} for more info on
+     *                     this.
+     * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
+     *                     appropriate type.
+     * @return The value of the numeric tag associated with the {@code name}, cast to a double if it
+     * isn't already. If a tag with that name does not exist (or is not a number), the {@code
+     * defaultValue} is returned.
      * @see #get(String)
      */
     public double getDouble(String name, double defaultValue) {
@@ -52,10 +63,14 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         A dot-separated path to the desired tag
-     * @param defaultValue The value to return if the tag does not exist
-     * @return The float at the desired path. If a tag with that name does not exist (or is not a
-     * number), the {@code defaultValue} is returned.
+     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
+     *                     used to access nested tags. See {@link #get(String)} for more info on
+     *                     this.
+     * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
+     *                     appropriate type.
+     * @return The value of the numeric tag associated with the {@code name}, cast to a float if it
+     * isn't already. If a tag with that name does not exist (or is not a number), the {@code
+     * defaultValue} is returned.
      * @see #get(String)
      */
     public float getFloat(String name, float defaultValue) {
@@ -63,10 +78,14 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         A dot-separated path to the desired tag
-     * @param defaultValue The value to return if the tag does not exist
-     * @return The short at the desired path. If a tag with that name does not exist (or is not a
-     * number), the {@code defaultValue} is returned.
+     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
+     *                     used to access nested tags. See {@link #get(String)} for more info on
+     *                     this.
+     * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
+     *                     appropriate type.
+     * @return The value of the numeric tag associated with the {@code name}, cast to a short if it
+     * isn't already. If a tag with that name does not exist (or is not a number), the {@code
+     * defaultValue} is returned.
      * @see #get(String)
      */
     public short getShort(String name, short defaultValue) {
@@ -74,10 +93,14 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         A dot-separated path to the desired tag
-     * @param defaultValue The value to return if the tag does not exist
-     * @return The long at the desired path. If a tag with that name does not exist (or is not a
-     * number), the {@code defaultValue} is returned.
+     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
+     *                     used to access nested tags. See {@link #get(String)} for more info on
+     *                     this.
+     * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
+     *                     appropriate type.
+     * @return The value of the numeric tag associated with the {@code name}, cast to a long if it
+     * isn't already. If a tag with that name does not exist (or is not a number), the {@code
+     * defaultValue} is returned.
      * @see #get(String)
      */
     public long getLong(String name, long defaultValue) {
@@ -85,10 +108,14 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         A dot-separated path to the desired tag
-     * @param defaultValue The value to return if the tag does not exist
-     * @return The integer at the desired path. If a tag with that name does not exist (or is not a
-     * number), the {@code defaultValue} is returned.
+     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
+     *                     used to access nested tags. See {@link #get(String)} for more info on
+     *                     this.
+     * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
+     *                     appropriate type.
+     * @return The value of the numeric tag associated with the {@code name}, cast to an int if it
+     * isn't already. If a tag with that name does not exist (or is not a number), the {@code
+     * defaultValue} is returned.
      * @see #get(String)
      */
     public int getInt(String name, int defaultValue) {
@@ -96,10 +123,14 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         A dot-separated path to the desired tag
-     * @param defaultValue The value to return if the tag does not exist
-     * @return The byte at the desired path. If a tag with that name does not exist (or is not a
-     * number), the {@code defaultValue} is returned.
+     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
+     *                     used to access nested tags. See {@link #get(String)} for more info on
+     *                     this.
+     * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
+     *                     appropriate type.
+     * @return The value of the numeric tag associated with the {@code name}, cast to a byte if it
+     * isn't already. If a tag with that name does not exist (or is not a number), the {@code
+     * defaultValue} is returned.
      * @see #get(String)
      */
     public byte getByte(String name, byte defaultValue) {
@@ -107,10 +138,13 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         A dot-separated path to the desired tag
-     * @param defaultValue The value to return if the tag does not exist
-     * @return The double at the desired path. If a tag with that name does not exist (or is not a
-     * number), the {@code defaultValue} is returned.
+     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
+     *                     used to access nested tags. See {@link #get(String)} for more info on
+     *                     this.
+     * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
+     *                     appropriate type.
+     * @return The value of the numeric tag associated with the {@code name}. If a tag with that
+     * name does not exist (or is not a number), the {@code defaultValue} is returned.
      * @see #get(String)
      */
     public Number getNumber(String name, Number defaultValue) {
@@ -121,10 +155,22 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name A dot-separated path to the desired tag
-     * @return The string at the desired path. If a tag with that name does not exist, the {@code
-     * defaultValue} is returned. If a value exists for that name, but is the wrong type, the value
-     * is converted to a string using its {@link Object#toString() toString()} method.
+     * Same as {@link #getString(String, String defaultValue)}, but the default value is always
+     * {@code null}.
+     */
+    public String getString(String name) {
+        return getString(name, null);
+    }
+
+    /**
+     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
+     *                     used to access nested tags. See {@link #get(String)} for more info on
+     *                     this.
+     * @param defaultValue The value to return if the tag does not exist. May be null.
+     * @return The stringified value of the tag associated with the {@code name}. If a tag with that
+     * name does not exist, the {@code defaultValue} is returned. If a value exists for that name,
+     * but is not already a string, the value is converted to a string using its {@link
+     * Object#toString() toString()} method.
      * @see #get(String)
      */
     public String getString(String name, String defaultValue) {
@@ -135,9 +181,10 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name A dot-separated path to the desired tag
-     * @return The long-array at the desired path. If a tag with that name does not exist (or is not
-     * a {@code long[]}), then {@code null} is returned.
+     * @param name The name of the tag whose value is to be returned. Dot-notation may be used to
+     *             access nested tags. See {@link #get(String)} for more info on this.
+     * @return The long-array tag associated with the {@code name}. If a tag with that name does not
+     * exist (or is not a {@code long[]}), then {@code null} is returned.
      * @see #get(String)
      */
     public long[] getLongArray(String name) {
@@ -148,9 +195,10 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name A dot-separated path to the desired tag
-     * @return The integer-array at the desired path. If a tag with that name does not exist (or is
-     * not an {@code int[]}), then {@code null} is returned.
+     * @param name The name of the tag whose value is to be returned. Dot-notation may be used to
+     *             access nested tags. See {@link #get(String)} for more info on this.
+     * @return The integer-array tag associated with the {@code name}. If a tag with that name does
+     * not exist (or is not an {@code int[]}), then {@code null} is returned.
      * @see #get(String)
      */
     public int[] getIntArray(String name) {
@@ -161,9 +209,10 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name A dot-separated path to the desired tag
-     * @return The byte-array at the desired path. If a tag with that name does not exist (or is not
-     * a {@code byte[]}), then {@code null} is returned.
+     * @param name The name of the tag whose value is to be returned. Dot-notation may be used to
+     *             access nested tags. See {@link #get(String)} for more info on this.
+     * @return The byte-array tag associated with the {@code name}. If a tag with that name does not
+     * exist (or is not a {@code byte[]}), then {@code null} is returned.
      * @see #get(String)
      */
     public byte[] getByteArray(String name) {
@@ -174,9 +223,10 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name A dot-separated path to the desired tag
-     * @return The NBT list at the desired path. If a tag with that name does not exist (or is not a
-     * list), then {@code null} is returned.
+     * @param name The name of the tag whose value is to be returned. Dot-notation may be used to
+     *             access nested tags. See {@link #get(String)} for more info on this.
+     * @return The NBT list associated with the {@code name}. If a tag with that name does not exist
+     * (or is not a list), then {@code null} is returned.
      * @see #get(String)
      */
     public NBTList getList(String name) {
@@ -187,9 +237,10 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name A dot-separated path to the desired tag
-     * @return The NBT compound at the desired path. If a tag with that name does not exist (or is
-     * not a compound), then {@code null} is returned.
+     * @param name The name of the tag whose value is to be returned. Dot-notation may be used to
+     *             access nested tags. See {@link #get(String)} for more info on this.
+     * @return The nested NBT compound associated with the {@code name}. If a tag with that name
+     * does not exist (or is not a compound), then {@code null} is returned.
      * @see #get(String)
      */
     public NBTCompound getCompound(String name) {
@@ -227,7 +278,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *             must be escaped using a backslash (or double-backslash {@code \\.} in literal
      *             strings),
      * @return The value of the tag associated with the {@code name}. If the name is {@code null},
-     * or if there is no tag in the compound with that name, then {@code null} is returned.
+     * or if there is no tag inside the compound with that name, then {@code null} is returned.
      */
     public Object get(String name) {
         if (name == null) {
@@ -259,7 +310,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * See
+     * See {@link #get(String)} for more info.
      *
      * @return {@code null} if the {@code name} is not a {@link String}.
      * @see #get(String)
@@ -289,6 +340,21 @@ public class NBTCompound extends AbstractMap<String, Object> {
     public Object putIfAbsent(String name, Object value) {
         checkTag(name, value);
         return decorated.putIfAbsent(name, value);
+    }
+
+    @Override
+    public boolean remove(Object key, Object value) {
+        return decorated.remove(key, value);
+    }
+
+    @Override
+    public Object remove(Object key) {
+        return decorated.remove(key);
+    }
+
+    @Override
+    public void clear() {
+        decorated.clear();
     }
 
     @Override
@@ -324,7 +390,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @return The compound represented by an SNBT string
+     * @return The compound in SNBT format.
      */
     @Override
     public String toString() {
@@ -332,7 +398,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
         sb.append("{");
 
         int i = 0;
-        for (Entry<String, Object> tag : entrySet()) {
+        for (Entry<String, Object> tag : decorated.entrySet()) {
             if (i != 0) {
                 sb.append(",");
             }
