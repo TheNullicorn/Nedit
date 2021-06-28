@@ -12,6 +12,44 @@ import me.nullicorn.nedit.filter.FilteredTag;
  * A map-like structure for storing NBT tags associated with unique UTF-8 (<a
  * href=https://docs.oracle.com/javase/8/docs/api/java/io/DataInput.html#modified-utf-8>modified</a>)
  * names.
+ * <p><br>
+ * <h3 id="nesting">Nesting</h3>
+ * If a compound is inside another compound, the inner one is considered to be "nested", and the
+ * outer one is its "parent". To access the nested compound's contents, you would first need to
+ * {@link #getCompound(String) get} it from its parent, check that it is not null, and then repeat
+ * for any further nested compounds. To avoid this, the implementation allows you to use
+ * dot-notation in these cases. More specifically, dot-notation is valid in methods that
+ * <b>cannot</b> alter the structure of the compound (and those that accept a tag name), like
+ * {@link #get(String) getter} and {@link #containsTag(String, TagType) contains} methods.
+ * <p>
+ * Consider the following NBT data:
+ * <pre>{@code
+ * {
+ *   user: {
+ *     name: "User291",
+ *     id: "ae630aa9-cdbb-4aaf-be42-868889585b4d",
+ *     coins: 19531L,
+ *     social_media: {
+ *       discord: "Player291#4444",
+ *       twitter: "User291",
+ *       "i_have_a_dot_._in_me": true
+ *     },
+ *   }
+ * }
+ * }</pre>
+ * In this case, to access the user's <b>Discord username</b>, we'd use the path
+ * <pre>{@code "user.social_media.discord"}</pre>
+ * To access the <b>user's ID</b>, we would use
+ * <pre>{@code "user.id"}</pre>
+ * And to access the <b>entire user</b> compound, just
+ * <pre>{@code "user"}</pre>
+ * If a tag's name has a literal dot ({@code .}) in it that does not indicate nesting, a backslash
+ * can be used to escape the character. This means using a double-backslash in string literals, such
+ * as
+ * <pre>{@code "user.social_media.i_have_a_dot_\\._in_me"}</pre>
+ * <p><br>
+ * In any case, dot-notation is not required, and a compound's direct children can still be accessed
+ * normally using their respective names.
  *
  * @author Nullicorn
  */
@@ -27,6 +65,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
+     * @param name The name of the NBT tag whose presence and type should be checked for. <a
+     *             href="#nesting">Dot-notation</a> is supported for checking nested tags.
      * @return {@code true} if any of the tags in the compound have a {@code name} and tag-{@code
      * type} matching those provided. Otherwise {@code false}.
      */
@@ -39,8 +79,12 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * Same as {@link #containsTag(String, TagType)}, but {@code true} will be returned if any tag
-     * in the compound uses the {@code key}, regardless of the tag's type.
+     * Same as {@link #containsTag(String, TagType) containsTag(...)}, but {@code true} will be
+     * returned if any tag in the compound uses the {@code key}, regardless of the tag's type.
+     * <p><br>
+     *
+     * @param key The string name of the NBT tag whose presence should be checked for. <a
+     *            href="#nesting">Dot-notation</a> is supported for checking nested tags.
      */
     @Override
     public boolean containsKey(Object key) {
@@ -48,9 +92,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
-     *                     used to access nested tags. See {@link #get(String)} for more info on
-     *                     this.
+     * @param name         The name of the tag whose double value should be returned. <a
+     *                     href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
      *                     appropriate type.
      * @return The value of the numeric tag associated with the {@code name}, cast to a double if it
@@ -63,9 +106,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
-     *                     used to access nested tags. See {@link #get(String)} for more info on
-     *                     this.
+     * @param name         The name of the tag whose float value should be returned. <a
+     *                     href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
      *                     appropriate type.
      * @return The value of the numeric tag associated with the {@code name}, cast to a float if it
@@ -78,9 +120,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
-     *                     used to access nested tags. See {@link #get(String)} for more info on
-     *                     this.
+     * @param name         The name of the tag whose short value should be returned. <a
+     *                     href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
      *                     appropriate type.
      * @return The value of the numeric tag associated with the {@code name}, cast to a short if it
@@ -93,9 +134,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
-     *                     used to access nested tags. See {@link #get(String)} for more info on
-     *                     this.
+     * @param name         The name of the tag whose long value should be returned. <a
+     *                     href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
      *                     appropriate type.
      * @return The value of the numeric tag associated with the {@code name}, cast to a long if it
@@ -108,9 +148,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
-     *                     used to access nested tags. See {@link #get(String)} for more info on
-     *                     this.
+     * @param name         The name of the tag whose int value should be returned. <a
+     *                     href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
      *                     appropriate type.
      * @return The value of the numeric tag associated with the {@code name}, cast to an int if it
@@ -123,9 +162,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
-     *                     used to access nested tags. See {@link #get(String)} for more info on
-     *                     this.
+     * @param name         The name of the tag whose byte value should be returned. <a
+     *                     href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
      *                     appropriate type.
      * @return The value of the numeric tag associated with the {@code name}, cast to a byte if it
@@ -138,9 +176,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
-     *                     used to access nested tags. See {@link #get(String)} for more info on
-     *                     this.
+     * @param name         The name of the tag whose numeric value should be returned. <a
+     *                     href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the
      *                     appropriate type.
      * @return The value of the numeric tag associated with the {@code name}. If a tag with that
@@ -163,9 +200,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name         The name of the tag whose value is to be returned. Dot-notation may be
-     *                     used to access nested tags. See {@link #get(String)} for more info on
-     *                     this.
+     * @param name         The name of the string whose value should be returned. <a
+     *                     href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @param defaultValue The value to return if the tag does not exist. May be null.
      * @return The stringified value of the tag associated with the {@code name}. If a tag with that
      * name does not exist, the {@code defaultValue} is returned. If a value exists for that name,
@@ -181,8 +217,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name The name of the tag whose value is to be returned. Dot-notation may be used to
-     *             access nested tags. See {@link #get(String)} for more info on this.
+     * @param name The name of the long-array whose value should be returned. <a
+     *             href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @return The long-array tag associated with the {@code name}. If a tag with that name does not
      * exist (or is not a {@code long[]}), then {@code null} is returned.
      * @see #get(String)
@@ -195,8 +231,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name The name of the tag whose value is to be returned. Dot-notation may be used to
-     *             access nested tags. See {@link #get(String)} for more info on this.
+     * @param name The name of the integer-array whose value should be returned. <a
+     *             href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @return The integer-array tag associated with the {@code name}. If a tag with that name does
      * not exist (or is not an {@code int[]}), then {@code null} is returned.
      * @see #get(String)
@@ -209,8 +245,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name The name of the tag whose value is to be returned. Dot-notation may be used to
-     *             access nested tags. See {@link #get(String)} for more info on this.
+     * @param name The name of the byte-array whose value should be returned. <a
+     *             href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @return The byte-array tag associated with the {@code name}. If a tag with that name does not
      * exist (or is not a {@code byte[]}), then {@code null} is returned.
      * @see #get(String)
@@ -223,8 +259,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name The name of the tag whose value is to be returned. Dot-notation may be used to
-     *             access nested tags. See {@link #get(String)} for more info on this.
+     * @param name The name of the list whose value should be returned. <a
+     *             href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @return The NBT list associated with the {@code name}. If a tag with that name does not exist
      * (or is not a list), then {@code null} is returned.
      * @see #get(String)
@@ -237,8 +273,8 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @param name The name of the tag whose value is to be returned. Dot-notation may be used to
-     *             access nested tags. See {@link #get(String)} for more info on this.
+     * @param name The name of the compound whose value should be returned. <a
+     *             href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @return The nested NBT compound associated with the {@code name}. If a tag with that name
      * does not exist (or is not a compound), then {@code null} is returned.
      * @see #get(String)
@@ -251,32 +287,10 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * Retrieves the value of a tag inside the compound. If dot-notation is used in the {@code
-     * name}, this method is able to access tags inside nested and deeply-nested compounds as well.
-     * <p><br>
-     * Consider the following NBT data:
-     * <pre>{@code {
-     *   user: {
-     *     name: "User291",
-     *     id: "ae630aa9-cdbb-4aaf-be42-868889585b4d",
-     *     tokens: 19531L,
-     *     socialMedia: {
-     *       discord: "Player291#4444",
-     *       twitter: "User291"
-     *     }
-     *   }
-     * }}</pre>
-     * In this case, to access the user's <b>Discord username</b>, we'd need the path:
-     * <pre>{@code "user.socialMedia.discord"}</pre>
-     * To access the <b>user's ID</b>, we could use the path:
-     * <pre>{@code "user.id"}</pre>
-     * And to access the <b>entire user</b> compound, we could just use the path:
-     * <pre>{@code "user"}</pre>
+     * Retrieves the value of a tag inside the compound.
      *
-     * @param name The name of the tag whose value should be returned. May be dot-notation to access
-     *             nested tags. Any literal dots in the name (dots that do not indicating nesting)
-     *             must be escaped using a backslash (or double-backslash {@code \\.} in literal
-     *             strings),
+     * @param name The name of the tag whose value should be returned. <a href="#nesting">Dot-notation</a>
+     *             is supported for accessing nested tags.
      * @return The value of the tag associated with the {@code name}. If the name is {@code null},
      * or if there is no tag inside the compound with that name, then {@code null} is returned.
      */
@@ -310,9 +324,10 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * See {@link #get(String)} for more info.
+     * See <a href="#nesting">here</a> for more info.
      *
-     * @return {@code null} if the {@code name} is not a {@link String}.
+     * @return {@code null} if the {@code name} is not a {@link String}. Otherwise, returns the
+     * result of {@link #get(String)} for that name.
      * @see #get(String)
      */
     @Override
