@@ -1,9 +1,10 @@
 package me.nullicorn.nedit.type;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,36 +50,36 @@ class TagTypeTests {
     @Test
     void shouldSerializeIdCorrectly() {
         for (int i = 0; i < allTags.size(); i++) {
-            Assertions.assertEquals(i, allTags.get(i).getId());
+            assertEquals(i, allTags.get(i).getId());
         }
     }
 
     @Test
     void shouldDeserializeIdCorrectly() {
         for (int i = 0; i < allTags.size(); i++) {
-            Assertions.assertEquals(allTags.get(i), TagType.fromId(i));
+            assertEquals(allTags.get(i), TagType.fromId(i));
         }
     }
 
     @Test
     void shouldFindCorrectTagForObject() {
-        Assertions.assertEquals(allTags.size(), validObjects.size());
+        assertEquals(allTags.size(), validObjects.size());
 
         for (int i = 0; i < allTags.size(); i++) {
-            Assertions.assertEquals(allTags.get(i), TagType.fromObject(validObjects.get(i)));
+            assertEquals(allTags.get(i), TagType.fromObject(validObjects.get(i)));
         }
     }
 
     @Test
     void shouldHaveCorrectClassForTag() {
-        Assertions.assertEquals(allTags.size(), validObjects.size());
+        assertEquals(allTags.size(), validObjects.size());
 
         for (int i = 0; i < allTags.size(); i++) {
             Class<?> tagClass = null;
             if (validObjects.get(i) != null) {
                 tagClass = validObjects.get(i).getClass();
             }
-            Assertions.assertEquals(allTags.get(i).getRuntimeType(), tagClass);
+            assertEquals(allTags.get(i).getRuntimeType(), tagClass);
         }
     }
 }

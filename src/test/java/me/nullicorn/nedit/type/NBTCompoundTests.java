@@ -1,10 +1,17 @@
 package me.nullicorn.nedit.type;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -53,12 +60,12 @@ class NBTCompoundTests {
     @Order(1)
     void shouldPutValidTags() {
         NBTCompound compound = new NBTCompound();
-        Assertions.assertEquals(0, compound.size());
+        assertEquals(0, compound.size());
 
-        Assertions.assertDoesNotThrow(() -> testTags.forEach(compound::put));
+        assertDoesNotThrow(() -> testTags.forEach(compound::put));
 
-        Assertions.assertEquals(testTags.size(), compound.size());
-        Assertions.assertFalse(compound.isEmpty());
+        assertEquals(testTags.size(), compound.size());
+        assertFalse(compound.isEmpty());
     }
 
     @Test
@@ -68,9 +75,9 @@ class NBTCompoundTests {
         Object invalidValue = new Object();
         Class<? extends Throwable> expect = IllegalArgumentException.class;
 
-        Assertions.assertThrows(expect, () -> compound.put("tag_with_invalid_value", invalidValue));
-        Assertions.assertEquals(0, compound.size());
-        Assertions.assertTrue(compound.isEmpty());
+        assertThrows(expect, () -> compound.put("tag_with_invalid_value", invalidValue));
+        assertEquals(0, compound.size());
+        assertTrue(compound.isEmpty());
     }
 
     @Test
@@ -125,15 +132,15 @@ class NBTCompoundTests {
         child.put(tagName, tagValue);
         root.put(childName, child);
 
-        Assertions.assertEquals(child, root.get(childName));
-        Assertions.assertEquals(tagValue, root.get(childName + "." + tagName));
+        assertEquals(child, root.get(childName));
+        assertEquals(tagValue, root.get(childName + "." + tagName));
     }
 
     @Test
     @Order(5)
     void shouldGetterReturnNullForNonExistentTags() {
         NBTCompound compound = new NBTCompound();
-        Assertions.assertNull(compound.get("i_do_not_exist"));
+        assertNull(compound.get("i_do_not_exist"));
 
         String childName = "child";
         String tagName = "tag";
@@ -143,9 +150,8 @@ class NBTCompoundTests {
         child.put(tagName, tagValue);
         compound.put(childName, child);
 
-        Assertions.assertNull(compound.get(child + ".me_neither"));
-        Assertions.assertNull(compound.get(childName + "." + tagName + ".nor_do_i"));
-        Assertions.assertNotNull(compound.get(childName + "." + tagName));
+        assertNull(compound.get(childName + ".me_neither"));
+        assertNull(compound.get(childName + "." + tagName + ".nor_do_i"));
     }
 
     @Test
@@ -159,14 +165,14 @@ class NBTCompoundTests {
 
         // Check that there aren't false positives for the wrong type.
         testTagNames.values().forEach(
-            tagName -> Assertions.assertFalse(compound.containsTag(tagName, TagType.END)));
+            tagName -> assertFalse(compound.containsTag(tagName, TagType.END)));
 
         // Check that "contains" doesn't promote numbers before checking.
         String byteTagName = testTagNames.get(TagType.BYTE);
-        Assertions.assertFalse(compound.containsTag(byteTagName, TagType.INT));
+        assertFalse(compound.containsTag(byteTagName, TagType.INT));
 
         // Check that non-existent tags are not found.
-        Assertions.assertFalse(compound.containsTag("does_not_exist", TagType.STRING));
+        assertFalse(compound.containsTag("does_not_exist", TagType.STRING));
     }
 
     /**
@@ -177,7 +183,7 @@ class NBTCompoundTests {
         String tagName = testTagNames.get(type);
         boolean doesContain = compound.containsTag(tagName, type);
 
-        Assertions.assertTrue(doesContain);
+        assertTrue(doesContain);
     }
 
     /**
@@ -187,7 +193,7 @@ class NBTCompoundTests {
      * expected one.
      */
     private <T> void checkPrimitiveGetter(BiFunction<String, T, T> getter, String name, T expected, T incorrectValue) {
-        Assertions.assertEquals(expected, getter.apply(name, incorrectValue));
+        assertEquals(expected, getter.apply(name, incorrectValue));
     }
 
     /**
@@ -200,13 +206,13 @@ class NBTCompoundTests {
         T expected = (T) testTags.get(name);
 
         if (expected instanceof byte[]) {
-            Assertions.assertArrayEquals((byte[]) expected, (byte[]) getter.apply(name));
+            assertArrayEquals((byte[]) expected, (byte[]) getter.apply(name));
         } else if (expected instanceof int[]) {
-            Assertions.assertArrayEquals((int[]) expected, (int[]) getter.apply(name));
+            assertArrayEquals((int[]) expected, (int[]) getter.apply(name));
         } else if (expected instanceof long[]) {
-            Assertions.assertArrayEquals((long[]) expected, (long[]) getter.apply(name));
+            assertArrayEquals((long[]) expected, (long[]) getter.apply(name));
         } else {
-            Assertions.assertEquals(expected, getter.apply(name));
+            assertEquals(expected, getter.apply(name));
         }
     }
 }
