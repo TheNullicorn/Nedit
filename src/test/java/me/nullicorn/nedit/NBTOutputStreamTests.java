@@ -9,6 +9,7 @@ import static me.nullicorn.nedit.IOTestHelper.TEST_SHORT;
 import static me.nullicorn.nedit.IOTestHelper.TEST_STRING;
 import static me.nullicorn.nedit.IOTestHelper.createTestByteArray;
 import static me.nullicorn.nedit.IOTestHelper.createTestDoubleList;
+import static me.nullicorn.nedit.IOTestHelper.createTestEmptyList;
 import static me.nullicorn.nedit.IOTestHelper.createTestIntArray;
 import static me.nullicorn.nedit.IOTestHelper.createTestLongArray;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -59,6 +60,11 @@ class NBTOutputStreamTests {
             for (long value : array) {
                 out.writeLong(value);
             }
+        });
+
+        tryWrite(createTestEmptyList(), NBTOutputStream::writeList, (out, list) -> {
+            out.writeByte(TagType.END.getId());
+            out.writeInt(0);
         });
 
         tryWrite(createTestDoubleList(), NBTOutputStream::writeList, (out, list) -> {
