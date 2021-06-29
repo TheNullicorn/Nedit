@@ -1,9 +1,16 @@
 package me.nullicorn.nedit.type;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
+import java.util.Spliterator;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * An ordered sequence of NBT tags, all with the same {@link TagType}. Lists of 1 or more tags
@@ -12,14 +19,16 @@ import java.util.function.Consumer;
  *
  * @author Nullicorn
  */
-public class NBTList extends ArrayList<Object> {
+public class NBTList extends AbstractList<Object> {
 
-    private final TagType contentType;
+    private final List<Object> decorated;
+    private final TagType      contentType;
 
     /**
      * Creates a new list that can only hold tags with the provided {@code type}.
      */
     public NBTList(TagType type) {
+        decorated = new ArrayList<>();
         contentType = (type == null ? TagType.END : type);
     }
 
@@ -32,9 +41,6 @@ public class NBTList extends ArrayList<Object> {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @param index {@inheritDoc}
      * @throws IllegalStateException If the list's {@link #getContentType() content type} is set to
      *                               {@link TagType#END END}, indicating the list should always be
      *                               empty.
@@ -78,7 +84,7 @@ public class NBTList extends ArrayList<Object> {
     @Override
     public void add(int index, Object tag) {
         checkType(tag);
-        super.add(index, tag);
+        decorated.add(index, tag);
     }
 
     /**
@@ -97,7 +103,7 @@ public class NBTList extends ArrayList<Object> {
     @Override
     public boolean addAll(Collection<?> tags) {
         tags.forEach(this::checkType);
-        return super.addAll(tags);
+        return decorated.addAll(tags);
     }
 
     /**
@@ -119,7 +125,7 @@ public class NBTList extends ArrayList<Object> {
     @Override
     public boolean addAll(int index, Collection<?> tags) {
         tags.forEach(this::checkType);
-        return super.addAll(index, tags);
+        return decorated.addAll(index, tags);
     }
 
     /*
@@ -127,6 +133,11 @@ public class NBTList extends ArrayList<Object> {
      * ============ GETTER METHODS ============
      *
      */
+
+    @Override
+    public Object get(int index) {
+        return decorated.get(index);
+    }
 
     /**
      * @throws IllegalStateException If the list's {@link #getContentType() content type} is not
@@ -436,5 +447,120 @@ public class NBTList extends ArrayList<Object> {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), contentType);
+    }
+
+    /*
+     *
+     * ============ DELEGATED METHODS ============
+     *
+     * replaceAll() and both listIterator() methods are not overridden.
+     * This is to avoid invalid additions to the list via ArrayList's iterator.
+     *
+     */
+
+    @Override
+    public int indexOf(Object o) {
+        return decorated.indexOf(o);
+    }
+
+    @Override
+    public int lastIndexOf(Object o) {
+        return decorated.lastIndexOf(o);
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        return decorated.contains(o);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        return decorated.containsAll(c);
+    }
+
+    @Override
+    public int size() {
+        return decorated.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return decorated.isEmpty();
+    }
+
+    @Override
+    public Iterator<Object> iterator() {
+        return decorated.iterator();
+    }
+
+    @Override
+    public Spliterator<Object> spliterator() {
+        return decorated.spliterator();
+    }
+
+    @Override
+    public List<Object> subList(int fromIndex, int toIndex) {
+        return decorated.subList(fromIndex, toIndex);
+    }
+
+    @Override
+    public Stream<Object> stream() {
+        return decorated.stream();
+    }
+
+    @Override
+    public Stream<Object> parallelStream() {
+        return decorated.parallelStream();
+    }
+
+    @Override
+    public void forEach(Consumer<? super Object> action) {
+        decorated.forEach(action);
+    }
+
+    @Override
+    public void sort(Comparator<? super Object> c) {
+        decorated.sort(c);
+    }
+
+    @Override
+    public Object remove(int index) {
+        return decorated.remove(index);
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        return decorated.remove(o);
+    }
+
+    @Override
+    public boolean removeIf(Predicate<? super Object> filter) {
+        return decorated.removeIf(filter);
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return decorated.removeAll(c);
+    }
+
+    @Override
+    public void clear() {
+        decorated.clear();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Object[] toArray(Object[] a) {
+        return decorated.toArray(a);
+    }
+
+    @Override
+    public Object[] toArray() {
+        return decorated.toArray();
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        return decorated.retainAll(c);
     }
 }
