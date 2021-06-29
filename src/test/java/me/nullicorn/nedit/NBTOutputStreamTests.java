@@ -77,6 +77,12 @@ class NBTOutputStreamTests {
     }
 
     @Test
+    void shouldEncodeEmptyCompoundsCorrectly() throws IOException {
+        tryWrite(new NBTCompound(), NBTOutputStream::writeCompound,
+            (out, compound) -> out.writeByte(TagType.END.getId()));
+    }
+
+    @Test
     void shouldEncodeCompoundsCorrectly() throws IOException {
         NBTCompound expected = new NBTCompound();
         NBTCompound nested = new NBTCompound();
