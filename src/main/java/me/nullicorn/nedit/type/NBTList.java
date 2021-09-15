@@ -48,7 +48,7 @@ public class NBTList extends AbstractList<Object> {
     @Override
     public Object set(int index, Object tag) {
         checkType(tag);
-        return super.set(index, tag);
+        return decorated.set(index, tag);
     }
 
     /**
