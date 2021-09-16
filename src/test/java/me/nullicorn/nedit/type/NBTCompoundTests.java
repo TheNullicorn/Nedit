@@ -13,17 +13,13 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 class NBTCompoundTests {
 
     private Map<TagType, String> testTagNames;
-    private Map<String, Object>  testTags;
+    private Map<String, Object> testTags;
 
     @BeforeEach
     void setUp() {
@@ -57,8 +53,60 @@ class NBTCompoundTests {
     }
 
     @Test
-    @Order(1)
-    void shouldPutValidTags() {
+    void get_shouldDotNotationGetNestedTags() {
+        NBTCompound root = new NBTCompound();
+        NBTCompound child = new NBTCompound();
+        String childName = "child";
+        String tagName = "tag";
+        String tagValue = "Hello, World!";
+
+        child.put(tagName, tagValue);
+        root.put(childName, child);
+
+        assertEquals(child, root.get(childName));
+        assertEquals(tagValue, root.get(childName + "." + tagName));
+    }
+
+    @Test
+    void get_shouldReturnNullForNonExistentTags() {
+        NBTCompound compound = new NBTCompound();
+        assertNull(compound.get("i_do_not_exist"));
+
+        String childName = "child";
+        String tagName = "tag";
+        int tagValue = 7;
+
+        NBTCompound child = new NBTCompound();
+        child.put(tagName, tagValue);
+        compound.put(childName, child);
+
+        assertNull(compound.get(childName + ".me_neither"));
+        assertNull(compound.get(childName + "." + tagName + ".nor_do_i"));
+    }
+
+    @Test
+    void contains_shouldOnlyReturnTrueForAddedTags() {
+        NBTCompound compound = new NBTCompound();
+        compound.putAll(testTags);
+
+        // Check that a tag is found for each valid type.
+        testTagNames.keySet()
+            .forEach(tagType -> assertCompoundContainsTagOfType(compound, tagType));
+
+        // Check that there aren't false positives for the wrong type.
+        testTagNames.values().forEach(
+            tagName -> assertFalse(compound.containsTag(tagName, TagType.END)));
+
+        // Check that "contains" doesn't promote numbers before checking.
+        String byteTagName = testTagNames.get(TagType.BYTE);
+        assertFalse(compound.containsTag(byteTagName, TagType.INT));
+
+        // Check that non-existent tags are not found.
+        assertFalse(compound.containsTag("does_not_exist", TagType.STRING));
+    }
+
+    @Test
+    void put_shouldAcceptValidValues() {
         NBTCompound compound = new NBTCompound();
         assertEquals(0, compound.size());
 
@@ -69,8 +117,7 @@ class NBTCompoundTests {
     }
 
     @Test
-    @Order(2)
-    void shouldThrowWhenInvalidTagsArePut() {
+    void put_shouldThrowIfTagsAreInvalid() {
         NBTCompound compound = new NBTCompound();
         Object invalidValue = new Object();
         Class<? extends Throwable> expect = IllegalArgumentException.class;
@@ -81,8 +128,7 @@ class NBTCompoundTests {
     }
 
     @Test
-    @Order(3)
-    void shouldGetCorrectTypes() {
+    void putAll_shouldAddAllNamesAndValues() {
         NBTCompound compound = new NBTCompound();
         compound.putAll(testTags);
 
@@ -104,82 +150,32 @@ class NBTCompoundTests {
         String expectedString = (String) testTags.get(testTagNames.get(TagType.STRING));
 
         // "Invalid" value for each is the expected value + 1, so they will never be the same.
-        checkPrimitiveGetter(compound::getByte, byteTagName, expectedByte, ++expectedByte);
-        checkPrimitiveGetter(compound::getShort, shortTagName, expectedShort, ++expectedShort);
-        checkPrimitiveGetter(compound::getInt, intTagName, expectedInt, ++expectedInt);
-        checkPrimitiveGetter(compound::getLong, longTagName, expectedLong, ++expectedLong);
-        checkPrimitiveGetter(compound::getFloat, floatTagName, expectedFloat, ++expectedFloat);
-        checkPrimitiveGetter(compound::getDouble, doubleTagName, expectedDouble, ++expectedDouble);
-        checkPrimitiveGetter(compound::getString, stringTagName, expectedString, null);
+        assertPrimitiveGetterReturnsValue(compound::getByte, byteTagName, expectedByte,
+            ++expectedByte);
+        assertPrimitiveGetterReturnsValue(compound::getShort, shortTagName, expectedShort,
+            ++expectedShort);
+        assertPrimitiveGetterReturnsValue(compound::getInt, intTagName, expectedInt, ++expectedInt);
+        assertPrimitiveGetterReturnsValue(compound::getLong, longTagName, expectedLong,
+            ++expectedLong);
+        assertPrimitiveGetterReturnsValue(compound::getFloat, floatTagName, expectedFloat,
+            ++expectedFloat);
+        assertPrimitiveGetterReturnsValue(compound::getDouble, doubleTagName, expectedDouble,
+            ++expectedDouble);
+        assertPrimitiveGetterReturnsValue(compound::getString, stringTagName, expectedString, null);
 
         // Test non-"primitive" getters.
-        checkGetter(compound::getByteArray, testTagNames.get(TagType.BYTE_ARRAY));
-        checkGetter(compound::getIntArray, testTagNames.get(TagType.INT_ARRAY));
-        checkGetter(compound::getLongArray, testTagNames.get(TagType.LONG_ARRAY));
-        checkGetter(compound::getList, testTagNames.get(TagType.LIST));
-        checkGetter(compound::getCompound, testTagNames.get(TagType.COMPOUND));
-    }
-
-    @Test
-    @Order(4)
-    void shouldGetterAcceptDotNotation() {
-        NBTCompound root = new NBTCompound();
-        NBTCompound child = new NBTCompound();
-        String childName = "child";
-        String tagName = "tag";
-        String tagValue = "Hello, World!";
-
-        child.put(tagName, tagValue);
-        root.put(childName, child);
-
-        assertEquals(child, root.get(childName));
-        assertEquals(tagValue, root.get(childName + "." + tagName));
-    }
-
-    @Test
-    @Order(5)
-    void shouldGetterReturnNullForNonExistentTags() {
-        NBTCompound compound = new NBTCompound();
-        assertNull(compound.get("i_do_not_exist"));
-
-        String childName = "child";
-        String tagName = "tag";
-        int tagValue = 7;
-
-        NBTCompound child = new NBTCompound();
-        child.put(tagName, tagValue);
-        compound.put(childName, child);
-
-        assertNull(compound.get(childName + ".me_neither"));
-        assertNull(compound.get(childName + "." + tagName + ".nor_do_i"));
-    }
-
-    @Test
-    @Order(6)
-    void shouldContainExpectedTags() {
-        NBTCompound compound = new NBTCompound();
-        compound.putAll(testTags);
-
-        // Check that a tag is found for each valid type.
-        testTagNames.keySet().forEach(tagType -> checkContains(compound, tagType));
-
-        // Check that there aren't false positives for the wrong type.
-        testTagNames.values().forEach(
-            tagName -> assertFalse(compound.containsTag(tagName, TagType.END)));
-
-        // Check that "contains" doesn't promote numbers before checking.
-        String byteTagName = testTagNames.get(TagType.BYTE);
-        assertFalse(compound.containsTag(byteTagName, TagType.INT));
-
-        // Check that non-existent tags are not found.
-        assertFalse(compound.containsTag("does_not_exist", TagType.STRING));
+        assertGetterReturnsValue(compound::getByteArray, testTagNames.get(TagType.BYTE_ARRAY));
+        assertGetterReturnsValue(compound::getIntArray, testTagNames.get(TagType.INT_ARRAY));
+        assertGetterReturnsValue(compound::getLongArray, testTagNames.get(TagType.LONG_ARRAY));
+        assertGetterReturnsValue(compound::getList, testTagNames.get(TagType.LIST));
+        assertGetterReturnsValue(compound::getCompound, testTagNames.get(TagType.COMPOUND));
     }
 
     /**
      * Asserts that the {@code compound} contains a tag with a certain {@code type}. The name of the
      * tag searched for is provided by the {@link #testTagNames} map.
      */
-    private void checkContains(NBTCompound compound, TagType type) {
+    private void assertCompoundContainsTagOfType(NBTCompound compound, TagType type) {
         String tagName = testTagNames.get(type);
         boolean doesContain = compound.containsTag(tagName, type);
 
@@ -192,7 +188,7 @@ class NBTCompoundTests {
      * "default" field to ensure that if the tag is not found, the value will never match the
      * expected one.
      */
-    private <T> void checkPrimitiveGetter(BiFunction<String, T, T> getter, String name, T expected, T incorrectValue) {
+    private <T> void assertPrimitiveGetterReturnsValue(BiFunction<String, T, T> getter, String name, T expected, T incorrectValue) {
         assertEquals(expected, getter.apply(name, incorrectValue));
     }
 
@@ -201,7 +197,7 @@ class NBTCompoundTests {
      * that was inputted for the {@code name}. The expected value comes from the {@link #testTags}
      * map.
      */
-    private <T> void checkGetter(Function<String, T> getter, String name) {
+    private <T> void assertGetterReturnsValue(Function<String, T> getter, String name) {
         //noinspection unchecked
         T expected = (T) testTags.get(name);
 
