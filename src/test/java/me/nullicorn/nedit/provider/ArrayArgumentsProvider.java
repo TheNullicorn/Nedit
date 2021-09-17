@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 /**
  * @author Nullicorn
  */
-abstract class ArrayBasedArgumentProvider implements ArgumentsProvider {
+abstract class ArrayArgumentsProvider implements ArgumentsProvider {
 
     abstract Object provide();
 
@@ -40,11 +40,11 @@ abstract class ArrayBasedArgumentProvider implements ArgumentsProvider {
         return stream.build().map(Arguments::of);
     }
 
-    static abstract class IOBasedArgumentsProvider implements ArgumentsProvider {
+    static abstract class IOBasedArgumentsProvider<T> implements ArgumentsProvider {
 
         abstract Supplier<ArgumentsProvider> provider();
 
-        abstract Encoder<?> encoder();
+        abstract Encoder<T> encoder();
 
         @SuppressWarnings("unchecked")
         @Override

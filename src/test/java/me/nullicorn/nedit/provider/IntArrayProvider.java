@@ -6,7 +6,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 /**
  * @author Nullicorn
  */
-public final class IntArrayProvider extends ArrayBasedArgumentProvider {
+public final class IntArrayProvider extends ArrayArgumentsProvider {
 
     @Override
     int[][] provide() {
@@ -25,7 +25,7 @@ public final class IntArrayProvider extends ArrayBasedArgumentProvider {
         return array;
     }
 
-    public static final class IOProvider extends IOBasedArgumentsProvider {
+    public static final class IOProvider extends IOBasedArgumentsProvider<int[]> {
 
         @Override
         Supplier<ArgumentsProvider> provider() {

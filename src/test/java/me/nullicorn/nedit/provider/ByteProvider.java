@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 /**
  * @author Nullicorn
  */
-public final class ByteProvider extends ArrayBasedArgumentProvider {
+public final class ByteProvider extends ArrayArgumentsProvider {
 
     @Override
     byte[] provide() {
@@ -18,7 +18,7 @@ public final class ByteProvider extends ArrayBasedArgumentProvider {
         };
     }
 
-    public static final class IOProvider extends IOBasedArgumentsProvider {
+    public static final class IOProvider extends IOBasedArgumentsProvider<Byte> {
 
         @Override
         Supplier<ArgumentsProvider> provider() {

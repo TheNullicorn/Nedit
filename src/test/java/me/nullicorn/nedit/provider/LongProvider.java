@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 /**
  * @author Nullicorn
  */
-public final class LongProvider extends ArrayBasedArgumentProvider {
+public final class LongProvider extends ArrayArgumentsProvider {
 
     @Override
     long[] provide() {
@@ -18,7 +18,7 @@ public final class LongProvider extends ArrayBasedArgumentProvider {
         };
     }
 
-    public static final class IOProvider extends IOBasedArgumentsProvider {
+    public static final class IOProvider extends IOBasedArgumentsProvider<Long> {
 
         @Override
         Supplier<ArgumentsProvider> provider() {
