@@ -8,10 +8,7 @@ import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-/**
- * @author Nullicorn
- */
-public final class ListProvider extends ArrayArgumentsProvider {
+public final class ListProvider extends NBTValueProvider {
 
     @Override
     NBTList[] provide() {
@@ -22,6 +19,10 @@ public final class ListProvider extends ArrayArgumentsProvider {
         };
     }
 
+    /**
+     * Generates a diverse NBT list of {@code double}s, whose {@link NBTList#size() size} is
+     * determined by the argument with the same name.
+     */
     public static NBTList generateListOfDoubles(int size) {
         NBTList list = new NBTList(TagType.DOUBLE);
         for (int i = 0; i < size; i++) {
@@ -30,6 +31,10 @@ public final class ListProvider extends ArrayArgumentsProvider {
         return list;
     }
 
+    /**
+     * Generates an NBT list of {@code NBTCompound}s. The number of compounds in the returned list
+     * is determined by the {@code size} argument.
+     */
     public static NBTList generateListOfCompounds(int size) {
         NBTList list = new NBTList(TagType.COMPOUND);
         for (int i = 1; i <= size; i++) {
@@ -41,7 +46,7 @@ public final class ListProvider extends ArrayArgumentsProvider {
         return list;
     }
 
-    public static final class IOProvider extends IOBasedArgumentsProvider<NBTList> {
+    public static final class IOProvider extends NBTEncodedValueProvider<NBTList> {
 
         @Override
         Supplier<ArgumentsProvider> provider() {
@@ -49,10 +54,10 @@ public final class ListProvider extends ArrayArgumentsProvider {
         }
 
         @Override
-        Encoder<NBTList> encoder() {
+        NBTEncoder<NBTList> encoder() {
             return (out, list) -> {
                 TagType contentType = list.getContentType();
-                Encoder<Object> encoder = getTestEncoder(contentType);
+                NBTEncoder<Object> encoder = getTestEncoder(contentType);
 
                 out.writeByte(contentType.getId());
                 out.writeInt(list.size());

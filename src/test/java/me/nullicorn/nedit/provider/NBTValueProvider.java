@@ -13,10 +13,18 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
 /**
+ * A single-argument provider that provides acceptable values for NBT tags.
+ *
  * @author Nullicorn
  */
-abstract class ArrayArgumentsProvider implements ArgumentsProvider {
+abstract class NBTValueProvider implements ArgumentsProvider {
 
+    /**
+     * Returns an array of NBT values that will be passed to the provider.
+     *
+     * @apiNote The returned object *MUST* be an array. May be multi-dimensional if the provided
+     * type itself is an array.
+     */
     abstract Object provide();
 
     @Override
@@ -40,11 +48,36 @@ abstract class ArrayArgumentsProvider implements ArgumentsProvider {
         return stream.build().map(Arguments::of);
     }
 
-    static abstract class IOBasedArgumentsProvider<T> implements ArgumentsProvider {
+    /**
+     * A functional interface capable of NBT-encoding a single value to a supplied output stream.
+     */
+    @FunctionalInterface
+    interface NBTEncoder<T> {
 
+        void encode(DataOutputStream out, T value) throws IOException;
+    }
+
+    /**
+     * A provider of 2 arguments:
+     * <ol>
+     *     <li>The value of an NBT tag (whose class is {@code T})</li>
+     *     <li>The sequence of bytes expected if the first argument were to be NBT-encoded</li>
+     * </ol>
+     *
+     * @param <T> The runtime type of the first argument.
+     */
+    static abstract class NBTEncodedValueProvider<T> implements ArgumentsProvider {
+
+        /**
+         * Returns an NBT encoding function compatible with the values returned by this provider.
+         */
+        abstract NBTEncoder<T> encoder();
+
+        /**
+         * Returns the constructor for an {@code ArgumentsProvider} that this provider can take its
+         * values from (the values that will be encoded).
+         */
         abstract Supplier<ArgumentsProvider> provider();
-
-        abstract Encoder<T> encoder();
 
         @SuppressWarnings("unchecked")
         @Override
@@ -75,7 +108,7 @@ abstract class ArrayArgumentsProvider implements ArgumentsProvider {
 
                     // Encode the result.
                     try {
-                        Encoder<Object> encoder = (Encoder<Object>) encoder();
+                        NBTEncoder<Object> encoder = (NBTEncoder<Object>) encoder();
                         encoder.encode(out, value);
                     } catch (IOException e) {
                         throw new UncheckedIOException("Test encoder failed", e);
@@ -85,10 +118,5 @@ abstract class ArrayArgumentsProvider implements ArgumentsProvider {
                     return Arguments.of(value, result.toByteArray());
                 });
         }
-    }
-
-    interface Encoder<T> {
-
-        void encode(DataOutputStream out, T value) throws IOException;
     }
 }

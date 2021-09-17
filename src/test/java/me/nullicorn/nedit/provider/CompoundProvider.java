@@ -6,25 +6,22 @@ import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-/**
- * @author Nullicorn
- */
-public class CompoundProvider extends ArrayArgumentsProvider {
+public class CompoundProvider extends NBTValueProvider {
 
     @Override
     NBTCompound[] provide() {
         return new NBTCompound[]{
-            generateEmpty(),
+            new NBTCompound(),
             generateSimple(),
             generateComplex(false),
             generateComplex(true)
         };
     }
 
-    public static NBTCompound generateEmpty() {
-        return new NBTCompound();
-    }
-
+    /**
+     * Generates a "simple"-structured NBT compound. The returned compound contains no nested
+     * compounds, lists, or arrays.
+     */
     public static NBTCompound generateSimple() {
         NBTCompound sample = new NBTCompound();
         sample.put("name", "Nedit Appleseed");
@@ -32,6 +29,11 @@ public class CompoundProvider extends ArrayArgumentsProvider {
         return sample;
     }
 
+    /**
+     * Generates an NBT compound that contains at least one tag of each {@link TagType} (besides
+     * {@code END}). If {@code nestSelf == true}, the returned compound will also contain a copy of
+     * itself, except without any further nested compounds.
+     */
     public static NBTCompound generateComplex(boolean nestSelf) {
         NBTCompound sample = new NBTCompound();
 
@@ -63,7 +65,7 @@ public class CompoundProvider extends ArrayArgumentsProvider {
         return sample;
     }
 
-    public static final class IOProvider extends IOBasedArgumentsProvider<NBTCompound> {
+    public static final class IOProvider extends NBTEncodedValueProvider<NBTCompound> {
 
         @Override
         Supplier<ArgumentsProvider> provider() {
@@ -71,7 +73,7 @@ public class CompoundProvider extends ArrayArgumentsProvider {
         }
 
         @Override
-        Encoder<NBTCompound> encoder() {
+        NBTEncoder<NBTCompound> encoder() {
             return (out, compound) -> {
                 for (String name : compound.keySet()) {
                     Object value = compound.get(name);
@@ -86,9 +88,12 @@ public class CompoundProvider extends ArrayArgumentsProvider {
         }
     }
 
+    /**
+     * Returns a test function that can be used to NBT-encode tags of the supplied {@code type}.
+     */
     @SuppressWarnings("unchecked")
-    static <T> Encoder<T> getTestEncoder(TagType type) {
-        IOBasedArgumentsProvider<?> provider;
+    static <T> NBTEncoder<T> getTestEncoder(TagType type) {
+        NBTEncodedValueProvider<?> provider;
 
         switch (type) {
             case BYTE:
@@ -135,6 +140,6 @@ public class CompoundProvider extends ArrayArgumentsProvider {
                 throw new IllegalArgumentException("Unable to find test encoder for tag: " + type);
         }
 
-        return (Encoder<T>) provider.encoder();
+        return (NBTEncoder<T>) provider.encoder();
     }
 }

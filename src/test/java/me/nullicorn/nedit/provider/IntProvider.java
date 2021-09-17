@@ -4,10 +4,7 @@ import java.io.DataOutputStream;
 import java.util.function.Supplier;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-/**
- * @author Nullicorn
- */
-public final class IntProvider extends ArrayArgumentsProvider {
+public final class IntProvider extends NBTValueProvider {
 
     @Override
     int[] provide() {
@@ -18,7 +15,7 @@ public final class IntProvider extends ArrayArgumentsProvider {
         };
     }
 
-    public static final class IOProvider extends IOBasedArgumentsProvider<Integer> {
+    public static final class IOProvider extends NBTEncodedValueProvider<Integer> {
 
         @Override
         Supplier<ArgumentsProvider> provider() {
@@ -26,7 +23,7 @@ public final class IntProvider extends ArrayArgumentsProvider {
         }
 
         @Override
-        Encoder<Integer> encoder() {
+        NBTEncoder<Integer> encoder() {
             return DataOutputStream::writeInt;
         }
     }

@@ -3,10 +3,7 @@ package me.nullicorn.nedit.provider;
 import java.util.function.Supplier;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-/**
- * @author Nullicorn
- */
-public final class LongArrayProvider extends ArrayArgumentsProvider {
+public final class LongArrayProvider extends NBTValueProvider {
 
     @Override
     long[][] provide() {
@@ -17,15 +14,19 @@ public final class LongArrayProvider extends ArrayArgumentsProvider {
         };
     }
 
-    public static long[] generateLongs(int amount) {
-        long[] array = new long[amount];
-        for (int i = 0; i < array.length; i++) {
+    /**
+     * Generates a diverse array of {@code long}s, whose {@code length} is determined by the
+     * argument with the same name.
+     */
+    public static long[] generateLongs(int length) {
+        long[] array = new long[length];
+        for (int i = 0; i < length; i++) {
             array[i] = (i * 7 + (long) Math.pow(i, 6));
         }
         return array;
     }
 
-    public static final class IOProvider extends IOBasedArgumentsProvider<long[]> {
+    public static final class IOProvider extends NBTEncodedValueProvider<long[]> {
 
         @Override
         Supplier<ArgumentsProvider> provider() {
@@ -33,7 +34,7 @@ public final class LongArrayProvider extends ArrayArgumentsProvider {
         }
 
         @Override
-        Encoder<long[]> encoder() {
+        NBTEncoder<long[]> encoder() {
             return (out, array) -> {
                 out.writeInt(array.length);
                 for (long value : array) {

@@ -3,10 +3,7 @@ package me.nullicorn.nedit.provider;
 import java.util.function.Supplier;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-/**
- * @author Nullicorn
- */
-public final class ByteArrayProvider extends ArrayArgumentsProvider {
+public final class ByteArrayProvider extends NBTValueProvider {
 
     @Override
     byte[][] provide() {
@@ -17,15 +14,19 @@ public final class ByteArrayProvider extends ArrayArgumentsProvider {
         };
     }
 
-    public static byte[] generateBytes(int amount) {
-        byte[] array = new byte[amount];
-        for (int i = 0; i < array.length; i++) {
+    /**
+     * Generates a diverse array of {@code byte}s, whose {@code length} is determined by the
+     * argument with the same name.
+     */
+    public static byte[] generateBytes(int length) {
+        byte[] array = new byte[length];
+        for (int i = 0; i < length; i++) {
             array[i] = (byte) ((i * i * 255 + i * 7) % 100);
         }
         return array;
     }
 
-    public static final class IOProvider extends IOBasedArgumentsProvider<byte[]> {
+    public static final class IOProvider extends NBTEncodedValueProvider<byte[]> {
 
         @Override
         Supplier<ArgumentsProvider> provider() {
@@ -33,7 +34,7 @@ public final class ByteArrayProvider extends ArrayArgumentsProvider {
         }
 
         @Override
-        Encoder<byte[]> encoder() {
+        NBTEncoder<byte[]> encoder() {
             return (out, array) -> {
                 out.writeInt(array.length);
                 out.write(array);
