@@ -1,21 +1,24 @@
 package me.nullicorn.nedit.type;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-public class NBTListTests {
+class NBTListTests {
 
-    private Map<TagType, Object>  testTags;
-    private Map<TagType, Object>  alternativeTestTags;
+    private Map<TagType, Object> testTags;
+    private Map<TagType, Object> alternativeTestTags;
 
     @BeforeEach
     void setUp() {
