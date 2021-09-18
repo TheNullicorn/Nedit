@@ -1,13 +1,14 @@
-package me.nullicorn.nedit.provider;
+package me.nullicorn.nedit.provider.tag;
 
 import java.io.DataOutputStream;
 import java.util.function.Supplier;
+import me.nullicorn.nedit.provider.NBTValueProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
 public final class DoubleProvider extends NBTValueProvider {
 
     @Override
-    double[] provide() {
+    public double[] provide() {
         return new double[]{
             0,
             Double.MIN_VALUE,
@@ -18,12 +19,12 @@ public final class DoubleProvider extends NBTValueProvider {
     public static final class IOProvider extends NBTEncodedValueProvider<Double> {
 
         @Override
-        Supplier<ArgumentsProvider> provider() {
+        public Supplier<ArgumentsProvider> provider() {
             return DoubleProvider::new;
         }
 
         @Override
-        NBTEncoder<Double> encoder() {
+        public NBTEncoder<Double> encoder() {
             return DataOutputStream::writeDouble;
         }
     }

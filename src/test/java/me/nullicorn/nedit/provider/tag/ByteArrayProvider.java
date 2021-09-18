@@ -1,12 +1,13 @@
-package me.nullicorn.nedit.provider;
+package me.nullicorn.nedit.provider.tag;
 
 import java.util.function.Supplier;
+import me.nullicorn.nedit.provider.NBTValueProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
 public final class ByteArrayProvider extends NBTValueProvider {
 
     @Override
-    byte[][] provide() {
+    public byte[][] provide() {
         return new byte[][]{
             new byte[0],
             generateBytes(500),
@@ -29,12 +30,12 @@ public final class ByteArrayProvider extends NBTValueProvider {
     public static final class IOProvider extends NBTEncodedValueProvider<byte[]> {
 
         @Override
-        Supplier<ArgumentsProvider> provider() {
+        public Supplier<ArgumentsProvider> provider() {
             return ByteArrayProvider::new;
         }
 
         @Override
-        NBTEncoder<byte[]> encoder() {
+        public NBTEncoder<byte[]> encoder() {
             return (out, array) -> {
                 out.writeInt(array.length);
                 out.write(array);

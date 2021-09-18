@@ -1,8 +1,9 @@
-package me.nullicorn.nedit.provider;
+package me.nullicorn.nedit.provider.tag;
 
-import static me.nullicorn.nedit.provider.CompoundProvider.getTestEncoder;
+import static me.nullicorn.nedit.provider.tag.CompoundProvider.getTestEncoder;
 
 import java.util.function.Supplier;
+import me.nullicorn.nedit.provider.NBTValueProvider;
 import me.nullicorn.nedit.type.NBTCompound;
 import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
@@ -11,7 +12,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 public final class ListProvider extends NBTValueProvider {
 
     @Override
-    NBTList[] provide() {
+    public NBTList[] provide() {
         return new NBTList[]{
             new NBTList(TagType.END),
             generateListOfDoubles(999),
@@ -49,12 +50,12 @@ public final class ListProvider extends NBTValueProvider {
     public static final class IOProvider extends NBTEncodedValueProvider<NBTList> {
 
         @Override
-        Supplier<ArgumentsProvider> provider() {
+        public Supplier<ArgumentsProvider> provider() {
             return ListProvider::new;
         }
 
         @Override
-        NBTEncoder<NBTList> encoder() {
+        public NBTEncoder<NBTList> encoder() {
             return (out, list) -> {
                 TagType contentType = list.getContentType();
                 NBTEncoder<Object> encoder = getTestEncoder(contentType);

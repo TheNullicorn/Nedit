@@ -1,13 +1,14 @@
-package me.nullicorn.nedit.provider;
+package me.nullicorn.nedit.provider.tag;
 
 import java.io.DataOutputStream;
 import java.util.function.Supplier;
+import me.nullicorn.nedit.provider.NBTValueProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
 public final class StringProvider extends NBTValueProvider {
 
     @Override
-    String[] provide() {
+    public String[] provide() {
         return new String[]{
             "", // Zero-length string
             "Hello, World!", // ASCII-range code points
@@ -18,12 +19,12 @@ public final class StringProvider extends NBTValueProvider {
     public static final class IOProvider extends NBTEncodedValueProvider<String> {
 
         @Override
-        Supplier<ArgumentsProvider> provider() {
+        public Supplier<ArgumentsProvider> provider() {
             return StringProvider::new;
         }
 
         @Override
-        NBTEncoder<String> encoder() {
+        public NBTEncoder<String> encoder() {
             return DataOutputStream::writeUTF;
         }
     }

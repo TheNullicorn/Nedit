@@ -1,6 +1,7 @@
-package me.nullicorn.nedit.provider;
+package me.nullicorn.nedit.provider.tag;
 
 import java.util.function.Supplier;
+import me.nullicorn.nedit.provider.NBTValueProvider;
 import me.nullicorn.nedit.type.NBTCompound;
 import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
@@ -9,7 +10,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 public class CompoundProvider extends NBTValueProvider {
 
     @Override
-    NBTCompound[] provide() {
+    public NBTCompound[] provide() {
         return new NBTCompound[]{
             new NBTCompound(),
             generateSimple(),
@@ -68,12 +69,12 @@ public class CompoundProvider extends NBTValueProvider {
     public static final class IOProvider extends NBTEncodedValueProvider<NBTCompound> {
 
         @Override
-        Supplier<ArgumentsProvider> provider() {
+        public Supplier<ArgumentsProvider> provider() {
             return CompoundProvider::new;
         }
 
         @Override
-        NBTEncoder<NBTCompound> encoder() {
+        public NBTEncoder<NBTCompound> encoder() {
             return (out, compound) -> {
                 for (String name : compound.keySet()) {
                     Object value = compound.get(name);

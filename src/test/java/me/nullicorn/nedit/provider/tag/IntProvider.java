@@ -1,13 +1,14 @@
-package me.nullicorn.nedit.provider;
+package me.nullicorn.nedit.provider.tag;
 
 import java.io.DataOutputStream;
 import java.util.function.Supplier;
+import me.nullicorn.nedit.provider.NBTValueProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
 public final class IntProvider extends NBTValueProvider {
 
     @Override
-    int[] provide() {
+    public int[] provide() {
         return new int[]{
             0,
             Integer.MIN_VALUE,
@@ -18,12 +19,12 @@ public final class IntProvider extends NBTValueProvider {
     public static final class IOProvider extends NBTEncodedValueProvider<Integer> {
 
         @Override
-        Supplier<ArgumentsProvider> provider() {
+        public Supplier<ArgumentsProvider> provider() {
             return IntProvider::new;
         }
 
         @Override
-        NBTEncoder<Integer> encoder() {
+        public NBTEncoder<Integer> encoder() {
             return DataOutputStream::writeInt;
         }
     }

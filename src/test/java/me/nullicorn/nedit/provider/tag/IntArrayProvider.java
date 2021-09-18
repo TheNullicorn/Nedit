@@ -1,12 +1,13 @@
-package me.nullicorn.nedit.provider;
+package me.nullicorn.nedit.provider.tag;
 
 import java.util.function.Supplier;
+import me.nullicorn.nedit.provider.NBTValueProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
 public final class IntArrayProvider extends NBTValueProvider {
 
     @Override
-    int[][] provide() {
+    public int[][] provide() {
         return new int[][]{
             new int[0],
             generateInts(123),
@@ -29,12 +30,12 @@ public final class IntArrayProvider extends NBTValueProvider {
     public static final class IOProvider extends NBTEncodedValueProvider<int[]> {
 
         @Override
-        Supplier<ArgumentsProvider> provider() {
+        public Supplier<ArgumentsProvider> provider() {
             return IntArrayProvider::new;
         }
 
         @Override
-        NBTEncoder<int[]> encoder() {
+        public NBTEncoder<int[]> encoder() {
             return (out, array) -> {
                 out.writeInt(array.length);
                 for (int value : array) {

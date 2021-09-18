@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
  *
  * @author Nullicorn
  */
-abstract class NBTValueProvider implements ArgumentsProvider {
+public abstract class NBTValueProvider implements ArgumentsProvider {
 
     /**
      * Returns an array of NBT values that will be passed to the provider.
@@ -25,7 +25,7 @@ abstract class NBTValueProvider implements ArgumentsProvider {
      * @apiNote The returned object *MUST* be an array. May be multi-dimensional if the provided
      * type itself is an array.
      */
-    abstract Object provide();
+    public abstract Object provide();
 
     @Override
     public Stream<Arguments> provideArguments(ExtensionContext context) {
@@ -52,7 +52,7 @@ abstract class NBTValueProvider implements ArgumentsProvider {
      * A functional interface capable of NBT-encoding a single value to a supplied output stream.
      */
     @FunctionalInterface
-    interface NBTEncoder<T> {
+    public interface NBTEncoder<T> {
 
         void encode(DataOutputStream out, T value) throws IOException;
     }
@@ -66,18 +66,18 @@ abstract class NBTValueProvider implements ArgumentsProvider {
      *
      * @param <T> The runtime type of the first argument.
      */
-    static abstract class NBTEncodedValueProvider<T> implements ArgumentsProvider {
+    public static abstract class NBTEncodedValueProvider<T> implements ArgumentsProvider {
 
         /**
          * Returns an NBT encoding function compatible with the values returned by this provider.
          */
-        abstract NBTEncoder<T> encoder();
+        public abstract NBTEncoder<T> encoder();
 
         /**
          * Returns the constructor for an {@code ArgumentsProvider} that this provider can take its
          * values from (the values that will be encoded).
          */
-        abstract Supplier<ArgumentsProvider> provider();
+        public abstract Supplier<ArgumentsProvider> provider();
 
         @SuppressWarnings("unchecked")
         @Override
