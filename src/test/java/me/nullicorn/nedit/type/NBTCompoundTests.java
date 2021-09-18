@@ -2,9 +2,14 @@ package me.nullicorn.nedit.type;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import me.nullicorn.nedit.provider.AllTagsProvider;
+import me.nullicorn.nedit.provider.annotation.ProvideAllAtOnce;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -24,9 +29,12 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    void put_shouldNotThrowIfValueCanBeNBT(Object tag) {
+    @ProvideAllAtOnce
+    void put_shouldNotThrowIfValueCanBeNBT(Set<Object> tags) {
         NBTCompound compound = new NBTCompound();
-        assertDoesNotThrow(() -> compound.put(SAMPLE_NAME, tag));
+        for (Object tag : tags) {
+            assertDoesNotThrow(() -> compound.put(SAMPLE_NAME, tag));
+        }
     }
 
     @ParameterizedTest
@@ -40,28 +48,44 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    void put_shouldIncreaseSizeByOne(Object tag) {
+    @ProvideAllAtOnce
+    void put_shouldIncreaseSizeByOne(Set<Object> tags) {
         NBTCompound compound = new NBTCompound();
-        assertEquals(0, compound.size());
 
-        compound.put(SAMPLE_NAME, tag);
-        assertEquals(1, compound.size());
+        int expectedSize = compound.size();
+        for (Object tag : tags) {
+            expectedSize++;
+
+            String name = "tag_" + expectedSize;
+            compound.put(name, tag);
+
+            assertEquals(expectedSize, compound.size());
+        }
     }
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    void put_shouldReplaceExistingValue(Object tag) {
+    @ProvideAllAtOnce
+    void put_shouldReplaceExistingValue(Set<Object> tags) {
         NBTCompound compound = new NBTCompound();
-        assertEquals(0, compound.size());
 
-        compound.put(SAMPLE_NAME, tag);
-        assertEquals(1, compound.size());
-        assertEquals(tag, compound.get(SAMPLE_NAME));
+        Object prev = null;
+        for (Object tag : tags) {
+            // Perform the replacement.
+            Object replaced = compound.put(SAMPLE_NAME, tag);
 
-        String replacement = "ya dun got replaced";
-        compound.put(SAMPLE_NAME, replacement);
-        assertEquals(1, compound.size());
-        assertEquals(replacement, compound.get(SAMPLE_NAME));
+            if (prev == null) {
+                // Nothing should be replaced on the first iteration.
+                assertNull(replaced);
+            } else {
+                // The return value should be the previous value.
+                assertEquals(prev, replaced);
+            }
+
+            // The get() value should reflect the replacement.
+            assertEquals(tag, compound.get(SAMPLE_NAME));
+            prev = tag;
+        }
     }
 
     // putIfAbsent()
@@ -94,17 +118,41 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    void putIfAbsent_shouldNotReplaceExistingValue(Object tag) {
+    @ProvideAllAtOnce
+    void putIfAbsent_shouldNotReplaceExistingValue(Set<Object> tags) {
         NBTCompound compound = new NBTCompound();
         assertEquals(0, compound.size());
 
-        compound.putIfAbsent(SAMPLE_NAME, tag);
-        assertEquals(1, compound.size());
-        assertEquals(tag, compound.get(SAMPLE_NAME));
+        // Create a map that will mimic the compound's expected state.
+        Map<String, Object> expected = new HashMap<>();
 
-        String replacement = "not replaced (hopefully)";
-        compound.putIfAbsent(SAMPLE_NAME, replacement);
-        assertEquals(1, compound.size());
-        assertEquals(tag, compound.get(SAMPLE_NAME));
+        // Set up by populating the map with every tag.
+        int i = 1;
+        for (Object tag : tags) {
+            // Map each tag to the hex value of (hashCode * i), as a placeholder name.
+            String tagName = Integer.toHexString(tag.hashCode() * i);
+
+            compound.put(tagName, tag);
+            expected.put(tagName, tag);
+        }
+
+        // Loop over each tag that's in the compound.
+        for (String tagName : expected.keySet()) {
+            Object expectedValue = expected.get(tagName);
+
+            // Try replacing the tag with each other value.
+            for (Object otherValue : expected.values()) {
+                // Don't bother replacing the value with itself.
+                if (otherValue == expectedValue) {
+                    continue;
+                }
+
+                Object actualValue = compound.putIfAbsent(tagName, otherValue);
+                // Make sure the return value is the initial value.
+                assertEquals(expectedValue, actualValue);
+                // Make sure get() hasn't changed either for the tag.
+                assertEquals(expectedValue, compound.get(tagName));
+            }
+        }
     }
 }
