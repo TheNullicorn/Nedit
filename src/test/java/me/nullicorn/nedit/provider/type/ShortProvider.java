@@ -1,11 +1,11 @@
-package me.nullicorn.nedit.provider.tag;
+package me.nullicorn.nedit.provider.type;
 
 import java.io.DataOutputStream;
 import java.util.function.Supplier;
-import me.nullicorn.nedit.provider.NBTValueProvider;
+import me.nullicorn.nedit.provider.TagProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-public final class ShortProvider extends NBTValueProvider {
+public final class ShortProvider extends TagProvider {
 
     @Override
     public short[] provide() {

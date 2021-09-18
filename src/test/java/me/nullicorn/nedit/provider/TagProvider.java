@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
  *
  * @author Nullicorn
  */
-public abstract class NBTValueProvider implements ArgumentsProvider {
+public abstract class TagProvider implements ArgumentsProvider {
 
     /**
      * Returns an array of NBT values that will be passed to the provider.

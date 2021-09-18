@@ -1,13 +1,13 @@
-package me.nullicorn.nedit.provider.tag;
+package me.nullicorn.nedit.provider.type;
 
 import java.util.function.Supplier;
-import me.nullicorn.nedit.provider.NBTValueProvider;
+import me.nullicorn.nedit.provider.TagProvider;
 import me.nullicorn.nedit.type.NBTCompound;
 import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-public class CompoundProvider extends NBTValueProvider {
+public final class CompoundProvider extends TagProvider {
 
     @Override
     public NBTCompound[] provide() {
