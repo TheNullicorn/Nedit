@@ -85,6 +85,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *
      * @param key The string name of the NBT tag whose presence should be checked for. <a
      *            href="#nesting">Dot-notation</a> is supported for checking nested tags.
+     * @throws NullPointerException if the supplied {@code key} is {@code null}.
      */
     @Override
     public boolean containsKey(Object key) {
@@ -328,10 +329,12 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *
      * @return {@code null} if the {@code name} is not a {@link String}. Otherwise, returns the
      * result of {@link #get(String)} for that name.
+     * @throws NullPointerException If the supplied {@code name} is {@code null}.
      * @see #get(String)
      */
     @Override
     public Object get(Object name) {
+        Objects.requireNonNull(name, "Tag name must not be null");
         return name instanceof String
             ? get((String) name)
             : null;

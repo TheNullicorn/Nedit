@@ -2,8 +2,10 @@ package me.nullicorn.nedit.type;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.NullSource;
 
-@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+@SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "ResultOfMethodCallIgnored"})
 class NBTCompoundTests {
 
     static final String SAMPLE_NAME = "a_tag";
@@ -119,22 +121,12 @@ class NBTCompoundTests {
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
     @ProvideAllAtOnce
-    void putIfAbsent_shouldNotReplaceExistingValue(Set<Object> tags) {
+    void putIfAbsent_shouldNotReplaceExistingValue(Set<Object> tagSet) {
+        Map<String, Object> expected = mapToNames(tagSet);
+
+        // Use regular put() initially to populate the compound.
         NBTCompound compound = new NBTCompound();
-        assertEquals(0, compound.size());
-
-        // Create a map that will mimic the compound's expected state.
-        Map<String, Object> expected = new HashMap<>();
-
-        // Set up by populating the map with every tag.
-        int i = 1;
-        for (Object tag : tags) {
-            // Map each tag to the hex value of (hashCode * i), as a placeholder name.
-            String tagName = Integer.toHexString(tag.hashCode() * i);
-
-            compound.put(tagName, tag);
-            expected.put(tagName, tag);
-        }
+        expected.forEach(compound::put);
 
         // Loop over each tag that's in the compound.
         for (String tagName : expected.keySet()) {
@@ -154,5 +146,60 @@ class NBTCompoundTests {
                 assertEquals(expectedValue, compound.get(tagName));
             }
         }
+    }
+
+    @ParameterizedTest
+    @NullSource
+    void containsKey_throwsIfTagNameIsNull(String tagName) {
+        NBTCompound compound = new NBTCompound();
+        assertThrows(NullPointerException.class,
+            () -> compound.containsKey(tagName)
+        );
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideAllAtOnce
+    void containsKey_returnsTrueIfCompoundHasTagWithName(Set<Object> tagSet) {
+        Map<String, Object> tags = mapToNames(tagSet);
+
+        for (String tagName : tags.keySet()) {
+            NBTCompound compound = new NBTCompound();
+
+            // Add all tags to the compound EXCEPT the one with the current tagName.
+            tags.forEach((otherName, otherValue) -> {
+                if (!otherName.equals(tagName)) {
+                    compound.put(otherName, otherValue);
+                }
+            });
+
+            // Check that the compound doesn't contain the name we purposely omitted.
+            assertFalse(compound.containsKey(tagName));
+
+            // Check that the compound *does* contain all other names we included.
+            for (String otherName : tags.keySet()) {
+                if (!otherName.equals(tagName)) {
+                    assertTrue(compound.containsKey(otherName));
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates unique names for each NBT tag supplied, and puts each value into a new map under
+     * its generated name.
+     */
+    private static Map<String, Object> mapToNames(Iterable<?> tags) {
+        Map<String, Object> map = new HashMap<>();
+
+        int i = 1;
+        for (Object tag : tags) {
+            // Map each tag to the hex value of (hashCode * i), as a placeholder name.
+            String tagName = Integer.toHexString(tag.hashCode() * i);
+            map.put(tagName, tag);
+            i++;
+        }
+
+        return map;
     }
 }
