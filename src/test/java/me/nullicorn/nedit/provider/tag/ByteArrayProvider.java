@@ -27,7 +27,7 @@ public final class ByteArrayProvider extends NBTValueProvider {
         return array;
     }
 
-    public static final class IOProvider extends NBTEncodedValueProvider<byte[]> {
+    public static final class IOProvider extends NBTEncodedValueProvider {
 
         @Override
         public Supplier<ArgumentsProvider> provider() {

@@ -27,7 +27,7 @@ public final class IntArrayProvider extends NBTValueProvider {
         return array;
     }
 
-    public static final class IOProvider extends NBTEncodedValueProvider<int[]> {
+    public static final class IOProvider extends NBTEncodedValueProvider {
 
         @Override
         public Supplier<ArgumentsProvider> provider() {

@@ -16,7 +16,7 @@ public final class ByteProvider extends NBTValueProvider {
         };
     }
 
-    public static final class IOProvider extends NBTEncodedValueProvider<Byte> {
+    public static final class IOProvider extends NBTEncodedValueProvider {
 
         @Override
         public Supplier<ArgumentsProvider> provider() {

@@ -47,7 +47,7 @@ public final class ListProvider extends NBTValueProvider {
         return list;
     }
 
-    public static final class IOProvider extends NBTEncodedValueProvider<NBTList> {
+    public static final class IOProvider extends NBTEncodedValueProvider {
 
         @Override
         public Supplier<ArgumentsProvider> provider() {

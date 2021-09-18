@@ -60,18 +60,16 @@ public abstract class NBTValueProvider implements ArgumentsProvider {
     /**
      * A provider of 2 arguments:
      * <ol>
-     *     <li>The value of an NBT tag (whose class is {@code T})</li>
+     *     <li>The value of an NBT tag</li>
      *     <li>The sequence of bytes expected if the first argument were to be NBT-encoded</li>
      * </ol>
-     *
-     * @param <T> The runtime type of the first argument.
      */
-    public static abstract class NBTEncodedValueProvider<T> implements ArgumentsProvider {
+    public static abstract class NBTEncodedValueProvider implements ArgumentsProvider {
 
         /**
          * Returns an NBT encoding function compatible with the values returned by this provider.
          */
-        public abstract NBTEncoder<T> encoder();
+        public abstract NBTEncoder<?> encoder();
 
         /**
          * Returns the constructor for an {@code ArgumentsProvider} that this provider can take its

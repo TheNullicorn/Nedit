@@ -66,7 +66,7 @@ public class CompoundProvider extends NBTValueProvider {
         return sample;
     }
 
-    public static final class IOProvider extends NBTEncodedValueProvider<NBTCompound> {
+    public static final class IOProvider extends NBTEncodedValueProvider {
 
         @Override
         public Supplier<ArgumentsProvider> provider() {
@@ -94,7 +94,7 @@ public class CompoundProvider extends NBTValueProvider {
      */
     @SuppressWarnings("unchecked")
     static <T> NBTEncoder<T> getTestEncoder(TagType type) {
-        NBTEncodedValueProvider<?> provider;
+        NBTEncodedValueProvider provider;
 
         switch (type) {
             case BYTE:
