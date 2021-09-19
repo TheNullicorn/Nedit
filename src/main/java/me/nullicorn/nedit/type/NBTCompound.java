@@ -95,6 +95,15 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
+     * @throws NullPointerException If the supplied {@code value} is {@code null}.
+     */
+    @Override
+    public boolean containsValue(Object value) {
+        Objects.requireNonNull(value, "value cannot be null");
+        return decorated.containsValue(value);
+    }
+
+    /**
      * @param name         The name of the tag whose double value should be returned. <a
      *                     href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @param defaultValue The value to return if the tag does not exist, or cannot be cast to the

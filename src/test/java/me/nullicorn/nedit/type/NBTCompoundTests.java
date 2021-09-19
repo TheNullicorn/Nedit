@@ -25,6 +25,7 @@ class NBTCompoundTests {
     @Test
     void constructor_shouldInitialSizeBeZero() {
         assertEquals(0, new NBTCompound().size());
+        assertTrue(new NBTCompound().isEmpty());
     }
 
     // put()
@@ -75,6 +76,7 @@ class NBTCompoundTests {
             compound.put(name, tag);
 
             assertEquals(expectedSize, compound.size());
+            assertFalse(compound.isEmpty());
         }
     }
 
@@ -176,7 +178,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @NullSource
-    void containsKey_throwsIfTagNameIsNull(String tagName) {
+    void containsKey_shouldThrowIfTagNameIsNull(String tagName) {
         NBTCompound compound = new NBTCompound();
         assertThrows(NullPointerException.class,
             () -> compound.containsKey(tagName)
@@ -186,7 +188,7 @@ class NBTCompoundTests {
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
     @ProvideAllAtOnce
-    void containsKey_returnsTrueIfCompoundHasTagWithName(Set<Object> tagSet) {
+    void containsKey_shouldReturnTrueIfCompoundHasTagWithName(Set<Object> tagSet) {
         Map<String, Object> tags = mapToNames(tagSet);
 
         for (String tagName : tags.keySet()) {
@@ -206,6 +208,43 @@ class NBTCompoundTests {
             for (String otherName : tags.keySet()) {
                 if (!otherName.equals(tagName)) {
                     assertTrue(compound.containsKey(otherName));
+                }
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @NullSource
+    void containsValue_shouldThrowIfTagNameIsNull(Object tag) {
+        NBTCompound compound = new NBTCompound();
+        assertThrows(NullPointerException.class,
+            () -> compound.containsValue(null)
+        );
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideAllAtOnce
+    void containsValue_shouldReturnTrueIfCompoundHasTagWithValue(Set<Object> tagSet) {
+        Map<String, Object> tags = mapToNames(tagSet);
+
+        for (Object omittedValue : tags.values()) {
+            NBTCompound compound = new NBTCompound();
+
+            // Add all tags to the compound EXCEPT the omittedValue.
+            tags.forEach((otherName, otherValue) -> {
+                if (otherValue != omittedValue) {
+                    compound.put(otherName, otherValue);
+                }
+            });
+
+            // Check that the compound doesn't contain the value we purposely omitted.
+            assertFalse(compound.containsValue(omittedValue));
+
+            // Check that the compound *does* contain all other values we included.
+            for (Object otherValue : tags.values()) {
+                if (otherValue != omittedValue) {
+                    assertTrue(compound.containsValue(otherValue));
                 }
             }
         }
