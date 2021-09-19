@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import me.nullicorn.nedit.provider.AllTagsProvider;
 import me.nullicorn.nedit.provider.annotation.ProvideAllAtOnce;
+import me.nullicorn.nedit.provider.annotation.ProvideTagTypes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -191,22 +192,22 @@ class NBTCompoundTests {
     void containsKey_shouldReturnTrueIfCompoundHasTagWithName(Set<Object> tagSet) {
         Map<String, Object> tags = mapToNames(tagSet);
 
-        for (String tagName : tags.keySet()) {
+        for (String omittedName : tags.keySet()) {
             NBTCompound compound = new NBTCompound();
 
-            // Add all tags to the compound EXCEPT the one with the current tagName.
+            // Add all tags to the compound EXCEPT the one with the omittedName.
             tags.forEach((otherName, otherValue) -> {
-                if (!otherName.equals(tagName)) {
+                if (!otherName.equals(omittedName)) {
                     compound.put(otherName, otherValue);
                 }
             });
 
             // Check that the compound doesn't contain the name we purposely omitted.
-            assertFalse(compound.containsKey(tagName));
+            assertFalse(compound.containsKey(omittedName));
 
             // Check that the compound *does* contain all other names we included.
             for (String otherName : tags.keySet()) {
-                if (!otherName.equals(tagName)) {
+                if (!otherName.equals(omittedName)) {
                     assertTrue(compound.containsKey(otherName));
                 }
             }
@@ -248,6 +249,72 @@ class NBTCompoundTests {
                 }
             }
         }
+    }
+
+    @ParameterizedTest
+    @NullSource
+    void containsTag_shouldThrowIfTagNameIsNull(String tagName) {
+        NBTCompound compound = new NBTCompound();
+        for (TagType tagType : TagType.values()) {
+            assertThrows(NullPointerException.class,
+                () -> compound.containsTag(tagName, tagType)
+            );
+        }
+    }
+
+    @ParameterizedTest
+    @NullSource
+    void containsTag_shouldThrowIfTagTypeIsNull(TagType tagType) {
+        NBTCompound compound = new NBTCompound();
+        assertThrows(NullPointerException.class,
+            () -> compound.containsTag(SAMPLE_NAME, tagType)
+        );
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideTagTypes
+    void containsTag_shouldReturnTrueIfCompoundHasTagWithName(Object tag, TagType type) {
+        NBTCompound compound = new NBTCompound();
+        assertFalse(compound.containsTag(SAMPLE_NAME, type));
+
+        compound.put(SAMPLE_NAME, tag);
+        assertTrue(compound.containsTag(SAMPLE_NAME, type));
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideTagTypes
+    @ProvideAllAtOnce
+    void containsTag_shouldReturnTrueIfCompoundHasTagWithType(Map<Object, TagType> typedTags) {
+        Map<String, Object> namedTags = mapToNames(typedTags.keySet());
+
+        NBTCompound compound = new NBTCompound();
+
+        // Before we put anything in the compound, make sure false is returned initially.
+        namedTags.keySet().forEach(name -> {
+            for (TagType type : TagType.values()) {
+                assertFalse(compound.containsTag(name, type));
+            }
+        });
+
+        // Now populate the compound...
+        namedTags.forEach(compound::put);
+
+        // And run the check again...
+        namedTags.forEach((name, tag) -> {
+            TagType type = typedTags.get(tag);
+
+            // Check that true is returned for the correct type.
+            assertTrue(compound.containsTag(name, type));
+
+            // Check that false is returned for any other type.
+            for (TagType otherType : TagType.values()) {
+                if (otherType != type) {
+                    assertFalse(compound.containsTag(name, otherType));
+                }
+            }
+        });
     }
 
     /**

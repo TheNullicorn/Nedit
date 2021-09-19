@@ -71,13 +71,14 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *             href="#nesting">Dot-notation</a> is supported for checking nested tags.
      * @return {@code true} if any of the tags in the compound have a {@code name} and tag-{@code
      * type} matching those provided. Otherwise {@code false}.
+     * @throws NullPointerException If the supplied {@code name} or {@code type} are {@code null}.
      */
     public boolean containsTag(String name, TagType type) {
-        if (name != null) {
-            Object value = get(name);
-            return value != null && TagType.fromObject(value) == type;
-        }
-        return false;
+        Objects.requireNonNull(name, "Tag name cannot be null");
+        Objects.requireNonNull(type, "Tag type cannot be null");
+
+        Object value = get(name);
+        return value != null && TagType.fromObject(value) == type;
     }
 
     /**
