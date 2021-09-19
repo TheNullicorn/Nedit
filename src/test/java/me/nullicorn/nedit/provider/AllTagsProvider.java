@@ -5,6 +5,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import me.nullicorn.nedit.provider.annotation.ProvideAllAtOnce;
@@ -144,15 +145,15 @@ public class AllTagsProvider implements ArgumentsProvider {
      * Reflectively iterates over an object that is assumed to be an {@code array} of "{@code T}"
      * values.
      *
-     * @throws IllegalArgumentException if either argument is {@code null}, or if the first argument
-     *                                  is not an {@link Class#isArray() array}.
+     * @throws IllegalArgumentException If the {@code array} argument is not actually an array.
+     * @throws NullPointerException     If either argument is {@code null}.
      */
     @SuppressWarnings("unchecked")
     private static <T> void reflectiveForEach(Object array, Consumer<T> action) {
-        if (array == null || !array.getClass().isArray()) {
+        Objects.requireNonNull(array);
+        Objects.requireNonNull(action);
+        if (!array.getClass().isArray()) {
             throw new IllegalArgumentException("Not an array: " + array);
-        } else if (action == null) {
-            throw new IllegalArgumentException("Iteration action cannot be null");
         }
 
         int length = Array.getLength(array);

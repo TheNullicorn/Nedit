@@ -25,12 +25,12 @@ public class FilteredTag {
         return tokens;
     }
 
-    private final String   name;
+    private final String name;
     private final String[] tokens;
 
     public FilteredTag(String name) {
         if (name == null) {
-            throw new IllegalArgumentException("Filtered tag name cannot be null");
+            throw new NullPointerException("Filtered tag name cannot be null");
         }
         this.name = name;
         tokens = tokenizeTagName(name);

@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -29,12 +31,11 @@ public abstract class TagProvider implements ArgumentsProvider {
 
     @Override
     public Stream<Arguments> provideArguments(ExtensionContext context) {
-        Object array = provide();
-        if (array == null) {
-            throw new IllegalArgumentException("Provider array cannot be null");
-        } else if (!array.getClass().isArray()) {
+        Object array = Objects.requireNonNull(provide(), "provide() array cannot be null");
+        if (!array.getClass().isArray()) {
             throw new IllegalArgumentException("Not an array: " + array);
         }
+
         int length = Array.getLength(array);
 
         // Build a stream of the array's values.
@@ -80,10 +81,9 @@ public abstract class TagProvider implements ArgumentsProvider {
         @SuppressWarnings("unchecked")
         @Override
         public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-            ArgumentsProvider base = provider().get();
-            if (base == null) {
-                throw new IllegalArgumentException("provider() cannot return null");
-            }
+            ArgumentsProvider base = Optional.ofNullable(provider())
+                .map(Supplier::get)
+                .orElseThrow(() -> new NullPointerException("provider cannot be null"));
 
             // Returns 2 arguments:
             //   1. The original value

@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 /**
  * An ordered sequence of NBT tags, all with the same {@link TagType}. Lists of 1 or more tags
- * cannot have a content type of {@link TagType#END END}. Otherwise, if the list is empty, it is
+ * cannot have a content type of {@link TagType#END TAG_End}. Otherwise, if the list is empty, it is
  * allowed.
  *
  * @author Nullicorn
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 public class NBTList extends AbstractList<Object> {
 
     private final List<Object> decorated;
-    private final TagType      contentType;
+    private final TagType contentType;
 
     /**
      * Creates a new list that can only hold tags with the provided {@code type}.
@@ -41,9 +41,13 @@ public class NBTList extends AbstractList<Object> {
     }
 
     /**
-     * @throws IllegalStateException If the list's {@link #getContentType() content type} is set to
-     *                               {@link TagType#END END}, indicating the list should always be
-     *                               empty.
+     * @throws IllegalArgumentException If the {@code tag}, when converted to an NBT value, has a
+     *                                  different {@link TagType} than this list's {@link
+     *                                  #getContentType() content-type}.
+     * @throws IllegalStateException    If the list's {@link #getContentType() content-type} is set
+     *                                  to {@link TagType#END TAG_End}, indicating the list should
+     *                                  always be empty.
+     * @throws NullPointerException     If the supplied {@code tag} is {@code null}.
      */
     @Override
     public Object set(int index, Object tag) {
@@ -52,15 +56,15 @@ public class NBTList extends AbstractList<Object> {
     }
 
     /**
-     * Appends a nameless NBT {@code tag} to the end of the list. The value's {@link
-     * TagType#getRuntimeType() runtime type} much match the list's overall {@link #getContentType()
-     * content type}, or else an exception will be thrown.
+     * Appends a nameless NBT {@code tag} to the end of the list.
      *
-     * @throws IllegalArgumentException If the {@code tag} is null, or if its class is incompatible
-     *                                  with the list's content type.
-     * @throws IllegalStateException    If the list's {@link #getContentType() content type} is set
-     *                                  to {@link TagType#END END}, indicating the list should
+     * @throws IllegalArgumentException If the {@code tag}, when converted to an NBT value, has a
+     *                                  different {@link TagType} than this list's {@link
+     *                                  #getContentType() content-type}.
+     * @throws IllegalStateException    If the list's {@link #getContentType() content-type} is set
+     *                                  to {@link TagType#END TAG_End}, indicating the list should
      *                                  always be empty.
+     * @throws NullPointerException     If the supplied {@code tag} is {@code null}.
      */
     @Override
     public boolean add(Object tag) {
@@ -70,16 +74,16 @@ public class NBTList extends AbstractList<Object> {
 
     /**
      * Inserts a nameless NBT {@code tag} at the {@code index} in the list. This will cause any tags
-     * previously at or beyond that index to be shifted up one index. The value's {@link
-     * TagType#getRuntimeType() runtime type} much match the list's overall {@link #getContentType()
-     * content type}, or else an exception will be thrown.
+     * previously at or beyond that index to be shifted up one index.
      *
      * @param index The zero-based index in the list where the new tag will be inserted.
-     * @throws IllegalArgumentException If the {@code tag} is null, or if its class is incompatible
-     *                                  with the list's content type.
+     * @throws IllegalArgumentException If the {@code tag}, when converted to an NBT value, has a
+     *                                  different {@link TagType} than this list's {@link
+     *                                  #getContentType() content-type}.
      * @throws IllegalStateException    If the list's {@link #getContentType() content type} is set
-     *                                  to {@link TagType#END END}, indicating the list should
+     *                                  to {@link TagType#END TAG_End}, indicating the list should
      *                                  always be empty.
+     * @throws NullPointerException     If the supplied {@code tag} is {@code null}.
      */
     @Override
     public void add(int index, Object tag) {
@@ -88,20 +92,21 @@ public class NBTList extends AbstractList<Object> {
     }
 
     /**
-     * Appends any provided NBT {@code tags} to the end of the list. All added tags must match the
-     * list's overall {@link #getContentType() content type}, or else an exception will be thrown.
+     * Appends any provided NBT {@code tags} to the end of the list.
      *
-     * @throws IllegalArgumentException If the provided collection is {@code null}, or if any of the
-     *                                  tags in the collection are {@code null}. Also thrown if any
-     *                                  element in the collection has a class different from the
-     *                                  {@link TagType#getRuntimeType() runtime type} of the list's
-     *                                  {@link #getContentType() contents}.
+     * @throws IllegalArgumentException If any of the supplied {@code tags}, when converted to an
+     *                                  NBT value, have a different {@link TagType} than this list's
+     *                                  {@link #getContentType() content-type}.
      * @throws IllegalStateException    If the list's {@link #getContentType() content type} is set
-     *                                  to {@link TagType#END END}, indicating the list should
+     *                                  to {@link TagType#END TAG_End}, indicating the list should
      *                                  always be empty.
+     * @throws NullPointerException     If the supplied {@code tags} collection or any of its
+     *                                  elements are {@code null}.
      */
     @Override
     public boolean addAll(Collection<?> tags) {
+        Objects.requireNonNull(tags, "tags collection cannot be null");
+
         tags.forEach(this::checkType);
         return decorated.addAll(tags);
     }
@@ -113,17 +118,19 @@ public class NBTList extends AbstractList<Object> {
      *
      * @param index The zero-based index in the list where the first {@code tag} in the collection
      *              will be added.
-     * @throws IllegalArgumentException If the provided collection is {@code null}, or if any of the
-     *                                  tags in the collection are {@code null}. Also thrown if any
-     *                                  element in the collection has a class different from the
-     *                                  {@link TagType#getRuntimeType() runtime type} of the list's
-     *                                  {@link #getContentType() contents}.
+     * @throws IllegalArgumentException If any of the supplied {@code tags}, when converted to an
+     *                                  NBT value, have a different {@link TagType} than this list's
+     *                                  {@link #getContentType() content-type}.
      * @throws IllegalStateException    If the list's {@link #getContentType() content type} is set
-     *                                  to {@link TagType#END END}, indicating the list should
+     *                                  to {@link TagType#END TAG_End}, indicating the list should
      *                                  always be empty.
+     * @throws NullPointerException     If the supplied {@code tags} collection or any of its
+     *                                  elements are {@code null}.
      */
     @Override
     public boolean addAll(int index, Collection<?> tags) {
+        Objects.requireNonNull(tags, "tags collection cannot be null");
+
         tags.forEach(this::checkType);
         return decorated.addAll(index, tags);
     }
@@ -405,23 +412,29 @@ public class NBTList extends AbstractList<Object> {
         }
     }
 
+
     /**
-     * Throw an exception if...
-     * <ul>
-     *     <li>The list's {@link #getContentType() content-type} is set to {@link TagType#END}. ({@link IllegalStateException})</li>
-     *     <li>The {@code tag} is null. ({@link IllegalArgumentException})</li>
-     *     <li>The {@code tag}'s class is different from the {@link #getContentType() content-type}'s {@link TagType#getRuntimeType() runtime type}. ({@link IllegalArgumentException})</li>
-     * </ul>
+     * @throws IllegalArgumentException If the {@code tag}, when converted to an NBT value, has a
+     *                                  different {@link TagType} than this list's {@link
+     *                                  #contentType}.
+     * @throws IllegalStateException    If the list's {@link #contentType} is {@link TagType#END
+     *                                  TAG_End}.
+     * @throws NullPointerException     If the supplied {@code tag} is {@code null}.
      */
     private void checkType(Object tag) {
+        // Check for TAG_End content-type.
         if (contentType == TagType.END) {
             throw new IllegalStateException("Cannot add tags to a list with content-type TAG_End");
-        } else if (tag == null) {
-            throw new IllegalArgumentException("Cannot add null tags to NBT list");
-        } else if (!tag.getClass().equals(contentType.getRuntimeType())) {
-            throw new IllegalArgumentException(String.format(
-                "Expected %s but found %s",
-                contentType.getRuntimeType(), tag.getClass()));
+        }
+
+        // Check for null value.
+        Objects.requireNonNull(tag);
+
+        // Check for type mismatch.
+        TagType actualType = TagType.fromObject(tag);
+        if (actualType != contentType) {
+            throw new IllegalArgumentException("Type mismatch; cannot put " + actualType +
+                                               " into a list of " + contentType + ": " + tag);
         }
     }
 

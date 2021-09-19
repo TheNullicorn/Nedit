@@ -43,8 +43,21 @@ class NBTCompoundTests {
     @NullSource
     void put_shouldThrowIfValueIsNull(Object tag) {
         NBTCompound compound = new NBTCompound();
-        assertThrows(IllegalArgumentException.class,
+
+        // "value" argument is null.
+        assertThrows(NullPointerException.class,
             () -> compound.put(SAMPLE_NAME, tag)
+        );
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    void put_shouldThrowIfNameIsNull(Object tag) {
+        NBTCompound compound = new NBTCompound();
+
+        // "name" argument is null.
+        assertThrows(NullPointerException.class,
+            () -> compound.put(null, tag)
         );
     }
 
@@ -103,8 +116,21 @@ class NBTCompoundTests {
     @NullSource
     void putIfAbsent_shouldThrowIfValueIsNull(Object tag) {
         NBTCompound compound = new NBTCompound();
-        assertThrows(IllegalArgumentException.class,
+
+        // "value" argument is null.
+        assertThrows(NullPointerException.class,
             () -> compound.putIfAbsent(SAMPLE_NAME, tag)
+        );
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    void putIfAbsent_shouldThrowIfNameIsNull(Object tag) {
+        NBTCompound compound = new NBTCompound();
+
+        // "name" argument is null.
+        assertThrows(NullPointerException.class,
+            () -> compound.putIfAbsent(null, tag)
         );
     }
 

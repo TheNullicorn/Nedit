@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import me.nullicorn.nedit.filter.FilteredTag;
 
 /**
@@ -85,7 +86,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *
      * @param key The string name of the NBT tag whose presence should be checked for. <a
      *            href="#nesting">Dot-notation</a> is supported for checking nested tags.
-     * @throws NullPointerException if the supplied {@code key} is {@code null}.
+     * @throws NullPointerException If the supplied {@code key} is {@code null}.
      */
     @Override
     public boolean containsKey(Object key) {
@@ -334,15 +335,17 @@ public class NBTCompound extends AbstractMap<String, Object> {
      */
     @Override
     public Object get(Object name) {
-        Objects.requireNonNull(name, "Tag name must not be null");
+        Objects.requireNonNull(name, "Tag name cannot be null");
         return name instanceof String
             ? get((String) name)
             : null;
     }
 
     /**
-     * @throws IllegalArgumentException If the value is {@code null}, or if it cannot be {@link
-     *                                  TagType#getRuntimeType() represented} as an NBT type.
+     * @throws IllegalArgumentException If the {@code value}, when converted to an NBT type, is
+     *                                  {@link TagType#END TAG_End}.
+     * @throws NullPointerException     If the supplied {@code name} or {@code value} are {@code
+     *                                  null}.
      */
     @Override
     public Object put(String name, Object value) {
@@ -351,8 +354,10 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * @throws IllegalArgumentException If the value is {@code null}, or if it cannot be {@link
-     *                                  TagType#getRuntimeType() represented} as an NBT type.
+     * @throws IllegalArgumentException If the {@code value}, when converted to an NBT type, is
+     *                                  {@link TagType#END TAG_End}.
+     * @throws NullPointerException     If the supplied {@code name} or {@code value} are {@code
+     *                                  null}.
      */
     @Override
     public Object putIfAbsent(String name, Object value) {
@@ -386,24 +391,31 @@ public class NBTCompound extends AbstractMap<String, Object> {
     }
 
     /**
-     * Throws an {@link IllegalArgumentException} if the {@code value} cannot be converted to an NBT
-     * tag type.
+     * @throws NullPointerException     If the supplied {@code name} or {@code tag} is {@code
+     *                                  null}.
+     * @throws IllegalArgumentException If the value, when converted to an NBT type, is a {@link
+     *                                  TagType#END TAG_End}.
      */
     private void checkTag(String name, Object value) {
-        String errorMsg = null;
+        String message = null;
+        Function<String, RuntimeException> exception = null;
+
         if (name == null) {
-            errorMsg = "Compounds cannot have null tag names (value=" + value + ")";
+            message = "Compounds cannot have null tag names (value=" + value + ")";
+            exception = NullPointerException::new;
+
         } else if (value == null) {
-            errorMsg = "Compounds cannot have null tag values (name=" + name + ")";
+            message = "Compounds cannot have null tag values (name=" + name + ")";
+            exception = NullPointerException::new;
+
+        } else if (TagType.END == TagType.fromObject(value)) {
+            message = "TAG_End cannot be used as a value (name=" + name + ",value=" + value + ")";
+            exception = IllegalArgumentException::new;
         }
 
-        TagType type = TagType.fromObject(value);
-        if (type == TagType.END) {
-            errorMsg = "TAG_End cannot be used as a value (name=" + name + ",value=" + value + ")";
-        }
-
-        if (errorMsg != null) {
-            throw new IllegalArgumentException(errorMsg);
+        // Throw if there was an error.
+        if (message != null) {
+            throw exception.apply(message);
         }
     }
 

@@ -2,6 +2,7 @@ package me.nullicorn.nedit.filter;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -31,7 +32,7 @@ public class NBTFilter implements Iterable<FilteredTag> {
         return filter;
     }
 
-    private final FilterMode       mode;
+    private final FilterMode mode;
     private final Set<FilteredTag> filteredTags;
 
     /**
@@ -141,17 +142,16 @@ public class NBTFilter implements Iterable<FilteredTag> {
      *     • If the added tag has a <u>narrower scope</u> (more tokens) than an existing one, then
      *       that new tag will replace the tag with the wider scope (fewer tokens).
      * </pre>
+     *
+     * @throws NullPointerException If the supplied {@code tagNames} array or any of its elements
+     *                              are {@code null}.
      */
     public void addTags(String... tagNames) {
-        if (tagNames == null) {
-            throw new IllegalArgumentException("Tag names cannot be null");
-        }
+        Objects.requireNonNull(tagNames, "tagNames array cannot be null");
 
         // Check for collisions.
         for (String rawName : tagNames) {
-            if (rawName == null) {
-                throw new IllegalArgumentException("Tag names cannot be null");
-            }
+            Objects.requireNonNull(rawName, "tagNames array cannot contain null names");
 
             FilteredTag tag = new FilteredTag(rawName);
             boolean shouldAddTag = true;
@@ -187,16 +187,15 @@ public class NBTFilter implements Iterable<FilteredTag> {
      * Removes certain {@code tagNames} from the filter, such that {@link #getFilteredTags()} will
      * no longer return tags with those {@link FilteredTag#getName() names} unless they are
      * explicitly re-{@link #addTags(String...) added}.
+     *
+     * @throws NullPointerException If the supplied {@code tagNames} array or any of its elements
+     *                              are {@code null}.
      */
     public void removeFilteredTags(String... tagNames) {
-        if (tagNames == null) {
-            throw new IllegalArgumentException("Cannot remove null tag names");
-        }
+        Objects.requireNonNull(tagNames, "tagNames array cannot be null");
 
         for (String name : tagNames) {
-            if (name == null) {
-                throw new IllegalArgumentException("Cannot remove null tag names");
-            }
+            Objects.requireNonNull(name, "tagNames array cannot contain null names");
             filteredTags.removeIf(tag -> tag.getName().equals(name));
         }
     }
