@@ -2,6 +2,7 @@ package me.nullicorn.nedit.type;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -378,6 +379,16 @@ public class NBTCompound extends AbstractMap<String, Object> {
     @Override
     public void clear() {
         decorated.clear();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return decorated.keySet();
+    }
+
+    @Override
+    public Collection<Object> values() {
+        return decorated.values();
     }
 
     @Override
