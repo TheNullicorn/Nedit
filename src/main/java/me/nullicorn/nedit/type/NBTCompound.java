@@ -22,7 +22,7 @@ import me.nullicorn.nedit.filter.FilteredTag;
  * for any further nested compounds. To avoid this, the implementation allows you to use
  * dot-notation in these cases. More specifically, dot-notation is valid in methods that
  * <b>cannot</b> alter the structure of the compound (and those that accept a tag name), like
- * {@link #get(String) getter} and {@link #containsTag(String, TagType) contains} methods.
+ * {@link #get(Object) getter} and {@link #containsTag(String, TagType) contains} methods.
  * <p>
  * Consider the following NBT data:
  * <pre>{@code
@@ -112,7 +112,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * @return The value of the numeric tag associated with the {@code name}, cast to a double if it
      * isn't already. If a tag with that name does not exist (or is not a number), the {@code
      * defaultValue} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public double getDouble(String name, double defaultValue) {
         return getNumber(name, defaultValue).doubleValue();
@@ -126,7 +126,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * @return The value of the numeric tag associated with the {@code name}, cast to a float if it
      * isn't already. If a tag with that name does not exist (or is not a number), the {@code
      * defaultValue} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public float getFloat(String name, float defaultValue) {
         return getNumber(name, defaultValue).floatValue();
@@ -140,7 +140,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * @return The value of the numeric tag associated with the {@code name}, cast to a short if it
      * isn't already. If a tag with that name does not exist (or is not a number), the {@code
      * defaultValue} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public short getShort(String name, short defaultValue) {
         return getNumber(name, defaultValue).shortValue();
@@ -154,7 +154,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * @return The value of the numeric tag associated with the {@code name}, cast to a long if it
      * isn't already. If a tag with that name does not exist (or is not a number), the {@code
      * defaultValue} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public long getLong(String name, long defaultValue) {
         return getNumber(name, defaultValue).longValue();
@@ -168,7 +168,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * @return The value of the numeric tag associated with the {@code name}, cast to an int if it
      * isn't already. If a tag with that name does not exist (or is not a number), the {@code
      * defaultValue} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public int getInt(String name, int defaultValue) {
         return getNumber(name, defaultValue).intValue();
@@ -182,7 +182,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * @return The value of the numeric tag associated with the {@code name}, cast to a byte if it
      * isn't already. If a tag with that name does not exist (or is not a number), the {@code
      * defaultValue} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public byte getByte(String name, byte defaultValue) {
         return getNumber(name, defaultValue).byteValue();
@@ -195,7 +195,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *                     appropriate type.
      * @return The value of the numeric tag associated with the {@code name}. If a tag with that
      * name does not exist (or is not a number), the {@code defaultValue} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public Number getNumber(String name, Number defaultValue) {
         Object result = get(name);
@@ -220,7 +220,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * name does not exist, the {@code defaultValue} is returned. If a value exists for that name,
      * but is not already a string, the value is converted to a string using its {@link
      * Object#toString() toString()} method.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public String getString(String name, String defaultValue) {
         Object result = get(name);
@@ -234,7 +234,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *             href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @return The long-array tag associated with the {@code name}. If a tag with that name does not
      * exist (or is not a {@code long[]}), then {@code null} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public long[] getLongArray(String name) {
         Object result = get(name);
@@ -248,7 +248,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *             href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @return The integer-array tag associated with the {@code name}. If a tag with that name does
      * not exist (or is not an {@code int[]}), then {@code null} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public int[] getIntArray(String name) {
         Object result = get(name);
@@ -262,7 +262,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *             href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @return The byte-array tag associated with the {@code name}. If a tag with that name does not
      * exist (or is not a {@code byte[]}), then {@code null} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public byte[] getByteArray(String name) {
         Object result = get(name);
@@ -276,7 +276,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *             href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @return The NBT list associated with the {@code name}. If a tag with that name does not exist
      * (or is not a list), then {@code null} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public NBTList getList(String name) {
         Object result = get(name);
@@ -290,7 +290,7 @@ public class NBTCompound extends AbstractMap<String, Object> {
      *             href="#nesting">Dot-notation</a> is supported for accessing nested tags.
      * @return The nested NBT compound associated with the {@code name}. If a tag with that name
      * does not exist (or is not a compound), then {@code null} is returned.
-     * @see #get(String)
+     * @see #get(Object)
      */
     public NBTCompound getCompound(String name) {
         Object result = get(name);
@@ -307,16 +307,20 @@ public class NBTCompound extends AbstractMap<String, Object> {
      * @return The value of the tag associated with the {@code name}. If the name is {@code null},
      * or if there is no tag inside the compound with that name, then {@code null} is returned.
      */
-    public Object get(String name) {
-        if (name == null) {
-            return null;
+    @Override
+    public Object get(Object name) {
+        Objects.requireNonNull(name, "Tag name cannot be null");
+        if (!(name instanceof String)) {
+            throw new ClassCastException("Tag name must be java.lang.String");
         }
 
-        String[] tokens = FilteredTag.tokenizeTagName(name);
+        String[] tokens = FilteredTag.tokenizeTagName((String) name);
         if (tokens.length == 1) {
+            // Short-circuit if the tag is a direct child of this compound.
             return decorated.get(name);
         }
 
+        // Otherwise search for the tag within a nested compound.
         NBTCompound parent = this;
         for (int i = 0; i < tokens.length; i++) {
 
@@ -334,22 +338,6 @@ public class NBTCompound extends AbstractMap<String, Object> {
         }
 
         return null;
-    }
-
-    /**
-     * See <a href="#nesting">here</a> for more info.
-     *
-     * @return {@code null} if the {@code name} is not a {@link String}. Otherwise, returns the
-     * result of {@link #get(String)} for that name.
-     * @throws NullPointerException If the supplied {@code name} is {@code null}.
-     * @see #get(String)
-     */
-    @Override
-    public Object get(Object name) {
-        Objects.requireNonNull(name, "Tag name cannot be null");
-        return name instanceof String
-            ? get((String) name)
-            : null;
     }
 
     /**

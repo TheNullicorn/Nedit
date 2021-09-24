@@ -41,6 +41,8 @@ class NBTCompoundTests {
         }
     }
 
+    // TODO: 9/24/21 Test that exception IS thrown if value CANNOT be NBT.
+
     @ParameterizedTest
     @NullSource
     void put_shouldThrowIfValueIsNull(Object tag) {
@@ -115,6 +117,8 @@ class NBTCompoundTests {
         assertDoesNotThrow(() -> compound.putIfAbsent(SAMPLE_NAME, tag));
     }
 
+    // TODO: 9/24/21 Test that exception IS thrown if value CANNOT be NBT.
+
     @ParameterizedTest
     @NullSource
     void putIfAbsent_shouldThrowIfValueIsNull(Object tag) {
@@ -177,6 +181,102 @@ class NBTCompoundTests {
         }
     }
 
+    // get()
+
+    @ParameterizedTest
+    @NullSource
+    void get_shouldThrowIfNameIsNull(String tagNameNull) {
+        NBTCompound compound = new NBTCompound();
+
+        assertThrows(NullPointerException.class,
+            () -> compound.get(tagNameNull)
+        );
+    }
+
+    @Test
+    @SuppressWarnings("SuspiciousMethodCalls")
+    void get_shouldThrowIfNameIsNotAString() {
+        // Non-string tag name. Should cause an exception.
+        Object tagNameBad = new Object();
+
+        NBTCompound compound = new NBTCompound();
+        assertThrows(ClassCastException.class,
+            () -> compound.get(tagNameBad)
+        );
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideAllAtOnce
+    void get_shouldReturnCorrectValueForName(Set<Object> tagSet) {
+        Map<String, Object> tags = mapToNames(tagSet);
+
+        NBTCompound compound = new NBTCompound();
+        tags.forEach(compound::put);
+
+        tags.forEach((name, value) -> assertEquals(value, compound.get(name)));
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideAllAtOnce
+    void get_shouldReturnCorrectValueForNestedTags(Set<Object> tagSet) {
+        Map<String, Object> tags = mapToNames(tagSet);
+
+        int maxDepth = 5;
+        Map<String, Object> nestedTags = new HashMap<>();
+        NBTCompound rootCompound = new NBTCompound();
+
+        /*
+         * Generate a series of nested NBT compounds like so:
+         * | - >
+         * | - - >
+         * | - - - >
+         * | - - - - >
+         * | - - - - - >
+         * Where..
+         *   - Pipes '|' represent the root compound
+         *   - Hyphens '-' represent a nested compound
+         *   - Arrows '>' represent an endpoint where the contents of the `tags` map are dumped out.
+         *
+         * Successful nesting will be tested for at each layer of that generated structure.
+         */
+        for (int i = 1; i <= maxDepth; i++) {
+            // Start at the root (pipe '|').
+            NBTCompound lastParent = rootCompound;
+            StringBuilder lastParentPath = new StringBuilder();
+
+            for (int depth = 0; depth < i; depth++) {
+                // Name the child compound after its depth.
+                String childName = "child_" + i + "_" + depth;
+                lastParentPath.append(childName);
+
+                // Add a child compound to the current parent (hyphen '-').
+                // Then make that child the new parent.
+                NBTCompound child = new NBTCompound();
+                lastParent.put(childName, child);
+                lastParent = child;
+
+                // Continue the path...
+                lastParentPath.append('.');
+            }
+
+            // Dump the `tags` map into the innermost nested child (arrow '>').
+            final NBTCompound parent = lastParent;
+            final String parentPath = lastParentPath.toString();
+            tags.forEach((name, value) -> {
+                parent.put(name, value);
+
+                // Store the full path & value to be tested at the end.
+                nestedTags.put(parentPath + name, value);
+            });
+        }
+
+        nestedTags.forEach((path, value) -> assertEquals(value, rootCompound.get(path)));
+    }
+
+    // containsKey()
+
     @ParameterizedTest
     @NullSource
     void containsKey_shouldThrowIfTagNameIsNull(String tagName) {
@@ -214,6 +314,8 @@ class NBTCompoundTests {
         }
     }
 
+    // containsValue()
+
     @ParameterizedTest
     @NullSource
     void containsValue_shouldThrowIfTagNameIsNull(Object tag) {
@@ -250,6 +352,8 @@ class NBTCompoundTests {
             }
         }
     }
+
+    // containsTag()
 
     @ParameterizedTest
     @NullSource
