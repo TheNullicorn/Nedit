@@ -8,6 +8,13 @@
     <artifactId>Nedit</artifactId>
     <version>2.1.1-SNAPSHOT</version>
 
+    <contributors>
+        <contributor>
+            <name>PureGero</name>
+            <url>https://github.com/PureGero</url>
+        </contributor>
+    </contributors>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
