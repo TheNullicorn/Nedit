@@ -7,7 +7,7 @@ import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-public final class CompoundProvider extends TagProvider {
+public final class CompoundProvider extends TagProvider<NBTCompound[]> {
 
     @Override
     public NBTCompound[] provide() {

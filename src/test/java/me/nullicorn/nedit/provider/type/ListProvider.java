@@ -9,7 +9,7 @@ import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-public final class ListProvider extends TagProvider {
+public final class ListProvider extends TagProvider<NBTList[]> {
 
     @Override
     public NBTList[] provide() {

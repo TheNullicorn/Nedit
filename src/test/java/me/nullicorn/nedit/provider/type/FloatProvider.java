@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import me.nullicorn.nedit.provider.TagProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-public final class FloatProvider extends TagProvider {
+public final class FloatProvider extends TagProvider<float[]> {
 
     @Override
     public float[] provide() {
@@ -14,6 +14,11 @@ public final class FloatProvider extends TagProvider {
             Float.MIN_VALUE,
             Float.MAX_VALUE
         };
+    }
+
+    @Override
+    public Object getExtraneousValue() {
+        return Float.MAX_VALUE / 2;
     }
 
     public static final class IOProvider extends NBTEncodedValueProvider {

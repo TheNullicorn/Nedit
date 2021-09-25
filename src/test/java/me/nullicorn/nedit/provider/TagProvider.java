@@ -19,7 +19,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
  *
  * @author Nullicorn
  */
-public abstract class TagProvider implements ArgumentsProvider {
+public abstract class TagProvider<A> implements ArgumentsProvider {
 
     /**
      * Returns an array of NBT values that will be passed to the provider.
@@ -27,7 +27,16 @@ public abstract class TagProvider implements ArgumentsProvider {
      * @apiNote The returned object *MUST* be an array. May be multi-dimensional if the provided
      * type itself is an array.
      */
-    public abstract Object provide();
+    public abstract A provide();
+
+    /**
+     * Provides a single, valid value for the target type, but one that will never be returned by
+     * {@link #provide() provide()} or {@link #provideArguments(ExtensionContext)
+     * provideArguments()}.
+     */
+    public Object getExtraneousValue() {
+        return null;
+    }
 
     @Override
     public Stream<Arguments> provideArguments(ExtensionContext context) {

@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import me.nullicorn.nedit.provider.TagProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-public final class StringProvider extends TagProvider {
+public final class StringProvider extends TagProvider<String[]> {
 
     @Override
     public String[] provide() {
@@ -14,6 +14,11 @@ public final class StringProvider extends TagProvider {
             "Hello, World!", // ASCII-range code points
             "§73 Gold Stars:§6 ✪ ✪ ✪" // Code points outside ASCII range
         };
+    }
+
+    @Override
+    public Object getExtraneousValue() {
+        return "Goodbye, Space.";
     }
 
     public static final class IOProvider extends NBTEncodedValueProvider {

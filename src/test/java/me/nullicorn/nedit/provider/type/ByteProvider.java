@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import me.nullicorn.nedit.provider.TagProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-public final class ByteProvider extends TagProvider {
+public final class ByteProvider extends TagProvider<byte[]> {
 
     @Override
     public byte[] provide() {
@@ -14,6 +14,12 @@ public final class ByteProvider extends TagProvider {
             Byte.MIN_VALUE,
             Byte.MAX_VALUE
         };
+    }
+
+    @Override
+    public Object getExtraneousValue() {
+        // Without the cast this returns an int.
+        return (byte) (Byte.MAX_VALUE / 2);
     }
 
     public static final class IOProvider extends NBTEncodedValueProvider {

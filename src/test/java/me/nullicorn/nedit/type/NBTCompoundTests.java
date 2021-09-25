@@ -7,21 +7,65 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import me.nullicorn.nedit.provider.AllTagsProvider;
+import me.nullicorn.nedit.provider.TagProvider;
 import me.nullicorn.nedit.provider.annotation.ProvideAllAtOnce;
 import me.nullicorn.nedit.provider.annotation.ProvideTagTypes;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.NullSource;
 
-@SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "ResultOfMethodCallIgnored"})
+@SuppressWarnings({
+    "rawtypes",
+    "unchecked",
+    "SuspiciousMethodCalls",
+    "ResultOfMethodCallIgnored",
+    "MismatchedQueryAndUpdateOfCollection"
+})
 class NBTCompoundTests {
 
     static final String SAMPLE_NAME = "a_tag";
+
+    static Set<TagType> numericTypes;
+    static Map<TagType, Getter<?>> getters;
+    static Map<TagType, GetterWithDefault<?>> gettersWithDefaults;
+
+    @BeforeAll
+    static void beforeAll() {
+        getters = new HashMap<>();
+        gettersWithDefaults = new HashMap<>();
+
+        getters.put(TagType.STRING, NBTCompound::getString);
+        getters.put(TagType.LIST, NBTCompound::getList);
+        getters.put(TagType.COMPOUND, NBTCompound::getCompound);
+        getters.put(TagType.BYTE_ARRAY, NBTCompound::getByteArray);
+        getters.put(TagType.INT_ARRAY, NBTCompound::getIntArray);
+        getters.put(TagType.LONG_ARRAY, NBTCompound::getLongArray);
+
+        gettersWithDefaults.put(TagType.BYTE, (GetterWithDefault<Byte>) NBTCompound::getByte);
+        gettersWithDefaults.put(TagType.SHORT, (GetterWithDefault<Short>) NBTCompound::getShort);
+        gettersWithDefaults.put(TagType.INT, (GetterWithDefault<Integer>) NBTCompound::getInt);
+        gettersWithDefaults.put(TagType.LONG, (GetterWithDefault<Long>) NBTCompound::getLong);
+        gettersWithDefaults.put(TagType.FLOAT, (GetterWithDefault<Float>) NBTCompound::getFloat);
+        gettersWithDefaults.put(TagType.DOUBLE, (GetterWithDefault<Double>) NBTCompound::getDouble);
+        gettersWithDefaults.put(TagType.STRING, (GetterWithDefault<String>) NBTCompound::getString);
+
+        numericTypes = new HashSet<>(Arrays.asList(
+            TagType.BYTE,
+            TagType.SHORT,
+            TagType.INT,
+            TagType.LONG,
+            TagType.FLOAT,
+            TagType.DOUBLE
+        ));
+    }
 
     @Test
     void constructor_shouldInitialSizeBeZero() {
@@ -194,7 +238,6 @@ class NBTCompoundTests {
     }
 
     @Test
-    @SuppressWarnings("SuspiciousMethodCalls")
     void get_shouldThrowIfNameIsNotAString() {
         // Non-string tag name. Should cause an exception.
         Object tagNameBad = new Object();
@@ -208,71 +251,153 @@ class NBTCompoundTests {
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
     @ProvideAllAtOnce
-    void get_shouldReturnCorrectValueForName(Set<Object> tagSet) {
-        Map<String, Object> tags = mapToNames(tagSet);
+    void get_shouldReturnCorrectValueWithOrWithoutDotNotation(Set<Object> tagSet) {
+        int maxDepth = 5;
+        NBTCompound root = new NBTCompound();
+        Map<String, Object> tagsByName = mapToNames(tagSet);
+        Map<String, Object> tagsByPath = nestRecursively(root, tagsByName, maxDepth);
 
+        tagsByPath.forEach(
+            (path, value) -> assertEquals(value, root.get(path))
+        );
+    }
+
+    // type-specific getters [getByte(), getString(), getCompound(), ...]
+
+    @ParameterizedTest
+    @NullSource
+    void getter_shouldThrowIfTagNameIsNull(String tagNameNull) {
         NBTCompound compound = new NBTCompound();
-        tags.forEach(compound::put);
 
-        tags.forEach((name, value) -> assertEquals(value, compound.get(name)));
+        for (TagType type : TagType.values()) {
+            Getter getter = getters.get(type);
+            GetterWithDefault getterWithDefault = gettersWithDefaults.get(type);
+
+            // If the type uses a regular getter, make sure it throws NPE for null tag names.
+            if (getter != null) {
+                assertThrows(NullPointerException.class,
+                    () -> getter.get(compound, tagNameNull),
+                    "Getter for type " + type + " did not throw NPE"
+                );
+            }
+
+            // If the also/only has a getter w/ default value, make sure it also throws NPE for null
+            // tag names.
+            if (getterWithDefault != null) {
+                Object defaultValue = getValueWithType(type);
+                assertThrows(NullPointerException.class,
+                    () -> getterWithDefault.get(compound, tagNameNull, defaultValue),
+                    "Getter w/ default for type " + type + " did not throw NPE"
+                );
+            }
+        }
     }
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
+    @ProvideTagTypes
     @ProvideAllAtOnce
-    void get_shouldReturnCorrectValueForNestedTags(Set<Object> tagSet) {
-        Map<String, Object> tags = mapToNames(tagSet);
+    void getter_shouldReturnCorrectValueForName(Map<Object, TagType> typedTags) {
+        Map<String, Object> namedTags = mapToNames(typedTags.keySet());
 
-        int maxDepth = 5;
-        Map<String, Object> nestedTags = new HashMap<>();
-        NBTCompound rootCompound = new NBTCompound();
+        NBTCompound compound = new NBTCompound();
+        namedTags.forEach(compound::put);
 
-        /*
-         * Generate a series of nested NBT compounds like so:
-         * | - >
-         * | - - >
-         * | - - - >
-         * | - - - - >
-         * | - - - - - >
-         * Where..
-         *   - Pipes '|' represent the root compound
-         *   - Hyphens '-' represent a nested compound
-         *   - Arrows '>' represent an endpoint where the contents of the `tags` map are dumped out.
-         *
-         * Successful nesting will be tested for at each layer of that generated structure.
-         */
-        for (int i = 1; i <= maxDepth; i++) {
-            // Start at the root (pipe '|').
-            NBTCompound lastParent = rootCompound;
-            StringBuilder lastParentPath = new StringBuilder();
+        namedTags.forEach((name, value) -> {
+            TagType type = typedTags.get(value);
+            Getter getter = getters.get(type);
+            GetterWithDefault getterWithDefault = gettersWithDefaults.get(type);
 
-            for (int depth = 0; depth < i; depth++) {
-                // Name the child compound after its depth.
-                String childName = "child_" + i + "_" + depth;
-                lastParentPath.append(childName);
-
-                // Add a child compound to the current parent (hyphen '-').
-                // Then make that child the new parent.
-                NBTCompound child = new NBTCompound();
-                lastParent.put(childName, child);
-                lastParent = child;
-
-                // Continue the path...
-                lastParentPath.append('.');
+            if (getter != null) {
+                assertEquals(
+                    value,
+                    getter.get(compound, name),
+                    "Getter for type " + type + " failed to return correct value"
+                );
             }
 
-            // Dump the `tags` map into the innermost nested child (arrow '>').
-            final NBTCompound parent = lastParent;
-            final String parentPath = lastParentPath.toString();
-            tags.forEach((name, value) -> {
-                parent.put(name, value);
+            if (getterWithDefault != null) {
+                Object defaultValue = getValueWithType(type);
+                assertEquals(
+                    value,
+                    getterWithDefault.get(compound, name, defaultValue),
+                    "Getter for type " + type + " failed to return correct value"
+                );
+            }
+        });
+    }
 
-                // Store the full path & value to be tested at the end.
-                nestedTags.put(parentPath + name, value);
-            });
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideTagTypes
+    @ProvideAllAtOnce
+    void getter_shouldReturnDefaultValueIfNotPresent() {
+        NBTCompound compound = new NBTCompound();
+
+        for (TagType type : TagType.values()) {
+            GetterWithDefault getterWithDefault = gettersWithDefaults.get(type);
+
+            if (getterWithDefault != null) {
+                Object defaultValue = getValueWithType(type);
+
+                assertEquals(
+                    defaultValue,
+                    getterWithDefault.get(compound, SAMPLE_NAME, defaultValue),
+                    "Getter for type " + type + " did not return default value: " + defaultValue
+                );
+            }
         }
+    }
 
-        nestedTags.forEach((path, value) -> assertEquals(value, rootCompound.get(path)));
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideTagTypes
+    @ProvideAllAtOnce
+    void getter_shouldReturnCorrectValueWithOrWithoutDotNotation(Map<Object, TagType> typedTags) {
+        int maxDepth = 5;
+        NBTCompound root = new NBTCompound();
+        Map<String, Object> tagsByName = mapToNames(typedTags.keySet());
+        Map<String, Object> tagsByPath = nestRecursively(root, tagsByName, maxDepth);
+
+        tagsByPath.forEach((path, value) -> {
+            TagType type = typedTags.get(value);
+            Getter getter = getters.get(type);
+            GetterWithDefault getterWithDefault = gettersWithDefaults.get(type);
+
+            if (getter != null) {
+                assertEquals(value, getter.get(root, path));
+            }
+
+            if (getterWithDefault != null) {
+                Object defaultValue = getValueWithType(type);
+                assertEquals(value, getterWithDefault.get(root, path, defaultValue));
+            }
+        });
+    }
+
+    @Test
+    void getter_shouldNotThrowIfDefaultValueIsNull() {
+        NBTCompound compound = new NBTCompound();
+
+        // getString()
+        assertDoesNotThrow(
+            () -> compound.getString(SAMPLE_NAME, null),
+            "getString() threw an exception with null as a default value"
+        );
+        assertNull(
+            compound.getString(SAMPLE_NAME, null),
+            "getString() did not return null even though it was the default value"
+        );
+
+        // getNumber()
+        assertDoesNotThrow(
+            () -> compound.getNumber(SAMPLE_NAME, null),
+            "getNumber() threw an exception with null as a default value"
+        );
+        assertNull(
+            compound.getNumber(SAMPLE_NAME, null),
+            "getNumber() did not return null even though it was the default value"
+        );
     }
 
     // containsKey()
@@ -437,5 +562,89 @@ class NBTCompoundTests {
         }
 
         return map;
+    }
+
+    /**
+     * Generates a valid value for the supplied type, but one that will never be provided by {@link
+     * AllTagsProvider}. Useful for testing methods that accept a default value.
+     */
+    private static <T> T getValueWithType(TagType type) {
+        TagProvider<T> provider = AllTagsProvider.getProviderForType(type);
+        return (T) provider.getExtraneousValue();
+    }
+
+    /**
+     * Generate a series of nested NBT compounds like so:
+     * <pre>
+     * | >
+     * | - >
+     * | - - >
+     * | - - - >
+     * | - - - - >
+     * | - - - - - >
+     * </pre>
+     * Where...
+     * <ul>
+     *     <li>Each line above represents a separate branch in the root compound</li>
+     *     <li>Pipes '|' represent the {@code root} compound itself</li>
+     *     <li>Hyphens '-' represent a nested compound</li>
+     *     <li>Arrows '>' represent an endpoint where all of the supplied {@code tags} are dumped
+     *         out using their existing names</li>
+     * </ul>
+     * The returned map contains each tag, mapped to the full path string (dot notation) where it
+     * was dumped.
+     */
+    private static Map<String, Object> nestRecursively(NBTCompound root, Map<String, Object> tags, int maxDepth) {
+        Map<String, Object> tagsByPath = new HashMap<>();
+
+        for (int i = 0; i <= maxDepth; i++) {
+            // Start at the root (pipe '|').
+            NBTCompound lastParent = root;
+            StringBuilder lastParentPath = new StringBuilder();
+
+            for (int depth = 1; depth <= i; depth++) {
+                // Name the child compound after its depth.
+                String childName = "child_" + i + "_" + depth;
+                lastParentPath.append(childName);
+
+                // Add a child compound to the current parent (hyphen '-').
+                // Then make that child the new parent.
+                NBTCompound child = new NBTCompound();
+                lastParent.put(childName, child);
+                lastParent = child;
+
+                // Continue the path...
+                lastParentPath.append('.');
+            }
+
+            // Dump the `tags` map into the innermost nested child (arrow '>').
+            final NBTCompound parent = lastParent;
+            final String parentPath = lastParentPath.toString();
+            tags.forEach((name, value) -> {
+                parent.put(name, value);
+
+                // Store the full path & value to be tested at the end.
+                tagsByPath.put(parentPath + name, value);
+            });
+        }
+
+        return tagsByPath;
+    }
+
+    /**
+     * Represents a getter method from the {@link NBTCompound} class.
+     */
+    private interface Getter<T> {
+
+        T get(NBTCompound compound, String name);
+    }
+
+    /**
+     * Represents a getter method from the {@link NBTCompound} class that also accepts a default
+     * value.
+     */
+    private interface GetterWithDefault<T> {
+
+        T get(NBTCompound compound, String name, T defaultValue);
     }
 }

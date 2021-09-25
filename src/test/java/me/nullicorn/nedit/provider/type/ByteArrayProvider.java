@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 import me.nullicorn.nedit.provider.TagProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-public final class ByteArrayProvider extends TagProvider {
+public final class ByteArrayProvider extends TagProvider<byte[][]> {
 
     @Override
     public byte[][] provide() {

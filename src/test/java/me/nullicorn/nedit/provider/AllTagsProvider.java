@@ -98,7 +98,7 @@ public class AllTagsProvider implements ArgumentsProvider {
             // 1. Get an array of values directly from the provider.
             // 2. Iterate over each value in the array.
             // 3. Add the value & its type to the map.
-            reflectiveForEach(getProviderForTag(type).provide(),
+            reflectiveForEach(getProviderForType(type).provide(),
                 value -> tags.put(value, type)
             );
         }
@@ -110,35 +110,52 @@ public class AllTagsProvider implements ArgumentsProvider {
      * Determines the corresponding argument provider that should be used to provide NBT values of
      * the supplied {@code type}.
      */
-    public static TagProvider getProviderForTag(TagType type) {
+    @SuppressWarnings("unchecked")
+    public static <A> TagProvider<A> getProviderForType(TagType type) {
+        TagProvider<?> provider;
+
         switch (type) {
             case BYTE:
-                return new ByteProvider();
+                provider = new ByteProvider();
+                break;
             case SHORT:
-                return new ShortProvider();
+                provider = new ShortProvider();
+                break;
             case INT:
-                return new IntProvider();
+                provider = new IntProvider();
+                break;
             case LONG:
-                return new LongProvider();
+                provider = new LongProvider();
+                break;
             case FLOAT:
-                return new FloatProvider();
+                provider = new FloatProvider();
+                break;
             case DOUBLE:
-                return new DoubleProvider();
+                provider = new DoubleProvider();
+                break;
             case BYTE_ARRAY:
-                return new ByteArrayProvider();
+                provider = new ByteArrayProvider();
+                break;
             case INT_ARRAY:
-                return new IntArrayProvider();
+                provider = new IntArrayProvider();
+                break;
             case LONG_ARRAY:
-                return new LongArrayProvider();
+                provider = new LongArrayProvider();
+                break;
             case STRING:
-                return new StringProvider();
+                provider = new StringProvider();
+                break;
             case LIST:
-                return new ListProvider();
+                provider = new ListProvider();
+                break;
             case COMPOUND:
-                return new CompoundProvider();
+                provider = new CompoundProvider();
+                break;
             default:
                 throw new IllegalArgumentException("Unable to find provider for tag: " + type);
         }
+
+        return (TagProvider<A>) provider;
     }
 
     /**

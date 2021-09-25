@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import me.nullicorn.nedit.provider.TagProvider;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 
-public final class IntProvider extends TagProvider {
+public final class IntProvider extends TagProvider<int[]> {
 
     @Override
     public int[] provide() {
@@ -14,6 +14,11 @@ public final class IntProvider extends TagProvider {
             Integer.MIN_VALUE,
             Integer.MAX_VALUE
         };
+    }
+
+    @Override
+    public Object getExtraneousValue() {
+        return Integer.MAX_VALUE / 2;
     }
 
     public static final class IOProvider extends NBTEncodedValueProvider {
