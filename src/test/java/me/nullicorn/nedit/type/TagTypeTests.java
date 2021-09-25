@@ -1,21 +1,29 @@
 package me.nullicorn.nedit.type;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.stream.Stream;
+import me.nullicorn.nedit.provider.AllTagsProvider;
+import me.nullicorn.nedit.provider.annotation.ProvideTagTypes;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class TagTypeTests {
 
-    private List<TagType> allTags;
-    private List<?>       validObjects;
+    private static TagType[] allTagTypes;
 
-    @BeforeEach
-    void setUp() {
-        allTags = Collections.unmodifiableList(Arrays.asList(
+    @BeforeAll
+    static void beforeAll() {
+        allTagTypes = new TagType[]{
             TagType.END,
             TagType.BYTE,
             TagType.SHORT,
@@ -28,58 +36,94 @@ class TagTypeTests {
             TagType.LIST,
             TagType.COMPOUND,
             TagType.INT_ARRAY,
-            TagType.LONG_ARRAY));
-
-        validObjects = Collections.unmodifiableList(Arrays.asList(
-            null,
-            Byte.MAX_VALUE,
-            Short.MAX_VALUE,
-            Integer.MAX_VALUE,
-            Long.MAX_VALUE,
-            Float.MAX_VALUE,
-            Double.MAX_VALUE,
-            new byte[]{0, 1, 2, 3, 4},
-            "Hello World!",
-            new NBTList(TagType.END),
-            new NBTCompound(),
-            new int[]{0, 1, 2, 3, 4},
-            new long[]{0, 1, 2, 3, 4}
-        ));
+            TagType.LONG_ARRAY
+        };
     }
 
-    @Test
-    void shouldSerializeIdCorrectly() {
-        for (int i = 0; i < allTags.size(); i++) {
-            assertEquals(i, allTags.get(i).getId());
-        }
+    @ParameterizedTest
+    @MethodSource("provider_tagTypesAndTheirIds")
+    void getId_shouldReturnCorrectId(TagType type, int typeId) {
+        assertEquals(typeId, type.getId());
     }
 
-    @Test
-    void shouldDeserializeIdCorrectly() {
-        for (int i = 0; i < allTags.size(); i++) {
-            assertEquals(allTags.get(i), TagType.fromId(i));
-        }
+    @ParameterizedTest
+    @MethodSource("provider_tagTypesAndTheirIds")
+    void fromId_shouldReturnCorrectTypeIfIdExists(TagType type, int typeId) {
+        assertEquals(type, TagType.fromId(typeId));
     }
 
-    @Test
-    void shouldFindCorrectTagForObject() {
-        assertEquals(allTags.size(), validObjects.size());
-
-        for (int i = 0; i < allTags.size(); i++) {
-            assertEquals(allTags.get(i), TagType.fromObject(validObjects.get(i)));
-        }
+    @ParameterizedTest
+    @ValueSource(ints = {-1, -2, -8, -32, -64, -128, -256, 32, 64, 128, 256, 512})
+    void fromId_shouldReturnNullIfIdDoesNotExist(int typeIdThatDoesNotExist) {
+        assertNull(TagType.fromId(typeIdThatDoesNotExist));
     }
 
-    @Test
-    void shouldHaveCorrectClassForTag() {
-        assertEquals(allTags.size(), validObjects.size());
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideTagTypes
+    void fromObject_shouldReturnCorrectTypeForValidObjects(Object tagValue, TagType tagType) {
+        assertEquals(tagType, TagType.fromObject(tagValue));
+    }
 
-        for (int i = 0; i < allTags.size(); i++) {
-            Class<?> tagClass = null;
-            if (validObjects.get(i) != null) {
-                tagClass = validObjects.get(i).getClass();
-            }
-            assertEquals(allTags.get(i).getRuntimeType(), tagClass);
+    @ParameterizedTest
+    @NullSource
+    void fromObject_shouldReturn_END_ifObjectIsNull(Object tagValueThatIsNull) {
+        assertEquals(TagType.END, TagType.fromObject(tagValueThatIsNull));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provider_invalidTagValues")
+    void fromObject_shouldThrowIfObjectCannotBeATagValue(Object tagValueThatIsInvalid) {
+        assertThrows(IllegalArgumentException.class,
+            () -> TagType.fromObject(tagValueThatIsInvalid)
+        );
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideTagTypes
+    void getRuntimeType_shouldReturnCorrectClassForType(Object tagValue, TagType tagType) {
+        assertEquals(tagValue.getClass(), tagType.getRuntimeType());
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @ProvideTagTypes
+    void getClazz_shouldBehaveTheSameAs_getRuntimeType(Object tagValue, TagType tagType) {
+        // noinspection deprecation
+        assertEquals(tagType.getRuntimeType(), tagType.getClazz());
+    }
+
+    /**
+     * Provides two arguments:
+     * <ol>
+     *     <li>{@code TagType type} - Any type of NBT tag</li>
+     *     <li>{@code int typeId} - The expected integer ID of the first argument</li>
+     * </ol>
+     */
+    private static Stream<Arguments> provider_tagTypesAndTheirIds() {
+        Stream.Builder<Arguments> stream = Stream.builder();
+        for (int i = 0; i < allTagTypes.length; i++) {
+            stream.accept(Arguments.of(allTagTypes[i], i));
         }
+        return stream.build();
+    }
+
+    /**
+     * Provides a single argument:
+     * <ol>
+     *     <li>{@code Object tagValueThatIsNotValid} - An object that, when passed to
+     *     {@link TagType#fromObject(Object) fromObject()}, should cause an {@link
+     *     IllegalArgumentException IAE} to be thrown.</li>
+     * </ol>
+     */
+    private static Object[] provider_invalidTagValues() {
+        return new Object[]{
+            new Object(),
+            new BigInteger("987654321"),
+            new BigDecimal("987654321.123456789"),
+            new StringBuilder(),
+            TagType.BYTE
+        };
     }
 }
