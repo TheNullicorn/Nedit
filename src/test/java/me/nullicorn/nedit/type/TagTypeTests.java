@@ -6,12 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.stream.Stream;
 import me.nullicorn.nedit.provider.AllTagsProvider;
+import me.nullicorn.nedit.provider.TagTypesProvider;
 import me.nullicorn.nedit.provider.annotation.AllTagsProviderArgs;
-import org.junit.jupiter.api.BeforeAll;
+import me.nullicorn.nedit.provider.annotation.TagTypesProviderArgs;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
@@ -19,35 +18,16 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class TagTypeTests {
 
-    private static TagType[] allTagTypes;
-
-    @BeforeAll
-    static void beforeAll() {
-        allTagTypes = new TagType[]{
-            TagType.END,
-            TagType.BYTE,
-            TagType.SHORT,
-            TagType.INT,
-            TagType.LONG,
-            TagType.FLOAT,
-            TagType.DOUBLE,
-            TagType.BYTE_ARRAY,
-            TagType.STRING,
-            TagType.LIST,
-            TagType.COMPOUND,
-            TagType.INT_ARRAY,
-            TagType.LONG_ARRAY
-        };
-    }
-
     @ParameterizedTest
-    @MethodSource("provider_tagTypesAndTheirIds")
+    @ArgumentsSource(TagTypesProvider.class)
+    @TagTypesProviderArgs(includeIdentifiers = true)
     void getId_shouldReturnCorrectId(TagType type, int typeId) {
         assertEquals(typeId, type.getId());
     }
 
     @ParameterizedTest
-    @MethodSource("provider_tagTypesAndTheirIds")
+    @ArgumentsSource(TagTypesProvider.class)
+    @TagTypesProviderArgs(includeIdentifiers = true)
     void fromId_shouldReturnCorrectTypeIfIdExists(TagType type, int typeId) {
         assertEquals(type, TagType.fromId(typeId));
     }
@@ -92,21 +72,6 @@ class TagTypeTests {
     void getClazz_shouldBehaveTheSameAs_getRuntimeType(Object tagValue, TagType tagType) {
         // noinspection deprecation
         assertEquals(tagType.getRuntimeType(), tagType.getClazz());
-    }
-
-    /**
-     * Provides two arguments:
-     * <ol>
-     *     <li>{@code TagType type} - Any type of NBT tag</li>
-     *     <li>{@code int typeId} - The expected integer ID of the first argument</li>
-     * </ol>
-     */
-    private static Stream<Arguments> provider_tagTypesAndTheirIds() {
-        Stream.Builder<Arguments> stream = Stream.builder();
-        for (int i = 0; i < allTagTypes.length; i++) {
-            stream.accept(Arguments.of(allTagTypes[i], i));
-        }
-        return stream.build();
     }
 
     /**
