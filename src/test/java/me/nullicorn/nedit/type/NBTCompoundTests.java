@@ -14,8 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import me.nullicorn.nedit.provider.AllTagsProvider;
 import me.nullicorn.nedit.provider.TagProvider;
-import me.nullicorn.nedit.provider.annotation.ProvideAllAtOnce;
-import me.nullicorn.nedit.provider.annotation.ProvideTagTypes;
+import me.nullicorn.nedit.provider.annotation.AllTagsProviderArgs;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -77,7 +76,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true)
     void put_shouldNotThrowIfValueCanBeNBT(Set<Object> tags) {
         NBTCompound compound = new NBTCompound();
         for (Object tag : tags) {
@@ -111,7 +110,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true)
     void put_shouldIncreaseSizeByOne(Set<Object> tags) {
         NBTCompound compound = new NBTCompound();
 
@@ -129,7 +128,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true)
     void put_shouldReplaceExistingValue(Set<Object> tags) {
         NBTCompound compound = new NBTCompound();
 
@@ -197,7 +196,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true)
     void putIfAbsent_shouldNotReplaceExistingValue(Set<Object> tagSet) {
         Map<String, Object> expected = mapToNames(tagSet);
 
@@ -250,7 +249,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true)
     void get_shouldReturnCorrectValueWithOrWithoutDotNotation(Set<Object> tagSet) {
         int maxDepth = 5;
         NBTCompound root = new NBTCompound();
@@ -295,8 +294,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideTagTypes
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true, provideTypes = true)
     void getter_shouldReturnCorrectValueForName(Map<Object, TagType> typedTags) {
         Map<String, Object> namedTags = mapToNames(typedTags.keySet());
 
@@ -329,8 +327,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideTagTypes
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true, provideTypes = true)
     void getter_shouldReturnDefaultValueIfNotPresent() {
         NBTCompound compound = new NBTCompound();
 
@@ -351,8 +348,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideTagTypes
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true, provideTypes = true)
     void getter_shouldReturnCorrectValueWithOrWithoutDotNotation(Map<Object, TagType> typedTags) {
         int maxDepth = 5;
         NBTCompound root = new NBTCompound();
@@ -413,7 +409,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true)
     void containsKey_shouldReturnTrueIfCompoundHasTagWithName(Set<Object> tagSet) {
         Map<String, Object> tags = mapToNames(tagSet);
 
@@ -452,7 +448,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true)
     void containsValue_shouldReturnTrueIfCompoundHasTagWithValue(Set<Object> tagSet) {
         Map<String, Object> tags = mapToNames(tagSet);
 
@@ -502,7 +498,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideTagTypes
+    @AllTagsProviderArgs(provideTypes = true)
     void containsTag_shouldReturnTrueIfCompoundHasTagWithName(Object tag, TagType type) {
         NBTCompound compound = new NBTCompound();
         assertFalse(compound.containsTag(SAMPLE_NAME, type));
@@ -513,8 +509,7 @@ class NBTCompoundTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideTagTypes
-    @ProvideAllAtOnce
+    @AllTagsProviderArgs(groupAsOne = true, provideTypes = true)
     void containsTag_shouldReturnTrueIfCompoundHasTagWithType(Map<Object, TagType> typedTags) {
         Map<String, Object> namedTags = mapToNames(typedTags.keySet());
 
@@ -569,7 +564,7 @@ class NBTCompoundTests {
      * AllTagsProvider}. Useful for testing methods that accept a default value.
      */
     private static <T> T getValueWithType(TagType type) {
-        TagProvider<T> provider = AllTagsProvider.getProviderForType(type);
+        TagProvider<T> provider = TagProvider.getProviderForType(type);
         return (T) provider.getExtraneousValue();
     }
 

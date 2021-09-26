@@ -10,6 +10,19 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import me.nullicorn.nedit.provider.type.ByteArrayProvider;
+import me.nullicorn.nedit.provider.type.ByteProvider;
+import me.nullicorn.nedit.provider.type.CompoundProvider;
+import me.nullicorn.nedit.provider.type.DoubleProvider;
+import me.nullicorn.nedit.provider.type.FloatProvider;
+import me.nullicorn.nedit.provider.type.IntArrayProvider;
+import me.nullicorn.nedit.provider.type.IntProvider;
+import me.nullicorn.nedit.provider.type.ListProvider;
+import me.nullicorn.nedit.provider.type.LongArrayProvider;
+import me.nullicorn.nedit.provider.type.LongProvider;
+import me.nullicorn.nedit.provider.type.ShortProvider;
+import me.nullicorn.nedit.provider.type.StringProvider;
+import me.nullicorn.nedit.type.TagType;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
@@ -20,6 +33,58 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
  * @author Nullicorn
  */
 public abstract class TagProvider<A> implements ArgumentsProvider {
+
+    /**
+     * Determines the corresponding argument provider that should be used to provide NBT values of
+     * the supplied {@code type}.
+     */
+    @SuppressWarnings("unchecked")
+    public static <A> TagProvider<A> getProviderForType(TagType type) {
+        TagProvider<?> provider;
+
+        switch (type) {
+            case BYTE:
+                provider = new ByteProvider();
+                break;
+            case SHORT:
+                provider = new ShortProvider();
+                break;
+            case INT:
+                provider = new IntProvider();
+                break;
+            case LONG:
+                provider = new LongProvider();
+                break;
+            case FLOAT:
+                provider = new FloatProvider();
+                break;
+            case DOUBLE:
+                provider = new DoubleProvider();
+                break;
+            case BYTE_ARRAY:
+                provider = new ByteArrayProvider();
+                break;
+            case INT_ARRAY:
+                provider = new IntArrayProvider();
+                break;
+            case LONG_ARRAY:
+                provider = new LongArrayProvider();
+                break;
+            case STRING:
+                provider = new StringProvider();
+                break;
+            case LIST:
+                provider = new ListProvider();
+                break;
+            case COMPOUND:
+                provider = new CompoundProvider();
+                break;
+            default:
+                throw new IllegalArgumentException("Unable to find provider for tag: " + type);
+        }
+
+        return (TagProvider<A>) provider;
+    }
 
     /**
      * Returns an array of NBT values that will be passed to the provider.

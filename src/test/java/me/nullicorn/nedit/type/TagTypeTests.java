@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.stream.Stream;
 import me.nullicorn.nedit.provider.AllTagsProvider;
-import me.nullicorn.nedit.provider.annotation.ProvideTagTypes;
+import me.nullicorn.nedit.provider.annotation.AllTagsProviderArgs;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -60,7 +60,7 @@ class TagTypeTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideTagTypes
+    @AllTagsProviderArgs(provideTypes = true)
     void fromObject_shouldReturnCorrectTypeForValidObjects(Object tagValue, TagType tagType) {
         assertEquals(tagType, TagType.fromObject(tagValue));
     }
@@ -81,14 +81,14 @@ class TagTypeTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideTagTypes
+    @AllTagsProviderArgs(provideTypes = true)
     void getRuntimeType_shouldReturnCorrectClassForType(Object tagValue, TagType tagType) {
         assertEquals(tagValue.getClass(), tagType.getRuntimeType());
     }
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
-    @ProvideTagTypes
+    @AllTagsProviderArgs(provideTypes = true)
     void getClazz_shouldBehaveTheSameAs_getRuntimeType(Object tagValue, TagType tagType) {
         // noinspection deprecation
         assertEquals(tagType.getRuntimeType(), tagType.getClazz());

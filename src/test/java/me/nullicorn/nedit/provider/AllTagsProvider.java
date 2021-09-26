@@ -1,27 +1,16 @@
 package me.nullicorn.nedit.provider;
 
+import static me.nullicorn.nedit.provider.TagProvider.getProviderForType;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import me.nullicorn.nedit.provider.annotation.ProvideAllAtOnce;
-import me.nullicorn.nedit.provider.annotation.ProvideTagTypes;
-import me.nullicorn.nedit.provider.type.ByteArrayProvider;
-import me.nullicorn.nedit.provider.type.ByteProvider;
-import me.nullicorn.nedit.provider.type.CompoundProvider;
-import me.nullicorn.nedit.provider.type.DoubleProvider;
-import me.nullicorn.nedit.provider.type.FloatProvider;
-import me.nullicorn.nedit.provider.type.IntArrayProvider;
-import me.nullicorn.nedit.provider.type.IntProvider;
-import me.nullicorn.nedit.provider.type.ListProvider;
-import me.nullicorn.nedit.provider.type.LongArrayProvider;
-import me.nullicorn.nedit.provider.type.LongProvider;
-import me.nullicorn.nedit.provider.type.ShortProvider;
-import me.nullicorn.nedit.provider.type.StringProvider;
+import me.nullicorn.nedit.provider.annotation.AllTagsProviderArgs;
 import me.nullicorn.nedit.type.NBTCompound;
 import me.nullicorn.nedit.type.NBTList;
 import me.nullicorn.nedit.type.TagType;
@@ -33,50 +22,48 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
  * A provider for valid NBT values (those that can be stored in an {@link NBTList} or {@link
  * NBTCompound}).
  * <p><br>
- * If a test using this provider is annotated with {@link ProvideTagTypes}, then a second argument
- * will also be provided to indicate the {@link TagType} of the first argument.
+ * By default, this provides a single {@code Object} argument representing a valid value for an
+ * unspecified type of NBT tag.
  * <p><br>
- * If a test using this provider is annotated with {@link ProvideAllAtOnce}, then only one argument
- * will be provided: a {@code Set<Object>} containing all of the tag values that would otherwise be
- * provided in separate runs. When {@link ProvideTagTypes} is also present, that single argument
- * becomes a {@code Map<Object, TagType>}.
+ * The {@link AllTagsProviderArgs} annotation can be used on test methods to modify the behavior of
+ * this provider.
  *
  * @author Nullicorn
- * @see ProvideAllAtOnce
- * @see ProvideTagTypes
+ * @see AllTagsProviderArgs
  */
 public class AllTagsProvider implements ArgumentsProvider {
 
     @Override
     public Stream<Arguments> provideArguments(ExtensionContext context) {
-        // Determine whether or not to include a second TagType argument.
-        boolean doIncludeTypes = context
+        AllTagsProviderArgs args = context
             .getRequiredTestMethod()
-            .isAnnotationPresent(ProvideTagTypes.class);
-
-        // Determine whether or not to provide all values at once in a single Map<Object, TagType>.
-        boolean doProvideAllAtOnce = context
-            .getRequiredTestMethod()
-            .isAnnotationPresent(ProvideAllAtOnce.class);
-
-        // Compile all values from each tag-type's provider.
-        Map<Object, TagType> tagValues = aggregateTagValues();
-
-        // Provide all tags at once as a single collection.
-        if (doProvideAllAtOnce) {
-            if (doIncludeTypes) {
-                // Provide values and types (Map<Object, TagType>)
-                return Stream.of(arguments(tagValues));
-            } else {
-                // Return only the values (Set<Object>).
-                return Stream.of(arguments(tagValues.keySet()));
-            }
+            .getAnnotation(AllTagsProviderArgs.class);
+        if (args == null) {
+            args = new AllTagsProviderArgs.Defaults();
         }
 
-        // Provide each tag individually.
+        // Check for conflicting flags.
+        if (args.groupAsOne() && args.groupByType()) {
+            throw new IllegalStateException("Test cannot use groupAsOne and groupByType together");
+        }
+
+        if (args.groupAsOne()) {
+            return provideAllAtOnce(args.provideTypes());
+
+        } else if (args.groupByType()) {
+            return provideSameTypeAtOnce(args.provideTypes());
+
+        } else {
+            return provideSeparately(args.provideTypes());
+        }
+    }
+
+    private static Stream<Arguments> provideSeparately(boolean doProvideTagTypes) {
+        Map<Object, TagType> tagValues = getAllTypedTags();
+
         Stream.Builder<Arguments> stream = Stream.builder();
         tagValues.forEach((value, type) -> {
-            if (doIncludeTypes) {
+            if (doProvideTagTypes) {
                 // Provide values and types (Object, TagType).
                 stream.accept(arguments(value, type));
             } else {
@@ -87,75 +74,62 @@ public class AllTagsProvider implements ArgumentsProvider {
         return stream.build();
     }
 
-    private static Map<Object, TagType> aggregateTagValues() {
+    private static Stream<Arguments> provideAllAtOnce(boolean doProvideTagTypes) {
+        Map<Object, TagType> tagValues = getAllTypedTags();
+
+        if (doProvideTagTypes) {
+            // Provide values and types (Map<Object, TagType>)
+            return Stream.of(arguments(tagValues));
+        } else {
+            // Return only the values (Set<Object>).
+            return Stream.of(arguments(tagValues.keySet()));
+        }
+    }
+
+    private static Stream<Arguments> provideSameTypeAtOnce(boolean doProvideTagTypes) {
+        Stream.Builder<Arguments> stream = Stream.builder();
+
+        for (TagType type : TagType.values()) {
+            if (type == TagType.END) {
+                // No valid values for end; must be skipped.
+                continue;
+            }
+
+            Set<Object> values = getTypedTags(type).keySet();
+
+            Arguments args = doProvideTagTypes
+                ? Arguments.of(values, type)
+                : Arguments.of(values);
+
+            stream.accept(args);
+        }
+
+        return stream.build();
+    }
+
+    private static Map<Object, TagType> getAllTypedTags() {
         Map<Object, TagType> tags = new HashMap<>();
 
         for (TagType type : TagType.values()) {
             if (type == TagType.END) {
                 continue;
             }
-
-            // 1. Get an array of values directly from the provider.
-            // 2. Iterate over each value in the array.
-            // 3. Add the value & its type to the map.
-            reflectiveForEach(getProviderForType(type).provide(),
-                value -> tags.put(value, type)
-            );
+            tags.putAll(getTypedTags(type));
         }
 
         return tags;
     }
 
-    /**
-     * Determines the corresponding argument provider that should be used to provide NBT values of
-     * the supplied {@code type}.
-     */
-    @SuppressWarnings("unchecked")
-    public static <A> TagProvider<A> getProviderForType(TagType type) {
-        TagProvider<?> provider;
+    private static Map<Object, TagType> getTypedTags(TagType type) {
+        Map<Object, TagType> tags = new HashMap<>();
 
-        switch (type) {
-            case BYTE:
-                provider = new ByteProvider();
-                break;
-            case SHORT:
-                provider = new ShortProvider();
-                break;
-            case INT:
-                provider = new IntProvider();
-                break;
-            case LONG:
-                provider = new LongProvider();
-                break;
-            case FLOAT:
-                provider = new FloatProvider();
-                break;
-            case DOUBLE:
-                provider = new DoubleProvider();
-                break;
-            case BYTE_ARRAY:
-                provider = new ByteArrayProvider();
-                break;
-            case INT_ARRAY:
-                provider = new IntArrayProvider();
-                break;
-            case LONG_ARRAY:
-                provider = new LongArrayProvider();
-                break;
-            case STRING:
-                provider = new StringProvider();
-                break;
-            case LIST:
-                provider = new ListProvider();
-                break;
-            case COMPOUND:
-                provider = new CompoundProvider();
-                break;
-            default:
-                throw new IllegalArgumentException("Unable to find provider for tag: " + type);
-        }
+        // 1. Get an array of values directly from the provider.
+        // 2. Iterate over each value in the array.
+        // 3. Add the value & its type to the map.
+        Object valueArray = getProviderForType(type).provide();
+        reflectiveForEach(valueArray, value -> tags.put(value, type));
 
-        return (TagProvider<A>) provider;
+        return tags;
     }
 
     /**

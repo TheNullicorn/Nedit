@@ -9,10 +9,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import me.nullicorn.nedit.provider.AllTagsProvider;
+import me.nullicorn.nedit.provider.TagTypesProvider;
+import me.nullicorn.nedit.provider.annotation.AllTagsProviderArgs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.NullSource;
 
 @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 class NBTListTests {
@@ -54,37 +62,65 @@ class NBTListTests {
         alternativeTestTags.put(TagType.LONG_ARRAY, new long[]{4, 3, 2, 1, 0});
     }
 
-    @Test
-    void shouldHaveTheCorrectContentType() {
-        testTags.forEach((type, tag) -> {
-            NBTList list = new NBTList(type);
-
-            assertEquals(type, list.getContentType());
-        });
-    }
-
-    @Test
-    void shouldAddValidTags() {
-        testTags.forEach((type, tag) -> {
-            NBTList list = new NBTList(type);
-            assertEquals(0, list.size());
-
-            assertDoesNotThrow(() -> list.add(tag));
-
-            assertEquals(1, list.size());
-            assertFalse(list.isEmpty());
-        });
-    }
-
-    @Test
-    void shouldThrowWhenInvalidTagsAreAdded() {
-        NBTList list = new NBTList(TagType.BYTE);
-        Object invalidValue = new Object();
-        Class<? extends Throwable> expect = IllegalArgumentException.class;
-
-        assertThrows(expect, () -> list.add(invalidValue));
+    @ParameterizedTest
+    @ArgumentsSource(TagTypesProvider.class)
+    void size_shouldBeZeroInitially(TagType contentType) {
+        NBTList list = new NBTList(contentType);
         assertEquals(0, list.size());
         assertTrue(list.isEmpty());
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(TagTypesProvider.class)
+    void getContentType_shouldMatchConstructorValue(TagType contentType) {
+        NBTList list = new NBTList(contentType);
+        assertEquals(contentType, list.getContentType());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    void getContentType_shouldBe_END_ifConstructorValueIsNull(TagType contentTypeThatIsNull) {
+        NBTList list = new NBTList(contentTypeThatIsNull);
+        assertEquals(TagType.END, list.getContentType());
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void add_shouldNotThrowIfValueIsValidForContentType(Set<Object> values, TagType contentType) {
+        NBTList list = new NBTList(contentType);
+
+        Iterator<Object> valueIter = values.iterator();
+        int i = 0;
+
+        while (valueIter.hasNext()) {
+            Object value = valueIter.next();
+
+            assertDoesNotThrow(() -> list.add(value));
+            assertEquals(i + 1, list.size(), "Unexpected list size");
+            assertFalse(list.isEmpty(), "List should not be considered empty");
+
+            i++;
+        }
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupAsOne = true, provideTypes = true)
+    void add_shouldThrowIfValueIsInvalidForContentType(Map<Object, TagType> typedTags) {
+        for (TagType contentType : TagType.values()) {
+            if (contentType == TagType.END) {
+                continue;
+            }
+
+            NBTList list = new NBTList(contentType);
+            typedTags.forEach((value, valueType) -> {
+                if (valueType != contentType) {
+                    assertThrows(IllegalArgumentException.class, () -> list.add(value));
+                    assertEquals(0, list.size(), "Failed add() should not increase size");
+                }
+            });
+        }
     }
 
     @Test
@@ -157,7 +193,8 @@ class NBTListTests {
             NBTList list = new NBTList(type);
             assertEquals(0, list.size());
 
-            assertDoesNotThrow(() -> list.addAll(Arrays.asList(tag, alternativeTestTags.get(type))));
+            assertDoesNotThrow(
+                () -> list.addAll(Arrays.asList(tag, alternativeTestTags.get(type))));
 
             assertEquals(2, list.size());
             assertEquals(tag, list.get(0));
@@ -173,8 +210,10 @@ class NBTListTests {
         Class<? extends Throwable> expect = IllegalArgumentException.class;
 
         assertThrows(expect, () -> list.addAll(Collections.singletonList(invalidValue)));
-        assertThrows(expect, () -> list.addAll(Arrays.asList(testTags.get(TagType.BYTE), invalidValue)));
-        assertThrows(expect, () -> list.addAll(Arrays.asList(invalidValue, testTags.get(TagType.BYTE))));
+        assertThrows(expect,
+            () -> list.addAll(Arrays.asList(testTags.get(TagType.BYTE), invalidValue)));
+        assertThrows(expect,
+            () -> list.addAll(Arrays.asList(invalidValue, testTags.get(TagType.BYTE))));
         assertEquals(0, list.size());
         assertTrue(list.isEmpty());
     }
@@ -207,9 +246,8 @@ class NBTListTests {
     }
 
     /**
-     * Assert that a list's {@code getter} for a tag type returns the same value
-     * that was inputted. The expected value comes from the {@link #testTags}
-     * map.
+     * Assert that a list's {@code getter} for a tag type returns the same value that was inputted.
+     * The expected value comes from the {@link #testTags} map.
      */
     private <T> void checkGetter(Function<NBTList, Function<Integer, T>> getter, TagType type) {
         Object tag = testTags.get(type);
@@ -224,8 +262,8 @@ class NBTListTests {
     }
 
     /**
-     * Assert that a list's {@code getter} for a tag type throws an exception
-     * when it is used for a list of a different tag type
+     * Assert that a list's {@code getter} for a tag type throws an exception when it is used for a
+     * list of a different tag type
      */
     private <T> void checkInvalidGetterThrows(Function<NBTList, Function<Integer, T>> getter, TagType type) {
         testTags.forEach((differentType, tag) -> {
@@ -240,5 +278,4 @@ class NBTListTests {
             }
         });
     }
-
 }
