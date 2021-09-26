@@ -54,7 +54,7 @@ public class TagTypesProvider implements ArgumentsProvider {
 
         // Filter out TAG_End if indicated.
         if (args.skipEndTag()) {
-            stream = stream.filter(type -> type.equals(TagType.END));
+            stream = stream.filter(type -> !type.equals(TagType.END));
         }
 
         // Map each TagType to its identifier if indicated.
