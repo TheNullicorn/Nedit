@@ -6,18 +6,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import me.nullicorn.nedit.provider.AllTagsProvider;
 import me.nullicorn.nedit.provider.TagTypesProvider;
 import me.nullicorn.nedit.provider.annotation.AllTagsProviderArgs;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.NullSource;
@@ -25,41 +24,24 @@ import org.junit.jupiter.params.provider.NullSource;
 @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 class NBTListTests {
 
-    private Map<TagType, Object> testTags;
-    private Map<TagType, Object> alternativeTestTags;
+    private static Map<TagType, Getter> getters;
 
-    @BeforeEach
-    void setUp() {
-        testTags = new HashMap<>();
-        testTags.put(TagType.BYTE, Byte.MAX_VALUE);
-        testTags.put(TagType.SHORT, Short.MAX_VALUE);
-        testTags.put(TagType.INT, Integer.MAX_VALUE);
-        testTags.put(TagType.LONG, Long.MAX_VALUE);
-        testTags.put(TagType.FLOAT, Float.MAX_VALUE);
-        testTags.put(TagType.DOUBLE, Double.MAX_VALUE);
-        testTags.put(TagType.BYTE_ARRAY, new byte[]{0, 1, 2, 3, 4});
-        testTags.put(TagType.STRING, "Hello, World!");
-        testTags.put(TagType.LIST, new NBTList(TagType.END));
-        testTags.put(TagType.COMPOUND, new NBTCompound());
-        testTags.put(TagType.INT_ARRAY, new int[]{0, 1, 2, 3, 4});
-        testTags.put(TagType.LONG_ARRAY, new long[]{0, 1, 2, 3, 4});
-
-        NBTCompound alternativeCompound = new NBTCompound();
-        alternativeCompound.put("alternative_value", 0);
-
-        alternativeTestTags = new HashMap<>();
-        alternativeTestTags.put(TagType.BYTE, Byte.MIN_VALUE);
-        alternativeTestTags.put(TagType.SHORT, Short.MIN_VALUE);
-        alternativeTestTags.put(TagType.INT, Integer.MIN_VALUE);
-        alternativeTestTags.put(TagType.LONG, Long.MIN_VALUE);
-        alternativeTestTags.put(TagType.FLOAT, Float.MIN_VALUE);
-        alternativeTestTags.put(TagType.DOUBLE, Double.MIN_VALUE);
-        alternativeTestTags.put(TagType.BYTE_ARRAY, new byte[]{4, 3, 2, 1, 0});
-        alternativeTestTags.put(TagType.STRING, "Goodbye, World!");
-        alternativeTestTags.put(TagType.LIST, new NBTList(TagType.BYTE));
-        alternativeTestTags.put(TagType.COMPOUND, alternativeCompound);
-        alternativeTestTags.put(TagType.INT_ARRAY, new int[]{4, 3, 2, 1, 0});
-        alternativeTestTags.put(TagType.LONG_ARRAY, new long[]{4, 3, 2, 1, 0});
+    @BeforeAll
+    static void beforeAll() {
+        getters = new HashMap<>();
+        getters.put(TagType.BYTE, NBTList::getByte);
+        getters.put(TagType.SHORT, NBTList::getShort);
+        getters.put(TagType.INT, NBTList::getInt);
+        getters.put(TagType.LONG, NBTList::getLong);
+        getters.put(TagType.FLOAT, NBTList::getFloat);
+        getters.put(TagType.DOUBLE, NBTList::getDouble);
+        getters.put(TagType.BYTE_ARRAY, NBTList::getByteArray);
+        getters.put(TagType.STRING, NBTList::getString);
+        getters.put(TagType.LIST, NBTList::getList);
+        getters.put(TagType.COMPOUND, NBTList::getCompound);
+        getters.put(TagType.INT_ARRAY, NBTList::getIntArray);
+        getters.put(TagType.LONG_ARRAY, NBTList::getLongArray);
+        getters = Collections.unmodifiableMap(getters);
     }
 
     @ParameterizedTest
@@ -123,53 +105,78 @@ class NBTListTests {
         }
     }
 
-    @Test
-    void shouldGetCorrectTags() {
-        testTags.forEach((type, tag) -> {
-            NBTList list = new NBTList(type);
-            assertEquals(0, list.size());
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void get_shouldReturnCorrectValueForIndex(Set<Object> valueSet, TagType contentType) {
+        // Wrap in a list so it can be indexed.
+        List<Object> values = new ArrayList<>(valueSet);
 
-            assertDoesNotThrow(() -> list.add(tag));
+        NBTList list = new NBTList(contentType);
 
-            assertEquals(1, list.size());
-            assertEquals(tag, list.get(0));
+        for (int i = 0; i < values.size(); i++) {
+            list.add(values.get(i));
+
+            assertEquals(i + 1, list.size());
             assertFalse(list.isEmpty());
-        });
+        }
+
+        for (int i = 0; i < values.size(); i++) {
+            assertEquals(values.get(i), list.get(i));
+        }
     }
 
-    @Test
-    void shouldGetCorrectTypes() {
-        checkGetter(list -> list::getByte, TagType.BYTE);
-        checkGetter(list -> list::getShort, TagType.SHORT);
-        checkGetter(list -> list::getInt, TagType.INT);
-        checkGetter(list -> list::getLong, TagType.LONG);
-        checkGetter(list -> list::getFloat, TagType.FLOAT);
-        checkGetter(list -> list::getDouble, TagType.DOUBLE);
-        checkGetter(list -> list::getByteArray, TagType.BYTE_ARRAY);
-        checkGetter(list -> list::getString, TagType.STRING);
-        checkGetter(list -> list::getList, TagType.LIST);
-        checkGetter(list -> list::getCompound, TagType.COMPOUND);
-        checkGetter(list -> list::getIntArray, TagType.INT_ARRAY);
-        checkGetter(list -> list::getLongArray, TagType.LONG_ARRAY);
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void getter_shouldReturnCorrectValueForIndex(Set<Object> valueSet, TagType contentType) {
+        List<Object> values = new ArrayList<>(valueSet);
+        Getter getter = getters.get(contentType);
+
+        NBTList list = new NBTList(contentType);
+        for (int i = 0; i < values.size(); i++) {
+            list.add(values.get(i));
+
+            assertEquals(i + 1, list.size());
+            assertFalse(list.isEmpty());
+        }
+
+        for (int i = 0; i < list.size(); i++) {
+            assertEquals(values.get(i), getter.get(list, i));
+        }
     }
 
-    @Test
-    void shouldThrowWhenInvalidGetterIsUsed() {
-        checkInvalidGetterThrows(list -> list::getByte, TagType.BYTE);
-        checkInvalidGetterThrows(list -> list::getShort, TagType.SHORT);
-        checkInvalidGetterThrows(list -> list::getInt, TagType.INT);
-        checkInvalidGetterThrows(list -> list::getLong, TagType.LONG);
-        checkInvalidGetterThrows(list -> list::getFloat, TagType.FLOAT);
-        checkInvalidGetterThrows(list -> list::getDouble, TagType.DOUBLE);
-        checkInvalidGetterThrows(list -> list::getByteArray, TagType.BYTE_ARRAY);
-        checkInvalidGetterThrows(list -> list::getString, TagType.STRING);
-        checkInvalidGetterThrows(list -> list::getList, TagType.LIST);
-        checkInvalidGetterThrows(list -> list::getCompound, TagType.COMPOUND);
-        checkInvalidGetterThrows(list -> list::getIntArray, TagType.INT_ARRAY);
-        checkInvalidGetterThrows(list -> list::getLongArray, TagType.LONG_ARRAY);
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void getter_shouldThrowIfGetterDoesNotMatchContentType(Set<Object> valueSet, TagType contentType) {
+        List<Object> values = new ArrayList<>(valueSet);
+
+        NBTList list = new NBTList(contentType);
+        for (int i = 0; i < values.size(); i++) {
+            list.add(values.get(i));
+
+            assertEquals(i + 1, list.size());
+            assertFalse(list.isEmpty());
+        }
+
+        for (TagType otherType : TagType.values()) {
+            if (otherType != contentType && otherType != TagType.END) {
+                Getter otherGetter = getters.get(otherType);
+
+                for (int i = 0; i < list.size(); i++) {
+                    // Allows index to be used in the lambda.
+                    int index = i;
+
+                    assertThrows(IllegalStateException.class,
+                        () -> otherGetter.get(list, index)
+                    );
+                }
+            }
+        }
     }
 
-    @Test
+    /*@Test
     void shouldAddTagsInCorrectIndex() {
         testTags.forEach((type, tag) -> {
             NBTList list = new NBTList(type);
@@ -245,26 +252,12 @@ class NBTListTests {
         assertEquals(testTags.get(TagType.BYTE), list.get(0));
     }
 
-    /**
-     * Assert that a list's {@code getter} for a tag type returns the same value that was inputted.
-     * The expected value comes from the {@link #testTags} map.
-     */
-    private <T> void checkGetter(Function<NBTList, Function<Integer, T>> getter, TagType type) {
-        Object tag = testTags.get(type);
-        NBTList list = new NBTList(type);
-
-        assertDoesNotThrow(() -> list.add(tag));
-
-        T returned = getter.apply(list).apply(0);
-
-        assertEquals(tag, returned);
-        assertEquals(tag.getClass(), returned.getClass());
-    }
+    */
 
     /**
      * Assert that a list's {@code getter} for a tag type throws an exception when it is used for a
      * list of a different tag type
-     */
+     *//*
     private <T> void checkInvalidGetterThrows(Function<NBTList, Function<Integer, T>> getter, TagType type) {
         testTags.forEach((differentType, tag) -> {
             // Only run on different types
@@ -277,5 +270,10 @@ class NBTListTests {
                 assertThrows(expect, () -> getter.apply(list).apply(0));
             }
         });
+    }*/
+
+    private interface Getter {
+
+        Object get(NBTList list, int index);
     }
 }
