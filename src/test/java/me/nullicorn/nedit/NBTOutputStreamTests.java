@@ -1,23 +1,7 @@
 package me.nullicorn.nedit;
 
-import static me.nullicorn.nedit.IOTestHelper.TEST_BYTE;
-import static me.nullicorn.nedit.IOTestHelper.TEST_DOUBLE;
-import static me.nullicorn.nedit.IOTestHelper.TEST_FLOAT;
-import static me.nullicorn.nedit.IOTestHelper.TEST_INT;
-import static me.nullicorn.nedit.IOTestHelper.TEST_LONG;
-import static me.nullicorn.nedit.IOTestHelper.TEST_SHORT;
-import static me.nullicorn.nedit.IOTestHelper.TEST_STRING;
-import static me.nullicorn.nedit.IOTestHelper.createTestByteArray;
-import static me.nullicorn.nedit.IOTestHelper.createTestDoubleList;
-import static me.nullicorn.nedit.IOTestHelper.createTestEmptyList;
-import static me.nullicorn.nedit.IOTestHelper.createTestIntArray;
-import static me.nullicorn.nedit.IOTestHelper.createTestLongArray;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static me.nullicorn.nedit.IOTestHelper.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

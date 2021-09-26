@@ -10,11 +10,11 @@ import me.nullicorn.nedit.type.TagType;
 
 public final class IOTestHelper {
 
-    public static final byte   TEST_BYTE   = Byte.MAX_VALUE;
-    public static final short  TEST_SHORT  = Short.MAX_VALUE;
-    public static final int    TEST_INT    = Integer.MAX_VALUE;
-    public static final long   TEST_LONG   = Long.MAX_VALUE;
-    public static final float  TEST_FLOAT  = Float.MAX_VALUE;
+    public static final byte TEST_BYTE = Byte.MAX_VALUE;
+    public static final short TEST_SHORT = Short.MAX_VALUE;
+    public static final int TEST_INT = Integer.MAX_VALUE;
+    public static final long TEST_LONG = Long.MAX_VALUE;
+    public static final float TEST_FLOAT = Float.MAX_VALUE;
     public static final double TEST_DOUBLE = Double.MAX_VALUE;
     public static final String TEST_STRING = "Hello, World!";
 
