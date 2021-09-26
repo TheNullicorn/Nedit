@@ -1,10 +1,6 @@
 package me.nullicorn.nedit.type;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +12,7 @@ import java.util.Set;
 import me.nullicorn.nedit.provider.AllTagsProvider;
 import me.nullicorn.nedit.provider.TagTypesProvider;
 import me.nullicorn.nedit.provider.annotation.AllTagsProviderArgs;
+import me.nullicorn.nedit.provider.annotation.TagTypesProviderArgs;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -88,6 +85,49 @@ class NBTListTests {
 
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void add_shouldAddToCorrectIndexIfOneIsSpecified(Set<Object> valueSet, TagType contentType) {
+        // Wrap in a list so it can be indexed.
+        List<Object> values = new ArrayList<>(valueSet);
+
+        NBTList list = new NBTList(contentType);
+        list.add(values.get(0));
+        assertEquals(1, list.size());
+
+        for (int v = 1; v < values.size(); v++) {
+            // Add new value at the middle of the list.
+            int index = list.size() / 2;
+
+            Object newValue = values.get(v);
+            Object prevValue = list.get(index);
+            int prevSize = list.size();
+
+            list.add(index, newValue);
+
+            assertEquals(prevSize + 1, list.size(), "List size did not increase");
+            assertSame(newValue, list.get(index), "Value is not at specified index");
+            assertSame(prevValue, list.get(index + 1), "Prev value was not moved to next index");
+        }
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(TagTypesProvider.class)
+    @TagTypesProviderArgs(skipEndTag = true)
+    void add_shouldThrowIfValueIsNull(TagType contentType) {
+        NBTList list = new NBTList(contentType);
+        Object valueThatIsNull = null;
+
+        // Check for add() without index.
+        assertThrows(NullPointerException.class, () -> list.add(valueThatIsNull));
+        assertEquals(0, list.size());
+
+        // And check for add() with index.
+        assertThrows(NullPointerException.class, () -> list.add(0, valueThatIsNull));
+        assertEquals(0, list.size());
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
     @AllTagsProviderArgs(groupAsOne = true, provideTypes = true)
     void add_shouldThrowIfValueIsInvalidForContentType(Map<Object, TagType> typedTags) {
         for (TagType contentType : TagType.values()) {
@@ -102,6 +142,56 @@ class NBTListTests {
                     assertEquals(0, list.size(), "Failed add() should not increase size");
                 }
             });
+        }
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true)
+    void add_shouldThrowIfContentTypeIs_END(Set<Object> valueSet) {
+        NBTList list = new NBTList(TagType.END);
+
+        for (Object value : valueSet) {
+            // Check for add() without index.
+            assertThrows(IllegalStateException.class, () -> list.add(value));
+            assertEquals(0, list.size());
+
+            // And check for add() with index.
+            assertThrows(IllegalStateException.class, () -> list.add(0, value));
+            assertEquals(0, list.size());
+        }
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void add_shouldThrowIfIndexIsOutOfBounds(Set<Object> valueSet, TagType contentType) {
+        List<Object> values = new ArrayList<>(valueSet);
+
+        for (int v = 0; v < values.size(); v++) {
+            NBTList list = new NBTList(contentType);
+
+            // Add "v" number of values from the input set.
+            for (int i = 0; i < v; i++) {
+                list.add(0, values.get(v));
+            }
+            assertEquals(v, list.size());
+
+            // Test 500 indices above & below the list's bounds.
+            int min = -500;
+            int max = v + 500;
+            for (int i = min; i < max; i++) {
+                // Ignore in-bounds indices for this test.
+                if (i >= 0 && i <= list.size()) {
+                    continue;
+                }
+
+                int badIndex = i;
+                Object value = values.get(0);
+
+                assertThrows(IndexOutOfBoundsException.class, () -> list.add(badIndex, value));
+                assertEquals(v, list.size()); // Make sure size did not increase.
+            }
         }
     }
 
@@ -177,24 +267,6 @@ class NBTListTests {
     }
 
     /*@Test
-    void shouldAddTagsInCorrectIndex() {
-        testTags.forEach((type, tag) -> {
-            NBTList list = new NBTList(type);
-            assertEquals(0, list.size());
-
-            assertDoesNotThrow(() -> list.add(alternativeTestTags.get(type)));
-
-            assertDoesNotThrow(() -> list.add(0, tag));
-
-            assertEquals(list.get(0), tag);
-            assertEquals(list.get(1), alternativeTestTags.get(type));
-
-            assertEquals(2, list.size());
-            assertFalse(list.isEmpty());
-        });
-    }
-
-    @Test
     void shouldAddAllValidTags() {
         testTags.forEach((type, tag) -> {
             NBTList list = new NBTList(type);
