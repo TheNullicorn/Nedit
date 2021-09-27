@@ -1,5 +1,6 @@
 package me.nullicorn.nedit.type;
 
+import static me.nullicorn.nedit.provider.TagProvider.getProviderForType;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
@@ -77,8 +78,8 @@ class NBTListTests {
             Object value = valueIter.next();
 
             assertDoesNotThrow(() -> list.add(value));
-            assertEquals(i + 1, list.size(), "Unexpected list size");
-            assertFalse(list.isEmpty(), "List should not be considered empty");
+            assertEquals(i + 1, list.size());
+            assertFalse(list.isEmpty());
 
             i++;
         }
@@ -173,9 +174,7 @@ class NBTListTests {
             NBTList list = new NBTList(contentType);
 
             // Add "v" number of values from the input set.
-            for (int i = 0; i < v; i++) {
-                list.add(0, values.get(v));
-            }
+            list.addAll(values.subList(0, v));
             assertEquals(v, list.size());
 
             // Test 500 indices above & below the list's bounds.
@@ -268,13 +267,7 @@ class NBTListTests {
         List<Object> values = new ArrayList<>(valueSet);
 
         NBTList list = new NBTList(contentType);
-
-        for (int i = 0; i < values.size(); i++) {
-            list.add(values.get(i));
-
-            assertEquals(i + 1, list.size());
-            assertFalse(list.isEmpty());
-        }
+        list.addAll(values);
 
         for (int i = 0; i < values.size(); i++) {
             assertEquals(values.get(i), list.get(i));
@@ -289,14 +282,9 @@ class NBTListTests {
         Getter getter = getters.get(contentType);
 
         NBTList list = new NBTList(contentType);
+        list.addAll(values);
+
         for (int i = 0; i < values.size(); i++) {
-            list.add(values.get(i));
-
-            assertEquals(i + 1, list.size());
-            assertFalse(list.isEmpty());
-        }
-
-        for (int i = 0; i < list.size(); i++) {
             assertEquals(values.get(i), getter.get(list, i));
         }
     }
@@ -305,15 +293,10 @@ class NBTListTests {
     @ArgumentsSource(AllTagsProvider.class)
     @AllTagsProviderArgs(groupByType = true, provideTypes = true)
     void getter_shouldThrowIfGetterDoesNotMatchContentType(Set<Object> valueSet, TagType contentType) {
-        List<Object> values = new ArrayList<>(valueSet);
-
         NBTList list = new NBTList(contentType);
-        for (int i = 0; i < values.size(); i++) {
-            list.add(values.get(i));
 
-            assertEquals(i + 1, list.size());
-            assertFalse(list.isEmpty());
-        }
+        list.addAll(valueSet);
+        assertEquals(valueSet.size(), list.size());
 
         for (TagType otherType : TagType.values()) {
             if (otherType != contentType && otherType != TagType.END) {
@@ -323,60 +306,109 @@ class NBTListTests {
                     // Allows index to be used in the lambda.
                     int index = i;
 
-                    assertThrows(IllegalStateException.class,
-                        () -> otherGetter.get(list, index)
-                    );
+                    assertThrows(IllegalStateException.class, () -> otherGetter.get(list, index));
                 }
             }
         }
     }
 
-    /*@Test
-    void shouldSetValidTags() {
-        testTags.forEach((type, tag) -> {
-            NBTList list = new NBTList(type);
-            assertEquals(0, list.size());
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void set_shouldSetTagAtCorrectIndex(Set<Object> valueSet, TagType contentType) {
+        List<Object> values = new ArrayList<>(valueSet);
+        Object extraValue = getProviderForType(contentType).getExtraneousValue();
 
-            assertDoesNotThrow(() -> list.add(alternativeTestTags.get(type)));
+        NBTList list = new NBTList(contentType);
 
-            assertDoesNotThrow(() -> list.set(0, tag));
+        list.addAll(values);
+        assertEquals(valueSet.size(), list.size());
 
-            assertEquals(1, list.size());
-            assertEquals(tag, list.get(0));
-            assertFalse(list.isEmpty());
-        });
+        for (int i = 0; i < list.size(); i++) {
+            // Make sure the old value is at the right index beforehand.
+            assertSame(values.get(i), list.get(i));
+
+            Object prevValue = list.set(i, extraValue);
+
+            // Make sure the returned "previous" value is the correct one.
+            assertSame(values.get(i), prevValue);
+            // Make sure the new value is now in the list.
+            assertSame(extraValue, list.get(i));
+            // Make sure the list's size wasn't changed by the set().
+            assertEquals(valueSet.size(), list.size());
+        }
     }
 
-    @Test
-    void shouldThrowWhenInvalidTagsAreSet() {
-        NBTList list = new NBTList(TagType.BYTE);
-        Object invalidValue = new Object();
-        Class<? extends Throwable> expect = IllegalArgumentException.class;
-        assertDoesNotThrow(() -> list.add(testTags.get(TagType.BYTE)));
-
-        assertThrows(expect, () -> list.set(0, invalidValue));
-        assertEquals(testTags.get(TagType.BYTE), list.get(0));
-    }
-
-    */
-
-    /**
-     * Assert that a list's {@code getter} for a tag type throws an exception when it is used for a
-     * list of a different tag type
-     *//*
-    private <T> void checkInvalidGetterThrows(Function<NBTList, Function<Integer, T>> getter, TagType type) {
-        testTags.forEach((differentType, tag) -> {
-            // Only run on different types
-            if (differentType != type) {
-                NBTList list = new NBTList(differentType);
-                Class<? extends Throwable> expect = IllegalStateException.class;
-
-                assertDoesNotThrow(() -> list.add(tag));
-
-                assertThrows(expect, () -> getter.apply(list).apply(0));
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupAsOne = true, provideTypes = true)
+    void set_shouldThrowIfValueIsInvalidForContentType(Map<Object, TagType> typedTags) {
+        for (TagType contentType : TagType.values()) {
+            if (contentType == TagType.END) {
+                continue;
             }
-        });
-    }*/
+
+            NBTList list = new NBTList(contentType);
+
+            // Populate the list so that there's some indices we can set() on.
+            typedTags.keySet()
+                .stream()
+                .filter(value -> contentType == typedTags.get(value))
+                .forEach(list::add);
+
+            // Make sure set() fails when adding tags of any DIFFERENT type.
+            typedTags.forEach((value, valueType) -> {
+                if (valueType != contentType) {
+                    Object prevValue = list.get(0);
+
+                    assertThrows(IllegalArgumentException.class, () -> list.set(0, value));
+                    // Make sure the operation wasn't actually applied.
+                    assertSame(prevValue, list.get(0));
+                }
+            });
+        }
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(TagTypesProvider.class)
+    @TagTypesProviderArgs(skipEndTag = true)
+    void set_shouldThrowIfTagIsNull(TagType contentType) {
+        Object tagThatIsNull = null;
+
+        NBTList list = new NBTList(contentType);
+        assertThrows(NullPointerException.class, () -> list.set(0, tagThatIsNull));
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void set_shouldThrowIfIndexIsOutOfBounds(Set<Object> valueSet, TagType contentType) {
+        List<Object> values = new ArrayList<>(valueSet);
+
+        NBTList list = new NBTList(contentType);
+        list.addAll(values);
+
+        int range = 500; // Arbitrary # of OOB indices to check above & below.
+        int min = -range;
+        int max = list.size() + range - 1;
+        Object someTag = values.get(0);
+
+        for (int i = min; i < max; i++) {
+            if (i < 0 || i >= list.size()) {
+                int badIndex = i; // Required for lambda.
+                assertThrows(IndexOutOfBoundsException.class, () -> list.set(badIndex, someTag));
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    void set_shouldThrowIfContentTypeIs_END(Object tagValue) {
+        NBTList list = new NBTList(TagType.END);
+
+        assertThrows(IllegalStateException.class, () -> list.set(0, tagValue));
+        assertEquals(0, list.size());
+    }
 
     private interface Getter {
 

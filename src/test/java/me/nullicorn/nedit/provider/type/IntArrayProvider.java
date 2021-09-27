@@ -15,6 +15,11 @@ public final class IntArrayProvider extends TagProvider<int[][]> {
         };
     }
 
+    @Override
+    public Object getExtraneousValue() {
+        return new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    }
+
     /**
      * Generates a diverse array of {@code int}s, whose {@code length} is determined by the argument
      * with the same name.

@@ -20,6 +20,11 @@ public final class ListProvider extends TagProvider<NBTList[]> {
         };
     }
 
+    @Override
+    public Object getExtraneousValue() {
+        return generateListOfDoubles(3);
+    }
+
     /**
      * Generates a diverse NBT list of {@code double}s, whose {@link NBTList#size() size} is
      * determined by the argument with the same name.

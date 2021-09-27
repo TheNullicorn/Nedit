@@ -19,6 +19,15 @@ public final class CompoundProvider extends TagProvider<NBTCompound[]> {
         };
     }
 
+    @Override
+    public Object getExtraneousValue() {
+        NBTCompound sample = new NBTCompound();
+        sample.put("username", "GLaDOS");
+        sample.put("type", "potato");
+        sample.put("organization", "Aperture Science, Inc.");
+        return sample;
+    }
+
     /**
      * Generates a "simple"-structured NBT compound. The returned compound contains no nested
      * compounds, lists, or arrays.

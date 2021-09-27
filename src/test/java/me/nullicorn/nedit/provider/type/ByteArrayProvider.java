@@ -15,6 +15,11 @@ public final class ByteArrayProvider extends TagProvider<byte[][]> {
         };
     }
 
+    @Override
+    public Object getExtraneousValue() {
+        return new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    }
+
     /**
      * Generates a diverse array of {@code byte}s, whose {@code length} is determined by the
      * argument with the same name.
