@@ -3,6 +3,7 @@ package me.nullicorn.nedit.type;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -198,6 +199,70 @@ class NBTListTests {
     @ParameterizedTest
     @ArgumentsSource(AllTagsProvider.class)
     @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void addAll_shouldAddAllTagsInOrderIfValid(Set<Object> valueSet, TagType contentType) {
+        // Wrap in a list so it can be indexed.
+        List<Object> values = new ArrayList<>(valueSet);
+
+        NBTList list = new NBTList(contentType);
+        list.addAll(values);
+
+        assertEquals(values.size(), list.size());
+
+        for (int i = 0; i < values.size(); i++) {
+            assertSame(values.get(i), list.get(i));
+        }
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void addAll_shouldThrowIfAnyTagIsInvalidForContentType(Set<Object> valueSet, TagType contentType) {
+        for (TagType otherType : TagType.values()) {
+            if (otherType == contentType || otherType == TagType.END) {
+                continue;
+            }
+
+            NBTList listDiffType = new NBTList(otherType);
+            assertThrows(IllegalArgumentException.class, () -> listDiffType.addAll(valueSet));
+        }
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(TagTypesProvider.class)
+    @TagTypesProviderArgs(skipEndTag = true)
+    void addAll_shouldThrowIfCollectionIsNull(TagType contentType) {
+        NBTList list = new NBTList(contentType);
+        Collection<?> nullCollection = null;
+
+        assertThrows(NullPointerException.class, () -> list.addAll(nullCollection));
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
+    void addAll_shouldThrowIfAnyTagIsNull(Set<Object> valueSet, TagType contentType) {
+        NBTList list = new NBTList(contentType);
+
+        valueSet.add(null);
+        assertThrows(NullPointerException.class, () -> list.addAll(valueSet));
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true)
+    void addAll_shouldThrowIfContentTypeIs_END(Set<Object> valueSet) {
+        NBTList list = new NBTList(TagType.END);
+
+        assertThrows(IllegalStateException.class, () -> list.addAll(valueSet));
+        assertEquals(0, list.size());
+
+        assertThrows(IllegalStateException.class, () -> list.addAll(0, valueSet));
+        assertEquals(0, list.size());
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(AllTagsProvider.class)
+    @AllTagsProviderArgs(groupByType = true, provideTypes = true)
     void get_shouldReturnCorrectValueForIndex(Set<Object> valueSet, TagType contentType) {
         // Wrap in a list so it can be indexed.
         List<Object> values = new ArrayList<>(valueSet);
@@ -267,37 +332,6 @@ class NBTListTests {
     }
 
     /*@Test
-    void shouldAddAllValidTags() {
-        testTags.forEach((type, tag) -> {
-            NBTList list = new NBTList(type);
-            assertEquals(0, list.size());
-
-            assertDoesNotThrow(
-                () -> list.addAll(Arrays.asList(tag, alternativeTestTags.get(type))));
-
-            assertEquals(2, list.size());
-            assertEquals(tag, list.get(0));
-            assertEquals(alternativeTestTags.get(type), list.get(1));
-            assertFalse(list.isEmpty());
-        });
-    }
-
-    @Test
-    void shouldThrowWhenInvalidTagsAreAddAlled() {
-        NBTList list = new NBTList(TagType.BYTE);
-        Object invalidValue = new Object();
-        Class<? extends Throwable> expect = IllegalArgumentException.class;
-
-        assertThrows(expect, () -> list.addAll(Collections.singletonList(invalidValue)));
-        assertThrows(expect,
-            () -> list.addAll(Arrays.asList(testTags.get(TagType.BYTE), invalidValue)));
-        assertThrows(expect,
-            () -> list.addAll(Arrays.asList(invalidValue, testTags.get(TagType.BYTE))));
-        assertEquals(0, list.size());
-        assertTrue(list.isEmpty());
-    }
-
-    @Test
     void shouldSetValidTags() {
         testTags.forEach((type, tag) -> {
             NBTList list = new NBTList(type);
