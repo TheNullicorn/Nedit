@@ -5,6 +5,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -82,7 +83,9 @@ public class AllTagsProvider implements ArgumentsProvider {
             return Stream.of(arguments(tagValues));
         } else {
             // Return only the values (Set<Object>).
-            return Stream.of(arguments(tagValues.keySet()));
+            // Duplicated to allow modification.
+            Set<Object> values = new HashSet<>(tagValues.keySet());
+            return Stream.of(arguments(values));
         }
     }
 
@@ -96,6 +99,7 @@ public class AllTagsProvider implements ArgumentsProvider {
             }
 
             Set<Object> values = getTypedTags(type).keySet();
+            values = new HashSet<>(values);
 
             Arguments args = doProvideTagTypes
                 ? Arguments.of(values, type)
