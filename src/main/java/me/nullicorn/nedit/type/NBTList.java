@@ -69,7 +69,7 @@ public class NBTList extends AbstractList<Object> {
     @Override
     public boolean add(Object tag) {
         checkType(tag);
-        return super.add(tag);
+        return decorated.add(tag);
     }
 
     /**
