@@ -73,7 +73,6 @@ public final class NBTWriter {
         }
     }
 
-
     /**
      * Serialize, gzip, and write the provided NBT data and write it to an output stream
      *

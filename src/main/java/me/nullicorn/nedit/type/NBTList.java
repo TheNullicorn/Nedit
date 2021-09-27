@@ -412,7 +412,6 @@ public class NBTList extends AbstractList<Object> {
         }
     }
 
-
     /**
      * @throws IllegalArgumentException If the {@code tag}, when converted to an NBT value, has a
      *                                  different {@link TagType} than this list's {@link
