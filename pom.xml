@@ -8,6 +8,30 @@
     <artifactId>Nedit</artifactId>
     <version>2.1.1</version>
 
+    <name>Nedit</name>
+    <description>A simple, lightweight NBT parsing library</description>
+    <url>https://github.com/TheNullicorn/Nedit</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>TheNullicorn</name>
+            <email>bennullicorn@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/TheNullicorn/Nedit.git</connection>
+        <developerConnection>scm:git:ssh://github.com:TheNullicorn/Nedit.git</developerConnection>
+        <url>https://github.com/TheNullicorn/Nedit/tree/master</url>
+    </scm>
+
     <contributors>
         <contributor>
             <name>PureGero</name>
@@ -26,7 +50,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.7.2</version>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
