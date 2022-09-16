@@ -27,12 +27,12 @@ public class NBTOutputStream extends DataOutputStream {
      *
      * @throws IOException If the compound could not be written
      */
-    public void writeFully(NBTCompound compound) throws IOException {
+    public void writeFully(NBTCompound compound, String rootCompoundName) throws IOException {
         if (compound == null) {
             writeTagType(TagType.END);
         } else {
             writeTagType(TagType.COMPOUND);
-            writeString("");
+            writeString(rootCompoundName);
             writeCompound(compound);
 
             if (out instanceof GZIPOutputStream) {

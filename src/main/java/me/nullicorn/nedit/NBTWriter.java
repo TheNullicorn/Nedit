@@ -20,23 +20,24 @@ public final class NBTWriter {
      * Serialize, gzip, and base64-encode the provided NBT data (in that order)
      *
      * @throws IOException If the NBT data could not be serialized
-     * @see #write(NBTCompound, OutputStream, boolean)
+     * @see #write(NBTCompound, OutputStream, String, boolean)
      */
     public static byte[] writeToBase64(NBTCompound data) throws IOException {
-        return writeToBase64(data, true);
+        return writeToBase64(data, "", true);
     }
 
     /**
      * Serialize and base64-encode the provided NBT data
      *
      * @param data           NBT compound to convert
+     * @param rootCompoundName The name of the NBT compound that holds all other NBT data
      * @param useCompression If true, the NBT data is gzipped before being encoded as base64
      * @return Base64-encoded NBT data
      * @throws IOException If the NBT data could not be serialized
      */
-    public static byte[] writeToBase64(NBTCompound data, boolean useCompression) throws IOException {
+    public static byte[] writeToBase64(NBTCompound data, String rootCompoundName, boolean useCompression) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        write(data, out, useCompression);
+        write(data, out, rootCompoundName, useCompression);
         return Base64.getEncoder().encode(out.toByteArray());
     }
 
@@ -45,10 +46,10 @@ public final class NBTWriter {
      *
      * @throws IOException If the NBT data could not be serialized or the file could not be written
      *                     to
-     * @see #writeToFile(NBTCompound, File, boolean)
+     * @see #writeToFile(NBTCompound, File, String, boolean)
      */
     public static void writeToFile(NBTCompound data, File file) throws IOException {
-        writeToFile(data, file, true);
+        writeToFile(data, file, "", true);
     }
 
     /**
@@ -56,17 +57,18 @@ public final class NBTWriter {
      *
      * @param data           NBT compound to serialize
      * @param file           File to write the data to
+     * @param rootCompoundName The name of the NBT compound that holds all other NBT data
      * @param useCompression If true, the serialized data will be gzipped before being written to
      *                       the file
      * @throws IOException If the NBT data could not be serialized or the file could not be written
      *                     to
      */
-    public static void writeToFile(NBTCompound data, File file, boolean useCompression) throws IOException {
+    public static void writeToFile(NBTCompound data, File file, String rootCompoundName, boolean useCompression) throws IOException {
         //noinspection ResultOfMethodCallIgnored
         file.mkdirs();
         if (file.getParentFile().exists()) {
             try (OutputStream fileOut = new FileOutputStream(file)) {
-                write(data, fileOut, useCompression);
+                write(data, fileOut, rootCompoundName, useCompression);
             }
         } else {
             throw new FileNotFoundException("Failed to create required directories for " + file);
@@ -78,23 +80,24 @@ public final class NBTWriter {
      *
      * @throws IOException If the NBT data could not be serialized or the output stream could not be
      *                     written to
-     * @see #write(NBTCompound, OutputStream, boolean)
+     * @see #write(NBTCompound, OutputStream, String, boolean)
      */
     public static void write(NBTCompound data, OutputStream outputStream) throws IOException {
-        write(data, outputStream, true);
+        write(data, outputStream, "", true);
     }
 
     /**
      * Serialize the provided NBT data and write it to an output stream
      *
-     * @param data           NBT compound to serialize
-     * @param outputStream   Output stream to write the serialized NBT to
-     * @param useCompression If true, the serialized data will be gzipped
+     * @param data             NBT compound to serialize
+     * @param outputStream     Output stream to write the serialized NBT to
+     * @param rootCompoundName The name of the NBT compound that holds all other NBT data
+     * @param useCompression   If true, the serialized data will be gzipped
      * @throws IOException If the NBT data could not be serialized or the output stream could not be
      *                     written to
      */
-    public static void write(NBTCompound data, OutputStream outputStream, boolean useCompression) throws IOException {
-        new NBTOutputStream(outputStream, useCompression).writeFully(data);
+    public static void write(NBTCompound data, OutputStream outputStream, String rootCompoundName, boolean useCompression) throws IOException {
+        new NBTOutputStream(outputStream, useCompression).writeFully(data, rootCompoundName);
     }
 
     private NBTWriter() {
