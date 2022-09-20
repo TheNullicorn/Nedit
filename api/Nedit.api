@@ -22,6 +22,7 @@ public class me/nullicorn/nedit/NBTOutputStream : java/io/DataOutputStream {
 	public fun writeCompound (Lme/nullicorn/nedit/type/NBTCompound;)V
 	public fun writeCompound (Lme/nullicorn/nedit/type/NBTCompound;Z)V
 	public fun writeFully (Lme/nullicorn/nedit/type/NBTCompound;)V
+	public fun writeFully (Lme/nullicorn/nedit/type/NBTCompound;Ljava/lang/String;)V
 	public fun writeIntArray ([I)V
 	public fun writeList (Lme/nullicorn/nedit/type/NBTList;)V
 	public fun writeLongArray ([J)V
@@ -42,10 +43,13 @@ public final class me/nullicorn/nedit/NBTReader {
 
 public final class me/nullicorn/nedit/NBTWriter {
 	public static fun write (Lme/nullicorn/nedit/type/NBTCompound;Ljava/io/OutputStream;)V
+	public static fun write (Lme/nullicorn/nedit/type/NBTCompound;Ljava/io/OutputStream;Ljava/lang/String;Z)V
 	public static fun write (Lme/nullicorn/nedit/type/NBTCompound;Ljava/io/OutputStream;Z)V
 	public static fun writeToBase64 (Lme/nullicorn/nedit/type/NBTCompound;)[B
+	public static fun writeToBase64 (Lme/nullicorn/nedit/type/NBTCompound;Ljava/lang/String;Z)[B
 	public static fun writeToBase64 (Lme/nullicorn/nedit/type/NBTCompound;Z)[B
 	public static fun writeToFile (Lme/nullicorn/nedit/type/NBTCompound;Ljava/io/File;)V
+	public static fun writeToFile (Lme/nullicorn/nedit/type/NBTCompound;Ljava/io/File;Ljava/lang/String;Z)V
 	public static fun writeToFile (Lme/nullicorn/nedit/type/NBTCompound;Ljava/io/File;Z)V
 }
 
