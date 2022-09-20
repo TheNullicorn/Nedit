@@ -24,8 +24,25 @@ public class NBTOutputStream extends DataOutputStream {
 
     /**
      * Serialize an NBT compound and write it to the output stream
+     * <p>
+     * If control over the root tag's name is needed, use {@link #writeFully(NBTCompound, String)}
+     * instead.
      *
      * @throws IOException If the compound could not be written
+     * @see #writeFully(NBTCompound, String)
+     */
+    public void writeFully(NBTCompound compound) throws IOException {
+        writeFully(compound, /* rootCompoundName = */ "");
+    }
+
+    /**
+     * Serialize an NBT compound and write it to the output stream
+     *
+     * @param rootCompoundName The name that will be given to the root compound tag. In most cases
+     *                         this does not matter, and {@link #writeFully(NBTCompound)} can be
+     *                         used instead
+     * @throws IOException If the compound could not be written
+     * @see #writeFully(NBTCompound)
      */
     public void writeFully(NBTCompound compound, String rootCompoundName) throws IOException {
         if (compound == null) {
