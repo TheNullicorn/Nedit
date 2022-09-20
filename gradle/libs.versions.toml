@@ -1,0 +1,15 @@
+[versions]
+kotlin = '1.7.10'
+junit = '5.9.0'
+
+[plugins]
+# Documentation rendering
+dokka = { id = 'org.jetbrains.dokka', version.ref = 'kotlin' }
+# Required for Dokka to work; we don't actually use Kotlin in the project
+kotlin-jvm = { id = 'org.jetbrains.kotlin.jvm', version.ref = 'kotlin' }
+
+[libraries]
+# Plugin for using Java (instead of Kotlin) for method & class signatures in documentation
+dokka-plugin-java = { module = 'org.jetbrains.dokka:kotlin-as-java-plugin', version.ref = 'kotlin' }
+# Unit testing
+junit = { module = 'org.junit.jupiter:junit-jupiter', version.ref = 'junit' }
