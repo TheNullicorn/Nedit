@@ -7,6 +7,8 @@ junit = '5.9.0'
 dokka = { id = 'org.jetbrains.dokka', version.ref = 'kotlin' }
 # Required for Dokka to work; we don't actually use Kotlin in the project
 kotlin-jvm = { id = 'org.jetbrains.kotlin.jvm', version.ref = 'kotlin' }
+# Ensure we don't unintentionally change anything that could break users' code
+compatibility = { id = 'org.jetbrains.kotlinx.binary-compatibility-validator', version = '0.11.1' }
 
 [libraries]
 # Plugin for using Java (instead of Kotlin) for method & class signatures in documentation

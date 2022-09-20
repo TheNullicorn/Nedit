@@ -1,0 +1,229 @@
+public class me/nullicorn/nedit/NBTInputStream : java/io/DataInputStream {
+	protected final field internNames Z
+	protected final field internValues Z
+	public fun <init> (Ljava/io/InputStream;)V
+	public fun <init> (Ljava/io/InputStream;ZZ)V
+	public fun gunzipIfNecessary ()V
+	public fun readByteArray ()[B
+	public fun readCompound ()Lme/nullicorn/nedit/type/NBTCompound;
+	public fun readFully ()Lme/nullicorn/nedit/type/NBTCompound;
+	public fun readIntArray ()[I
+	public fun readList ()Lme/nullicorn/nedit/type/NBTList;
+	public fun readLongArray ()[J
+	public fun readString ()Ljava/lang/String;
+	public fun readString (Z)Ljava/lang/String;
+	public fun readTagId ()Lme/nullicorn/nedit/type/TagType;
+	public fun readValue (Lme/nullicorn/nedit/type/TagType;)Ljava/lang/Object;
+}
+
+public class me/nullicorn/nedit/NBTOutputStream : java/io/DataOutputStream {
+	public fun <init> (Ljava/io/OutputStream;Z)V
+	public fun writeByteArray ([B)V
+	public fun writeCompound (Lme/nullicorn/nedit/type/NBTCompound;)V
+	public fun writeCompound (Lme/nullicorn/nedit/type/NBTCompound;Z)V
+	public fun writeFully (Lme/nullicorn/nedit/type/NBTCompound;)V
+	public fun writeIntArray ([I)V
+	public fun writeList (Lme/nullicorn/nedit/type/NBTList;)V
+	public fun writeLongArray ([J)V
+	public fun writeString (Ljava/lang/String;)V
+	public fun writeTagType (Lme/nullicorn/nedit/type/TagType;)V
+	protected fun writeUnsignedShort (I)V
+	public fun writeValue (Ljava/lang/Object;)V
+}
+
+public final class me/nullicorn/nedit/NBTReader {
+	public static fun read (Ljava/io/InputStream;)Lme/nullicorn/nedit/type/NBTCompound;
+	public static fun read (Ljava/io/InputStream;ZZ)Lme/nullicorn/nedit/type/NBTCompound;
+	public static fun readBase64 (Ljava/lang/String;)Lme/nullicorn/nedit/type/NBTCompound;
+	public static fun readBase64 (Ljava/lang/String;ZZ)Lme/nullicorn/nedit/type/NBTCompound;
+	public static fun readFile (Ljava/io/File;)Lme/nullicorn/nedit/type/NBTCompound;
+	public static fun readFile (Ljava/io/File;ZZ)Lme/nullicorn/nedit/type/NBTCompound;
+}
+
+public final class me/nullicorn/nedit/NBTWriter {
+	public static fun write (Lme/nullicorn/nedit/type/NBTCompound;Ljava/io/OutputStream;)V
+	public static fun write (Lme/nullicorn/nedit/type/NBTCompound;Ljava/io/OutputStream;Z)V
+	public static fun writeToBase64 (Lme/nullicorn/nedit/type/NBTCompound;)[B
+	public static fun writeToBase64 (Lme/nullicorn/nedit/type/NBTCompound;Z)[B
+	public static fun writeToFile (Lme/nullicorn/nedit/type/NBTCompound;Ljava/io/File;)V
+	public static fun writeToFile (Lme/nullicorn/nedit/type/NBTCompound;Ljava/io/File;Z)V
+}
+
+public final class me/nullicorn/nedit/SNBTReader {
+	public static fun read (Ljava/lang/String;)Ljava/lang/Object;
+	public static fun read (Ljava/lang/String;ZZ)Ljava/lang/Object;
+	public static fun readCompound (Ljava/lang/String;)Lme/nullicorn/nedit/type/NBTCompound;
+	public static fun readCompound (Ljava/lang/String;ZZ)Lme/nullicorn/nedit/type/NBTCompound;
+	public static fun readList (Ljava/lang/String;)Lme/nullicorn/nedit/type/NBTList;
+	public static fun readList (Ljava/lang/String;ZZ)Lme/nullicorn/nedit/type/NBTList;
+}
+
+public class me/nullicorn/nedit/exception/NBTParseException : me/nullicorn/nedit/exception/NBTSerializationException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun <init> (Ljava/lang/Throwable;)V
+}
+
+public class me/nullicorn/nedit/exception/NBTSerializationException : java/io/IOException {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public fun <init> (Ljava/lang/Throwable;)V
+}
+
+public final class me/nullicorn/nedit/filter/FilterMode : java/lang/Enum {
+	public static final field EXCLUDE Lme/nullicorn/nedit/filter/FilterMode;
+	public static final field INCLUDE Lme/nullicorn/nedit/filter/FilterMode;
+	public static fun valueOf (Ljava/lang/String;)Lme/nullicorn/nedit/filter/FilterMode;
+	public static fun values ()[Lme/nullicorn/nedit/filter/FilterMode;
+}
+
+public class me/nullicorn/nedit/filter/FilteredNBTInputStream : me/nullicorn/nedit/NBTInputStream {
+	public fun <init> (Ljava/io/InputStream;)V
+	public fun <init> (Ljava/io/InputStream;ZZ)V
+	public fun readFully (Lme/nullicorn/nedit/filter/NBTFilter;)Lme/nullicorn/nedit/type/NBTCompound;
+}
+
+public class me/nullicorn/nedit/filter/FilteredTag {
+	public fun <init> (Ljava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getName ()Ljava/lang/String;
+	public fun getTokens ()[Ljava/lang/String;
+	public fun hashCode ()I
+	public fun isExtendedBy (Lme/nullicorn/nedit/filter/FilteredTag;)Z
+	public fun isExtendedBy (Lme/nullicorn/nedit/filter/FilteredTag;I)Z
+	public fun toString ()Ljava/lang/String;
+	public static fun tokenizeTagName (Ljava/lang/String;)[Ljava/lang/String;
+}
+
+public class me/nullicorn/nedit/filter/NBTFilter : java/lang/Iterable {
+	public fun <init> (Lme/nullicorn/nedit/filter/FilterMode;)V
+	public fun addTags ([Ljava/lang/String;)V
+	public fun getFilteredTags ()Ljava/util/Set;
+	public fun getMode ()Lme/nullicorn/nedit/filter/FilterMode;
+	public fun isEmpty ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public fun removeFilteredTags ([Ljava/lang/String;)V
+	public fun subFilter (Lme/nullicorn/nedit/filter/FilteredTag;I)Lme/nullicorn/nedit/filter/NBTFilter;
+	public static fun with ([Ljava/lang/String;)Lme/nullicorn/nedit/filter/NBTFilter;
+	public static fun without ([Ljava/lang/String;)Lme/nullicorn/nedit/filter/NBTFilter;
+}
+
+public class me/nullicorn/nedit/type/NBTCompound : java/util/AbstractMap {
+	public fun <init> ()V
+	public fun clear ()V
+	public fun containsKey (Ljava/lang/Object;)Z
+	public fun containsTag (Ljava/lang/String;Lme/nullicorn/nedit/type/TagType;)Z
+	public fun containsValue (Ljava/lang/Object;)Z
+	public fun entrySet ()Ljava/util/Set;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun getByte (Ljava/lang/String;B)B
+	public fun getByteArray (Ljava/lang/String;)[B
+	public fun getCompound (Ljava/lang/String;)Lme/nullicorn/nedit/type/NBTCompound;
+	public fun getDouble (Ljava/lang/String;D)D
+	public fun getFloat (Ljava/lang/String;F)F
+	public fun getInt (Ljava/lang/String;I)I
+	public fun getIntArray (Ljava/lang/String;)[I
+	public fun getList (Ljava/lang/String;)Lme/nullicorn/nedit/type/NBTList;
+	public fun getLong (Ljava/lang/String;J)J
+	public fun getLongArray (Ljava/lang/String;)[J
+	public fun getNumber (Ljava/lang/String;Ljava/lang/Number;)Ljava/lang/Number;
+	public fun getShort (Ljava/lang/String;S)S
+	public fun getString (Ljava/lang/String;)Ljava/lang/String;
+	public fun getString (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public fun hashCode ()I
+	public fun keySet ()Ljava/util/Set;
+	public synthetic fun put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun put (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun putIfAbsent (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun putIfAbsent (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun remove (Ljava/lang/Object;Ljava/lang/Object;)Z
+	public fun size ()I
+	public fun toString ()Ljava/lang/String;
+	public fun values ()Ljava/util/Collection;
+}
+
+public class me/nullicorn/nedit/type/NBTList : java/util/AbstractList {
+	public fun <init> (Lme/nullicorn/nedit/type/TagType;)V
+	public fun add (ILjava/lang/Object;)V
+	public fun add (Ljava/lang/Object;)Z
+	public fun addAll (ILjava/util/Collection;)Z
+	public fun addAll (Ljava/util/Collection;)Z
+	public fun clear ()V
+	public fun contains (Ljava/lang/Object;)Z
+	public fun containsAll (Ljava/util/Collection;)Z
+	public fun equals (Ljava/lang/Object;)Z
+	public fun forEach (Ljava/util/function/Consumer;)V
+	public fun forEachByte (Ljava/util/function/Consumer;)V
+	public fun forEachByteArray (Ljava/util/function/Consumer;)V
+	public fun forEachCompound (Ljava/util/function/Consumer;)V
+	public fun forEachDouble (Ljava/util/function/Consumer;)V
+	public fun forEachFloat (Ljava/util/function/Consumer;)V
+	public fun forEachInt (Ljava/util/function/Consumer;)V
+	public fun forEachIntArray (Ljava/util/function/Consumer;)V
+	public fun forEachList (Ljava/util/function/Consumer;)V
+	public fun forEachLong (Ljava/util/function/Consumer;)V
+	public fun forEachLongArray (Ljava/util/function/Consumer;)V
+	public fun forEachShort (Ljava/util/function/Consumer;)V
+	public fun forEachString (Ljava/util/function/Consumer;)V
+	public fun get (I)Ljava/lang/Object;
+	public fun getByte (I)Ljava/lang/Byte;
+	public fun getByteArray (I)[B
+	public fun getCompound (I)Lme/nullicorn/nedit/type/NBTCompound;
+	public fun getContentType ()Lme/nullicorn/nedit/type/TagType;
+	public fun getDouble (I)Ljava/lang/Double;
+	public fun getFloat (I)Ljava/lang/Float;
+	public fun getInt (I)Ljava/lang/Integer;
+	public fun getIntArray (I)[I
+	public fun getList (I)Lme/nullicorn/nedit/type/NBTList;
+	public fun getLong (I)Ljava/lang/Long;
+	public fun getLongArray (I)[J
+	public fun getShort (I)Ljava/lang/Short;
+	public fun getString (I)Ljava/lang/String;
+	public fun hashCode ()I
+	public fun indexOf (Ljava/lang/Object;)I
+	public fun isEmpty ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public fun lastIndexOf (Ljava/lang/Object;)I
+	public fun parallelStream ()Ljava/util/stream/Stream;
+	public fun remove (I)Ljava/lang/Object;
+	public fun remove (Ljava/lang/Object;)Z
+	public fun removeAll (Ljava/util/Collection;)Z
+	public fun removeIf (Ljava/util/function/Predicate;)Z
+	public fun retainAll (Ljava/util/Collection;)Z
+	public fun set (ILjava/lang/Object;)Ljava/lang/Object;
+	public fun size ()I
+	public fun sort (Ljava/util/Comparator;)V
+	public fun spliterator ()Ljava/util/Spliterator;
+	public fun stream ()Ljava/util/stream/Stream;
+	public fun subList (II)Ljava/util/List;
+	public fun toArray ()[Ljava/lang/Object;
+	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
+}
+
+public final class me/nullicorn/nedit/type/TagType : java/lang/Enum {
+	public static final field BYTE Lme/nullicorn/nedit/type/TagType;
+	public static final field BYTE_ARRAY Lme/nullicorn/nedit/type/TagType;
+	public static final field COMPOUND Lme/nullicorn/nedit/type/TagType;
+	public static final field DOUBLE Lme/nullicorn/nedit/type/TagType;
+	public static final field END Lme/nullicorn/nedit/type/TagType;
+	public static final field FLOAT Lme/nullicorn/nedit/type/TagType;
+	public static final field INT Lme/nullicorn/nedit/type/TagType;
+	public static final field INT_ARRAY Lme/nullicorn/nedit/type/TagType;
+	public static final field LIST Lme/nullicorn/nedit/type/TagType;
+	public static final field LONG Lme/nullicorn/nedit/type/TagType;
+	public static final field LONG_ARRAY Lme/nullicorn/nedit/type/TagType;
+	public static final field SHORT Lme/nullicorn/nedit/type/TagType;
+	public static final field STRING Lme/nullicorn/nedit/type/TagType;
+	public static fun fromId (I)Lme/nullicorn/nedit/type/TagType;
+	public static fun fromObject (Ljava/lang/Object;)Lme/nullicorn/nedit/type/TagType;
+	public fun getClazz ()Ljava/lang/Class;
+	public fun getId ()I
+	public fun getRuntimeType ()Ljava/lang/Class;
+	public static fun valueOf (Ljava/lang/String;)Lme/nullicorn/nedit/type/TagType;
+	public static fun values ()[Lme/nullicorn/nedit/type/TagType;
+}
+
