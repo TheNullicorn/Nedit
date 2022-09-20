@@ -8,6 +8,10 @@ plugins {
     // Documentation
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.dokka)
+
+    // Binary Compatibility
+    // Ensures we don't accidentally change the public API in any way that breaks users' code
+    alias(libs.plugins.compatibility)
 }
 
 group = "me.nullicorn"
