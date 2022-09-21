@@ -34,8 +34,12 @@ dependencies {
     dokkaHtmlPlugin(libs.dokka.plugin.java)
 }
 
-// Use Java 8
 java {
+    // Generate a jar with the source code.
+    // Required for publishing to Maven Central.
+    withSourcesJar()
+
+    // Use Java 8
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
