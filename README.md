@@ -1,8 +1,35 @@
-# Nedit [![](https://jitpack.io/v/TheNullicorn/Nedit.svg)](https://jitpack.io/#TheNullicorn/Nedit)
+# Nedit ![](https://img.shields.io/maven-central/v/me.nullicorn/Nedit "Nedit's current version on Maven Central")
 Nedit is a simple, lightweight NBT parsing library with support for plain, gzipped, and base64 encoded NBT data. __One usage of this library is for parsing SkyBlock inventory data returned from the Hypixel API__ ([more info here](https://github.com/HypixelDev/PublicAPI/tree/master/Documentation#skyblock-items-and-inventories)).
 
 ## Installation
-Nedit can be added to most major build-automation tools using JitPack. See the instructions [here](https://jitpack.io/#TheNullicorn/Nedit) for more info.
+
+### Maven
+
+Add the following inside your `<dependencies> </dependencies>` block:
+```xml
+<dependency>
+    <groupId>me.nullicorn</groupId>
+    <artifactId>Nedit</artifactId>
+    <version>2.2.0</version>
+</dependency>
+```
+
+### Gradle
+
+#### Kotlin DSL
+
+In your `build.gradle`'s `dependencies { }` block, add the following dependency:
+```kotlin
+implementation("me.nullicorn:Nedit:2.2.0")
+```
+
+#### Groovy DSL
+
+In your `build.gradle.kts`'s `dependencies { }` block, add the following dependency:
+```groovy
+implementation 'me.nullicorn:Nedit:2.2.0'
+``` 
+
 
 ## Usage
 To parse NBT data, Nedit provides you with the NBTReader class, which can be used like so:
