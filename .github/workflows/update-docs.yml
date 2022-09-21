@@ -1,0 +1,32 @@
+name: Update Documentation Site
+
+# Trigger manually, or whenever the main branch is updated.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v2.4.0
+
+      - name: Define OSSRH credentials
+        run: |
+          mkdir -p ~/.gradle
+          touch ~/.gradle/gradle.properties
+          echo 'ossrhUsername = ${{ secrets.OSSRH_USERNAME }}' >> ~/.gradle/gradle.properties
+          echo 'ossrhPassword = ${{ secrets.OSSRH_PASSWORD }}' >> ~/.gradle/gradle.properties
+
+      - name: Generate HTML docs
+        run: ./gradlew dokkaHtml
+
+      - name: Publish HTML docs
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        with:
+          folder: build/dokka/html
+          branch: gh-pages
