@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "me.nullicorn"
-version = "2.2.0-SNAPSHOT"
+version = "2.2.0"
 description = property("description") as String
 
 // Must go after group & version or else it won't be able to access them.
