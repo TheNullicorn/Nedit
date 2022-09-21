@@ -5,7 +5,7 @@ Nedit is a simple, lightweight NBT parsing library with support for plain, gzipp
 
 ### Maven
 
-Add the following inside your `<dependencies> </dependencies>` block:
+Add the following inside your `<dependencies></dependencies>` block:
 ```xml
 <dependency>
     <groupId>me.nullicorn</groupId>
@@ -18,14 +18,14 @@ Add the following inside your `<dependencies> </dependencies>` block:
 
 #### Kotlin DSL
 
-In your `build.gradle`'s `dependencies { }` block, add the following dependency:
+In your `build.gradle.kts`'s `dependencies {}` block, add the following dependency:
 ```kotlin
 implementation("me.nullicorn:Nedit:2.2.0")
 ```
 
 #### Groovy DSL
 
-In your `build.gradle.kts`'s `dependencies { }` block, add the following dependency:
+In your `build.gradle`'s `dependencies {}` block, add the following dependency:
 ```groovy
 implementation 'me.nullicorn:Nedit:2.2.0'
 ``` 
